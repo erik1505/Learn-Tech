@@ -1,15 +1,19 @@
-FROM maven:3.9.6-eclipse-temurin-17
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 
 WORKDIR /app
+ENV MAVEN_OPTS="-Xms128m -Xmx512m"
 
-# Copia todo o código para o container
-COPY . .
+COPY pom.xml .
+RUN mvn -B dependency:go-offline
+COPY src ./src
+RUN mvn -B -DskipTests package
 
-# Compila o projeto gerando o .jar
-RUN mvn clean package -DskipTests
+FROM eclipse-temurin:21-jre-jammy
 
-# Expõe a porta padrão
+WORKDIR /app
+ENV JAVA_TOOL_OPTIONS="-XX:InitialRAMPercentage=20.0 -XX:MaxRAMPercentage=50.0 -XX:ActiveProcessorCount=1 -XX:+UseSerialGC"
+
+COPY --from=build /app/target/learn-tech-backend-0.0.1-SNAPSHOT.jar app.jar
+
 EXPOSE 8080
-
-# Executa o .jar gerado na pasta target
-CMD ["sh", "-c", "java -jar target/*.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
