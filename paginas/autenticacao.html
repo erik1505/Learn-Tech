@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Tech - Autenticação Integrada</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../Style/Style_base.css">
+    <link rel="stylesheet" href="../Style/Style.css">
+    <link rel="stylesheet" href="../Style/Style_auth.css">
+    <link rel="stylesheet" href="../Style/style_footer.css">
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header>
+      <a href="../index.html" class="brand-logo">
+        <img src="../src/image.png" alt="Learn Tech">
+        <span>LEARN TECH</span>
+      </a>
+      <nav>
+        <a href="../index.html">HOME</a>
+        <a href="#contatos">CONTATOS</a>
+        <a href="./sobre_nos.html">SOBRE NÓS</a>
+      </nav>
+      <div class="auth-buttons">
+        <button class="btn-nav-login" onclick="setAuthMode('login')">Login</button>
+        <button class="btn-nav-cadastrar" onclick="setAuthMode('cadastro')">Cadastrar</button>
+      </div>
+    </header>
+
+    <!-- ÁREA CENTRAL -->
+    <main>
+      <div class="auth-wrapper">
+        <!-- COLUNA ESQUERDA: título e ilustração -->
+        <div class="auth-visual">
+          <h1 id="auth-main-title" class="auth-title">LOGAR <span class="accent-blue">CONTA</span></h1>
+
+          <!-- Ilustração: livro aberto -->
+          <svg class="book-illustration" viewBox="0 0 240 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Moldura traseira/Capa -->
+            <path
+              d="M20 135 C55 130 90 142 120 155 C150 142 185 130 220 135 L220 50 C185 45 150 55 120 70 C90 55 55 45 20 50 Z"
+              fill="#18365f"
+              stroke="#254a7c"
+              stroke-width="8"
+              stroke-linejoin="round"
+            />
+
+            <!-- Páginas brancas -->
+            <path
+              d="M26 130 C58 126 90 137 118 150 L118 46 C90 33 58 22 26 27 Z"
+              fill="#ffffff"
+              stroke="#10192d"
+              stroke-width="4"
+            />
+            <path
+              d="M214 130 C182 126 150 137 122 150 L122 46 C150 33 182 22 214 27 Z"
+              fill="#ffffff"
+              stroke="#10192d"
+              stroke-width="4"
+            />
+
+            <!-- Linhas de texto simuladas -->
+            <line x1="42" y1="46" x2="102" y2="52" stroke="#10192d" stroke-width="4.5" stroke-linecap="round" />
+            <line x1="42" y1="64" x2="102" y2="70" stroke="#10192d" stroke-width="4.5" stroke-linecap="round" />
+            <line x1="42" y1="82" x2="102" y2="88" stroke="#10192d" stroke-width="4.5" stroke-linecap="round" />
+            <line x1="42" y1="100" x2="98" y2="106" stroke="#10192d" stroke-width="4.5" stroke-linecap="round" />
+            <line x1="138" y1="52" x2="198" y2="46" stroke="#10192d" stroke-width="4.5" stroke-linecap="round" />
+            <line x1="138" y1="70" x2="198" y2="64" stroke="#10192d" stroke-width="4.5" stroke-linecap="round" />
+            <line x1="138" y1="88" x2="198" y2="82" stroke="#10192d" stroke-width="4.5" stroke-linecap="round" />
+            <line x1="142" y1="106" x2="198" y2="100" stroke="#10192d" stroke-width="4.5" stroke-linecap="round" />
+          </svg>
+        </div>
+
+        <!-- COLUNA DIREITA: os 3 formulários -->
+        <div class="auth-form-container">
+          <!-- FORMULÁRIO DE LOGIN -->
+          <form id="form-login" class="auth-form" onsubmit="event.preventDefault();">
+            <div class="input-field-wrapper">
+              <div class="field-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="2" y="4" width="20" height="16" rx="1" />
+                  <path d="m22 7-10 7L2 7" />
+                </svg>
+              </div>
+              <label class="field-label" for="login-email">E-MAIL ACADEMICO:</label>
+              <input type="email" id="login-email" class="field-input" required>
+            </div>
+            <div class="input-field-wrapper">
+              <div class="field-icon">
+                <svg viewBox="0 0 24 24" fill="#ffffff">
+                  <path d="M17 10h-1V7a4 4 0 0 0-8 0v3H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zm-5 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm2.1-7H9.9V7a2.1 2.1 0 0 1 4.2 0v3z" />
+                </svg>
+              </div>
+              <label class="field-label" for="login-senha">SENHA:</label>
+              <input type="password" id="login-senha" class="field-input" required>
+            </div>
+            <div class="auth-links">
+              <span class="link-helper" onclick="setAuthMode('reset')">Esqueci a minha senha</span>
+              <span class="link-helper" onclick="setAuthMode('cadastro')">Não tem uma conta? Cadastre-se</span>
+            </div>
+            <div class="btn-submit-container">
+              <button type="submit" class="btn-submit">LOGAR</button>
+            </div>
+          </form>
+
+          <!-- FORMULÁRIO DE CADASTRO -->
+          <form id="form-cadastro" class="auth-form hidden" onsubmit="event.preventDefault();">
+            <div class="input-field-wrapper">
+              <div class="field-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="2" y="4" width="20" height="16" rx="1" />
+                  <path d="m22 7-10 7L2 7" />
+                </svg>
+              </div>
+              <label class="field-label" for="cad-email">E-MAIL ACADEMICO:</label>
+              <input type="email" id="cad-email" class="field-input" required>
+            </div>
+            <div class="input-field-wrapper">
+              <div class="field-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 2v3M10 5h4M6 10l6-4 6 4v11H6V10z" />
+                  <rect x="8" y="12" width="2" height="2" />
+                  <rect x="14" y="12" width="2" height="2" />
+                  <rect x="8" y="16" width="2" height="2" />
+                  <rect x="14" y="16" width="2" height="2" />
+                  <path d="M2 12h4v9H2zM18 12h4v9h-4z" />
+                </svg>
+              </div>
+              <label class="field-label" for="cad-nome">NOME:</label>
+              <input type="text" id="cad-nome" class="field-input" maxlength="100" required>
+            </div>
+            <div class="input-field-wrapper">
+              <div class="field-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" />
+                </svg>
+              </div>
+              <label class="field-label" for="cad-tel">TELEFONE:</label>
+              <input type="tel" id="cad-tel" class="field-input" inputmode="numeric" placeholder="Somente números" required>
+            </div>
+            <div class="input-field-wrapper">
+              <div class="field-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" />
+                </svg>
+              </div>
+              <label class="field-label" for="cad-role">TIPO DE CONTA:</label>
+              <select id="cad-role" class="field-input" required>
+                <option value="ALUNO">Aluno</option>
+                <option value="PROFESSOR">Professor</option>
+              </select>
+            </div>
+            <div class="input-field-wrapper">
+              <div class="field-icon">
+                <svg viewBox="0 0 24 24" fill="#ffffff">
+                  <path d="M17 10h-1V7a4 4 0 0 0-8 0v3H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zm-5 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm2.1-7H9.9V7a2.1 2.1 0 0 1 4.2 0v3z" />
+                </svg>
+              </div>
+              <label class="field-label" for="cad-senha">SENHA:</label>
+              <input type="password" id="cad-senha" class="field-input" required>
+            </div>
+            <div class="auth-links">
+              <span class="link-helper" onclick="setAuthMode('login')">Já possui conta? Faça login</span>
+            </div>
+            <div class="btn-submit-container">
+              <button type="submit" class="btn-submit">CRIAR</button>
+            </div>
+          </form>
+
+          <!-- FORMULÁRIO DE REDEFINIÇÃO DE SENHA -->
+          <form id="form-reset" class="auth-form hidden" onsubmit="event.preventDefault();">
+            <div class="input-field-wrapper">
+              <div class="field-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="2" y="4" width="20" height="16" rx="1" />
+                  <path d="m22 7-10 7L2 7" />
+                </svg>
+              </div>
+              <label class="field-label" for="reset-email">E-MAIL ACADEMICO:</label>
+              <input type="email" id="reset-email" class="field-input" required>
+            </div>
+            <div class="input-field-wrapper">
+              <div class="field-icon">
+                <svg viewBox="0 0 24 24" fill="#ffffff">
+                  <path d="M17 10h-1V7a4 4 0 0 0-8 0v3H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zm-5 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm2.1-7H9.9V7a2.1 2.1 0 0 1 4.2 0v3z" />
+                </svg>
+              </div>
+              <label class="field-label" for="reset-nova-senha">NOVA SENHA:</label>
+              <input type="password" id="reset-nova-senha" class="field-input" required>
+            </div>
+            <div class="input-field-wrapper">
+              <div class="field-icon">
+                <svg viewBox="0 0 24 24" fill="#ffffff">
+                  <path d="M17 10h-1V7a4 4 0 0 0-8 0v3H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zm-5 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm2.1-7H9.9V7a2.1 2.1 0 0 1 4.2 0v3z" />
+                </svg>
+              </div>
+              <label class="field-label" for="reset-conf-senha">NOVA SENHA:</label>
+              <input type="password" id="reset-conf-senha" class="field-input" required>
+            </div>
+            <div class="auth-links">
+              <span class="link-helper" onclick="setAuthMode('login')">Lembrou da senha? Voltar ao login</span>
+            </div>
+            <div class="btn-submit-container">
+              <button type="submit" class="btn-submit btn-submit-wide">REDEFINIR SENHA</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="footer-brand">
+          <a href="../index.html" class="footer-logo">
+            <img src="../src/image.png" alt="Learn Tech">
+            <div>
+              <h2>LEARN TECH</h2>
+              <p id="footer-subtitulo">EDUCAÇÃO SIMPLES E EFICIENTE</p>
+            </div>
+          </a>
+        </div>
+        <div class="footer-column">
+          <h3>LINKS ÚTEIS</h3>
+          <a href="./sobre_nos.html">SOBRE NÓS</a>
+          <a href="./autenticacao.html">LOGIN</a>
+          <a href="./autenticacao.html">CADASTRO</a>
+        </div>
+        <div class="footer-column">
+          <h3>RECURSOS</h3>
+          <a href="../faq.html">FAQ</a>
+          <a href="../suporte.html">SUPORTE</a>
+          <a href="../documentacao.html">DOCUMENTAÇÃO</a>
+        </div>
+        <div class="footer-column footer-contact">
+          <h3>CONTATOS</h3>
+          <a href="mailto:emailficticiodemreat@gmail.com">emailficticiodemreat@gmail.com</a>
+          <a href="tel:+551140028922">(11) 4002-8922</a>
+        </div>
+      </footer>
+
+    <script src="./JS/api.js"></script>
+    <script src="./JS/JS_autenticacao.js"></script>
+  </body>
+</html>
