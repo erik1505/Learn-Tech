@@ -119,13 +119,13 @@ public class UserService {
         return profileOf(usuarioId);
     }
 
-    public Professor requireProfessor(Integer usuarioId) {
-        return professores.findByUsuarioId(usuarioId)
+    public Professor requireProfessor(Integer professorId) {
+        return professores.findById(professorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Somente professor pode realizar esta ação"));
     }
 
-    public Aluno requireAluno(Integer usuarioId) {
-        return alunos.findByUsuarioId(usuarioId)
+    public Aluno requireAluno(Integer alunoId) {
+        return alunos.findById(alunoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Somente aluno pode realizar esta ação"));
     }
 }

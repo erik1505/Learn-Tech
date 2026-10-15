@@ -18,7 +18,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/notas")
 @Transactional
-@CrossOrigin(origins = "*")
 public class NotaController {
 
     private final EntregaAtividadeRepository entregas;
