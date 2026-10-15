@@ -1,0 +1,336 @@
+/* ==========================================================
+   LEARN TECH - AGENDA INTELIGENTE
+   Usado em: calendario.html
+   ========================================================== */
+
+
+body {
+  background: linear-gradient(#1b1033, #0a0d18);
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+}
+
+
+/* ==========================================================
+   HEADER / BARRA SUPERIOR
+   ========================================================== */
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 36px;
+}
+
+/* LINKS CENTRAIS */
+nav {
+  display: flex;
+  gap: 48px;
+}
+
+nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+nav a:hover {
+  color: #38bdf8;
+  transform: scale(1.05);
+}
+
+/* ÍCONES À DIREITA */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-icon-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-icon-btn svg {
+  width: 30px;
+  height: 30px;
+  stroke: #ffffff;
+}
+
+.header-icon-btn svg:hover {
+  transform: scale(1.05);
+}
+
+
+/* ==========================================================
+   CONTEÚDO PRINCIPAL (AGENDA INTELIGENTE)
+   ========================================================== */
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 36px 36px;
+}
+
+.agenda-title {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+/* GRADE / PAINEL DA TRILHA DE ATIVIDADES */
+.timeline-viewport {
+  width: 100%;
+  max-width: 1280px;
+  min-height: 480px;
+  background-color: #101026;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  overflow-x: auto;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 160px 100%;
+}
+
+/* LINHA HORIZONTAL AZUL/CIANO CONTÍNUA */
+.horizontal-track-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #268fe6;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+/* CONTAINER DOS CARDS */
+.cards-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  width: 100%;
+}
+
+/* CARD DE ATIVIDADE */
+.activity-card {
+  background-color: #121829;
+  border: 2px solid #298ed8;
+  border-radius: 14px;
+  padding: 18px 20px;
+  min-width: 290px;
+  max-width: 320px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.activity-card .card-title {
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+.activity-card .card-date {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #cbd5e1;
+}
+
+.status-select-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-select-container .status-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+/* SELETOR ESTILIZADO DE STATUS */
+.status-dropdown {
+  flex: 1;
+  background-color: #1d263b;
+  border: 1px solid #334261;
+  border-radius: 6px;
+  padding: 5px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.status-dropdown span:last-child {
+  font-size: 9px;
+  color: #cbd5e1;
+}
+
+/* BADGES DE PRIORIDADE */
+.priority-badge {
+  background-color: #0d1424;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.priority-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.priority-arrow {
+  margin-left: auto;
+  font-size: 9px;
+}
+
+/* CORES DAS PRIORIDADES */
+.priority-badge.alta {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.priority-badge.alta .priority-dot {
+  background-color: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+}
+
+.priority-badge.media {
+  color: #eab308;
+  border-color: rgba(234, 179, 8, 0.4);
+}
+
+.priority-badge.media .priority-dot {
+  background-color: #eab308;
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.8);
+}
+
+.priority-badge.baixa {
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.priority-badge.baixa .priority-dot {
+  background-color: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
+}
+
+@media (max-width: 900px) {
+  header {
+    padding: 14px 20px;
+  }
+
+  nav {
+    display: none;
+  }
+
+  .timeline-viewport {
+    padding: 40px 20px;
+  }
+
+  .cards-row {
+    flex-direction: column;
+  }
+
+  .horizontal-track-line {
+    display: none;
+  }
+
+  .activity-card {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+
+/* ==========================================================
+   INTEGRAÇÃO COM O BACK-END
+   Muitas atividades: a linha azul acompanha a rolagem
+   ========================================================== */
+
+.horizontal-track-line {
+  display: none;
+}
+
+.cards-row {
+  width: max-content;
+  min-width: 100%;
+}
+
+.cards-row::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -40px;
+  right: -40px;
+  height: 2px;
+  background-color: #268fe6;
+  transform: translateY(-50%);
+  z-index: -1;
+}
+
+.activity-card {
+  flex: 0 0 290px;
+}
+
+/* Mensagem de agenda vazia */
+.cards-row > p {
+  width: 100%;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .cards-row {
+    width: 100%;
+  }
+
+  .cards-row::before {
+    display: none;
+  }
+
+  .activity-card {
+    flex: 0 0 auto;
+  }
+}

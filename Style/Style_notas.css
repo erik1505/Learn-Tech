@@ -1,0 +1,248 @@
+/* ==========================================================
+   LEARN TECH - PÁGINA DE NOTAS
+   Usado em: notas.html
+   ========================================================== */
+
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background: linear-gradient(110deg, #1b1033 0%, #0a0d18 100%);
+  color: #ffffff;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-header {
+  width: 100%;
+  min-height: 76px;
+  padding: 14px 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #ffffff;
+  min-width: 160px;
+}
+
+.brand img {
+  width: 48px;
+  height: 43px;
+  object-fit: contain;
+}
+
+.brand span {
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 46px;
+  flex: 1;
+}
+
+.header-nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+  transition: .2s;
+}
+
+.header-nav a:hover {
+  color: #4f8df7;
+  transform: scale(1.03);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 160px;
+  justify-content: flex-end;
+}
+
+.header-icon-btn {
+  width: 32px;
+  height: 38px;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.header-icon-btn svg {
+  width: 31px;
+  height: 31px;
+}
+
+.header-icon-btn:hover {
+  transform: scale(1.06);
+}
+
+.main-content {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 6px 30px 60px;
+  flex: 1;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: .8px;
+  margin: 4px 0 36px;
+  background: linear-gradient(90deg, #ffffff 30%, #3278e8 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.grades-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 115px;
+  align-items: start;
+}
+
+.subject-card {
+  height: 165px;
+  border: 2px solid rgba(255, 255, 255, .78);
+  border-radius: 12px;
+  background: rgba(12, 16, 30, .55);
+  overflow: hidden;
+}
+
+.subject-card:hover {
+  background-color: #1c2234;
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.subject-card h2 {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid #29a9ff;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.grade-row {
+  min-height: 32px;
+  padding: 8px 9px;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #29a9ff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.grade-row:last-child {
+  border-bottom: 0;
+}
+
+.footer {
+  width: 100%;
+  margin-top: auto;
+}
+
+@media (max-width: 850px) {
+  .main-header {
+    padding: 12px 25px;
+  }
+
+  .header-nav {
+    gap: 22px;
+  }
+
+  .header-nav a {
+    font-size: 15px;
+  }
+
+  .grades-grid {
+    gap: 30px;
+  }
+}
+
+@media (max-width: 680px) {
+  .main-header {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .brand,
+  .header-right {
+    min-width: auto;
+  }
+
+  .header-nav {
+    order: 3;
+    width: 100%;
+  }
+
+  .grades-grid {
+    grid-template-columns: 1fr;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .main-content {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+
+/* ==========================================================
+   INTEGRAÇÃO COM O BACK-END
+   O card cresce conforme a quantidade de atividades da disciplina
+   ========================================================== */
+
+.subject-card {
+  height: auto;
+  min-height: 165px;
+}
+
+.grade-row {
+  word-break: break-word;
+}
+
+/* Mensagens (lista vazia / professor) ocupam a linha toda */
+.grades-grid > p {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 13px;
+}
