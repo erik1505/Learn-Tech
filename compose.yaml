@@ -5,38 +5,11 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DB_URL: "jdbc:mysql://db:3306/Learn_tech?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=America/Sao_Paulo"
-      DB_USER: "${DB_USER:-learntech}"
-      DB_PASSWORD: "${DB_PASSWORD:?Defina DB_PASSWORD no arquivo .env}"
-    depends_on:
-      db:
-        condition: service_healthy
-    cpus: 0.7
-    mem_limit: 384m
-
-  db:
-    image: mysql:8.4
-    restart: unless-stopped
-    command:
-      - --innodb-buffer-pool-size=96M
-      - --max-connections=20
-      - --performance-schema=OFF
-    environment:
-      MYSQL_DATABASE: Learn_tech
-      MYSQL_USER: "${DB_USER:-learntech}"
-      MYSQL_PASSWORD: "${DB_PASSWORD:?Defina DB_PASSWORD no arquivo .env}"
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD no arquivo .env}"
+      DB_URL: jdbc:sqlite:/data/learntech.db
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./src/main/database/LearnTech.sql:/docker-entrypoint-initdb.d/001-learntech.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-    cpus: 0.3
-    mem_limit: 384m
+      - sqlite_data:/data
+    cpus: 1
+    mem_limit: 768m
 
 volumes:
-  mysql_data:
+  sqlite_data:
