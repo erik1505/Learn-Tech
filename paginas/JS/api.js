@@ -2,7 +2,7 @@
    LEARN TECH - COMUNICAÇÃO COM O BACK-END
    ========================================================= */
 
-const API = "http://localhost:8080/api";
+const API = "/api";
 
 /* ---------- utilitarios ---------- */
 
