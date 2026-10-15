@@ -3,7 +3,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN mvn clean package -DskipTests
+# Adicionamos o -X para o Maven mostrar o motivo exato da falha
+RUN mvn clean package -DskipTests -X
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
