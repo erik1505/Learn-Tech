@@ -163,9 +163,7 @@ function novaAtividade() {
 
   const selectDisc = porId('edit-disciplina');
   if (selectDisc) {
-    const lista = (disciplinasTurma && disciplinasTurma.length) 
-      ? disciplinasTurma 
-      : [{ id: 1, nome: "Geral" }];
+    const lista = disciplinasTurma || [];
     selectDisc.innerHTML = lista.map(d => `<option value="${d.id}">${d.nome}</option>`).join('');
   }
 
@@ -200,16 +198,26 @@ function editarAtividade(id) {
 
   const selectDisc = porId('edit-disciplina');
   if (selectDisc) {
-    const lista = disciplinasTurma.length ? disciplinasTurma : [{ id: 1, nome: "Geral" }];
+    const lista = disciplinasTurma || [];
     selectDisc.innerHTML = lista.map(d => `<option value="${d.id}">${d.nome}</option>`).join('');
+    selectDisc.value = atividade.disciplinaId || '';
   }
 
   navigateTo('edicao-atividade');
 }
 
-/* DELETAR ATIVIDADE LOCAL */
-function deletarAtividadeLocal(id) {
+/* DELETAR ATIVIDADE */
+async function deletarAtividadeLocal(id) {
   if (confirm("Tem certeza que deseja excluir esta atividade?")) {
+    const atividade = atividadesTurma.find(a => a.id === id);
+    if (atividade && atividade.persistida) {
+      try {
+        await excluirAtividade(null, id);
+      } catch (e) {
+        alert(e.message || 'Erro ao excluir atividade.');
+        return;
+      }
+    }
     atividadesTurma = atividadesTurma.filter(a => a.id !== id);
     salvarNoLocalStorage();
     renderizarTrilha();
@@ -227,37 +235,52 @@ async function salvarAtividade() {
     return;
   }
 
-  let arquivoNome = null;
-  let arquivoUrl = null;
-
-  if (ficheiroReferenciaTemp) {
-    arquivoNome = ficheiroReferenciaTemp.nome;
-    arquivoUrl = ficheiroReferenciaTemp.base64;
+  const usuario = usuarioLogado();
+  if (!usuario || usuario.role !== 'PROFESSOR') {
+    alert('Somente professores podem cadastrar atividades.');
+    return;
   }
 
-  if (atividadeEmEdicaoId) {
-    const atividade = atividadesTurma.find(a => a.id === atividadeEmEdicaoId);
-    if (atividade) {
-      atividade.titulo = nome;
-      atividade.descricao = descricao;
-      atividade.prazo = prazo;
-      atividade.status = statusSelect;
-      if (arquivoNome) {
-        atividade.arquivoNome = arquivoNome;
-        atividade.arquivoUrl = arquivoUrl;
-      }
+  const selectDisciplina = porId('edit-disciplina');
+  const disciplinaId = Number(selectDisciplina.value);
+  if (!Number.isInteger(disciplinaId) || !disciplinasTurma.some(d => d.id === disciplinaId)) {
+    alert('Selecione uma disciplina cadastrada para esta turma.');
+    return;
+  }
+
+  const atividadeIdEdicao = atividadeEmEdicaoId;
+  const atividadeExistente = atividadesTurma.find(a => a.id === atividadeIdEdicao);
+  const arquivoNome = ficheiroReferenciaTemp
+    ? ficheiroReferenciaTemp.nome
+    : atividadeExistente && atividadeExistente.arquivoNome;
+  const arquivoUrl = ficheiroReferenciaTemp
+    ? ficheiroReferenciaTemp.base64
+    : atividadeExistente && atividadeExistente.arquivoUrl;
+
+  try {
+    const professorId = usuario.perfilId || usuario.professorId || usuario.id;
+    const resposta = atividadeExistente && atividadeExistente.persistida
+      ? await atualizarAtividade(professorId, atividadeIdEdicao, nome, descricao, prazo, disciplinaId, statusSelect)
+      : await criarAtividade(professorId, nome, descricao, prazo, disciplinaId, statusSelect);
+
+    if (!resposta || resposta.id == null) {
+      throw new Error('O servidor não retornou o identificador da atividade.');
     }
-  } else {
-    const nova = {
-      id: Date.now(),
-      titulo: nome,
-      descricao: descricao,
-      prazo: prazo,
-      status: statusSelect || 'A_FAZER',
-      arquivoNome: arquivoNome,
-      arquivoUrl: arquivoUrl
+
+    const atividadeSalva = {
+      ...resposta,
+      arquivoNome: arquivoNome || null,
+      arquivoUrl: arquivoUrl || null,
+      persistida: true
     };
-    atividadesTurma.push(nova);
+
+    if (atividadeIdEdicao != null) {
+      atividadesTurma = atividadesTurma.filter(a => a.id !== atividadeIdEdicao);
+    }
+    atividadesTurma.push(atividadeSalva);
+  } catch (e) {
+    alert(e.message || 'Erro ao salvar atividade.');
+    return;
   }
 
   salvarNoLocalStorage();
@@ -509,16 +532,40 @@ async function carregarTrilha() {
         const turmaAtual = turmas.find(t => t.id === turmaPedida) || turmas[0];
         porId('turma-titulo').textContent = turmaAtual.sala;
 
-        try {
-          disciplinasTurma = await disciplinasDaTurma(turmaAtual.id);
-        } catch (e) {
-          disciplinasTurma = [{ id: 1, nome: "Geral" }];
-        }
+        disciplinasTurma = await disciplinasDaTurma(turmaAtual.id);
+        const atividadesLocais = atividadesTurma;
+        const atividadesServidor = await atividadesDaTurma(turmaAtual.id);
+        const idsServidor = new Set(atividadesServidor.map(a => String(a.id)));
+        const atividadesSalvas = new Map(
+          atividadesLocais
+            .filter(a => a.persistida)
+            .map(a => [String(a.id), a])
+        );
+
+        atividadesTurma = [
+          ...atividadesServidor.map(a => {
+            const salva = atividadesSalvas.get(String(a.id));
+            return {
+              ...a,
+              arquivoNome: salva ? salva.arquivoNome : null,
+              arquivoUrl: salva ? salva.arquivoUrl : null,
+              persistida: true
+            };
+          }),
+          ...atividadesLocais.filter(a => !a.persistida && !idsServidor.has(String(a.id)))
+        ];
       }
     }
   } catch (err) {
     console.warn("Utilizando armazenamento local.");
   }
+
+  const botaoNovaAtividade = porId('btn-nova-atividade');
+  const usuario = usuarioLogado();
+  if (botaoNovaAtividade) {
+    botaoNovaAtividade.style.display = usuario && usuario.role === 'PROFESSOR' ? '' : 'none';
+  }
+
   renderizarTrilha();
 }
 
@@ -571,6 +618,12 @@ function verAtividade(id, pushHistory = true) {
 
 async function enviarTarefa() {
   const texto = porId('texto-usuario-envio').value.trim();
+  const atividade = atividadesTurma.find(a => a.id === atividadeAtualId);
+
+  if (!atividade || !atividade.persistida) {
+    alert('Esta atividade ainda não está cadastrada no servidor. Peça ao professor para editá-la e salvá-la novamente antes do envio.');
+    return;
+  }
 
   if (!texto && !arquivoAlunoBase64) {
     alert('Por favor, digite um texto ou anexe um arquivo para enviar.');
