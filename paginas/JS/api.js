@@ -142,25 +142,25 @@ const criarDisciplina = (professorId, nome, turmaId) => {
 const listarAtividades = () => request("/atividades");
 const atividadesDaTurma = (turmaId) => request("/atividades/turma/" + turmaId);
 
-const criarAtividade = (professorId, titulo, descricao, prazo, disciplinaId, status, dataDesbloqueio) => {
+const criarAtividade = (professorId, titulo, descricao, prazo, turmaId, status, dataDesbloqueio) => {
   if (!professorId) {
     const u = usuarioLogado();
     professorId = u ? (u.perfilId || u.professorId || u.id) : null;
   }
   return request("/atividades?professorId=" + professorId, { 
     method: "POST", 
-    body: { titulo, descricao, prazo, disciplinaId, status, dataDesbloqueio } 
+    body: { titulo, descricao, prazo, turmaId, status, dataDesbloqueio }
   });
 };
 
-const atualizarAtividade = (professorId, id, titulo, descricao, prazo, disciplinaId, status, dataDesbloqueio) => {
+const atualizarAtividade = (professorId, id, titulo, descricao, prazo, turmaId, status, dataDesbloqueio) => {
   if (!professorId) {
     const u = usuarioLogado();
     professorId = u ? (u.perfilId || u.professorId || u.id) : null;
   }
   return request("/atividades/" + id + "?professorId=" + professorId, { 
     method: "PUT", 
-    body: { titulo, descricao, prazo, disciplinaId, status, dataDesbloqueio } 
+    body: { titulo, descricao, prazo, turmaId, status, dataDesbloqueio }
   });
 };
 

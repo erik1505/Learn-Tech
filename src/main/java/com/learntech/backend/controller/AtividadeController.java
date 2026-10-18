@@ -5,8 +5,10 @@ import com.learntech.backend.dto.Responses;
 import com.learntech.backend.model.ActivityStatus;
 import com.learntech.backend.model.Atividade;
 import com.learntech.backend.model.Disciplina;
+import com.learntech.backend.model.Turma;
 import com.learntech.backend.repository.AtividadeRepository;
 import com.learntech.backend.repository.DisciplinaRepository;
+import com.learntech.backend.repository.TurmaRepository;
 import com.learntech.backend.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +22,15 @@ import java.util.List;
 public class AtividadeController {
     private final AtividadeRepository repository;
     private final DisciplinaRepository disciplinas;
+    private final TurmaRepository turmas;
     private final UserService users;
 
-    public AtividadeController(AtividadeRepository repository, DisciplinaRepository disciplinas, UserService users) {
-        this.repository = repository; this.disciplinas = disciplinas; this.users = users;
+    public AtividadeController(AtividadeRepository repository, DisciplinaRepository disciplinas,
+                               TurmaRepository turmas, UserService users) {
+        this.repository = repository;
+        this.disciplinas = disciplinas;
+        this.turmas = turmas;
+        this.users = users;
     }
 
     @GetMapping
@@ -73,9 +80,17 @@ public class AtividadeController {
         Responses.required(r.titulo(), "titulo");
         Responses.required(r.descricao(), "descricao");
         Responses.required(r.prazo(), "prazo");
-        Responses.required(r.disciplinaId(), "disciplinaId");
-        Disciplina d = disciplinas.findById(r.disciplinaId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada"));
+        Responses.required(r.turmaId(), "turmaId");
+        Turma turma = turmas.findById(r.turmaId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Turma não encontrada"));
+        Disciplina d = disciplinas.findFirstByTurmaIdAndNome(turma.getId(), turma.getSala())
+                .orElseGet(() -> {
+                    Disciplina nova = new Disciplina();
+                    nova.setNome(turma.getSala());
+                    nova.setStatus("ATIVA");
+                    nova.setTurma(turma);
+                    return disciplinas.save(nova);
+                });
         a.setNome(r.titulo()); a.setDescricao(r.descricao()); a.setPrazo(r.prazo());
         a.setStatus(r.status() == null ? ActivityStatus.A_FAZER : r.status());
         a.setDisciplina(d);

@@ -5,12 +5,6 @@
 let turmasCache = [];
 let turmaEditandoId = null;
 
-// Dados de demonstração
-const DEMO_TURMAS = [
-  { id: 1, sala: "teste", quantidade: 30, professorNome: "erik test", linkGrupo: "https://whatsapp.com" },
-  { id: 2, sala: "1", quantidade: 1, professorNome: "erik test", linkGrupo: "https://whatsapp.com" }
-];
-
 document.addEventListener("DOMContentLoaded", function () {
   carregarMinhasTurmas();
 
@@ -33,19 +27,12 @@ function showScreen(screen) {
 async function carregarMinhasTurmas() {
   const container = document.getElementById("turmas-lista");
   try {
-    if (typeof minhasTurmas === 'function') {
-      const res = await minhasTurmas();
-      if (res && res.length) {
-        turmasCache = res;
-      } else {
-        turmasCache = DEMO_TURMAS;
-      }
-    } else {
-      turmasCache = DEMO_TURMAS;
-    }
+    turmasCache = await minhasTurmas();
   } catch (err) {
-    console.warn("Usando dados demonstrativos para turmas.");
-    turmasCache = DEMO_TURMAS;
+    console.error("Não foi possível carregar as turmas do servidor.", err);
+    turmasCache = [];
+    container.innerHTML = `<p>Erro ao carregar as turmas: ${esc(err.message || "falha de conexão")}</p>`;
+    return;
   }
 
   if (!turmasCache || turmasCache.length === 0) {

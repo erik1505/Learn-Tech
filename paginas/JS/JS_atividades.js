@@ -4,9 +4,10 @@
 
 let atividadesTurma = [];
 let entregasAluno = new Map();
-let disciplinasTurma = [];
 let atividadeAtualId = null;
 let atividadeEmEdicaoId = null;
+let turmaAtualId = null;
+let turmaAtualNome = '';
 let ficheiroReferenciaTemp = null;
 let postItAtualId = null;
 
@@ -21,27 +22,6 @@ const STORAGE_KEY_ATIVIDADES = 'learntech_atividades_db';
 const STORAGE_KEY_LEARNBOOK = 'learntech_learnbook_notes';
 const STORAGE_KEY_POSTITS = 'learntech_postits_db';
 
-const DEMO_ATIVIDADES = [
-  { 
-    id: 1, 
-    titulo: "ATIVIDADE DEMO 1", 
-    status: "A_FAZER", 
-    prazo: "2027-06-15T23:59", 
-    descricao: "Esta é uma atividade de demonstração.",
-    arquivoNome: null,
-    arquivoUrl: null
-  },
-  { 
-    id: 2, 
-    titulo: "ATIVIDADE DEMO 2", 
-    status: "A_FAZER", 
-    prazo: "2027-06-15T23:59", 
-    descricao: "Descrição da atividade 2.",
-    arquivoNome: null,
-    arquivoUrl: null
-  }
-];
-
 const DEMO_POSTITS = [
   { id: 1, titulo: "AULA 1", texto: "ANOTAÇÕES DA AULA 1..." },
   { id: 2, titulo: "AULA 2", texto: "ANOTAÇÕES DA AULA 2..." }
@@ -54,14 +34,18 @@ function porId(id) {
 /* CARREGAR E SALVAR DADOS NO LOCALSTORAGE */
 function carregarAtividadesSalvas() {
   const dados = localStorage.getItem(STORAGE_KEY_ATIVIDADES);
-  if (dados) {
-    try {
-      atividadesTurma = JSON.parse(dados);
-    } catch (e) {
-      atividadesTurma = [...DEMO_ATIVIDADES];
-    }
-  } else {
-    atividadesTurma = [...DEMO_ATIVIDADES];
+  try {
+    atividadesTurma = dados ? JSON.parse(dados) : [];
+  } catch (erro) {
+    console.error('Não foi possível carregar as atividades salvas localmente.', erro);
+    atividadesTurma = [];
+  }
+
+  const atividadesSemDemo = atividadesTurma.filter(a =>
+    a.persistida || !['ATIVIDADE DEMO 1', 'ATIVIDADE DEMO 2'].includes(a.titulo)
+  );
+  if (atividadesSemDemo.length !== atividadesTurma.length) {
+    atividadesTurma = atividadesSemDemo;
     salvarNoLocalStorage();
   }
 
@@ -158,14 +142,9 @@ function novaAtividade() {
   if (inputPrazo) inputPrazo.value = '';
   if (inputArq) inputArq.value = '';
   if (displayArq) displayArq.textContent = 'Nenhum arquivo selecionado';
+  porId('edit-turma-nome').textContent = turmaAtualNome;
 
   ficheiroReferenciaTemp = null;
-
-  const selectDisc = porId('edit-disciplina');
-  if (selectDisc) {
-    const lista = disciplinasTurma || [];
-    selectDisc.innerHTML = lista.map(d => `<option value="${d.id}">${d.nome}</option>`).join('');
-  }
 
   navigateTo('edicao-atividade');
 }
@@ -196,12 +175,7 @@ function editarAtividade(id) {
     ficheiroReferenciaTemp = null;
   }
 
-  const selectDisc = porId('edit-disciplina');
-  if (selectDisc) {
-    const lista = disciplinasTurma || [];
-    selectDisc.innerHTML = lista.map(d => `<option value="${d.id}">${d.nome}</option>`).join('');
-    selectDisc.value = atividade.disciplinaId || '';
-  }
+  porId('edit-turma-nome').textContent = turmaAtualNome;
 
   navigateTo('edicao-atividade');
 }
@@ -241,10 +215,8 @@ async function salvarAtividade() {
     return;
   }
 
-  const selectDisciplina = porId('edit-disciplina');
-  const disciplinaId = Number(selectDisciplina.value);
-  if (!Number.isInteger(disciplinaId) || !disciplinasTurma.some(d => d.id === disciplinaId)) {
-    alert('Selecione uma disciplina cadastrada para esta turma.');
+  if (!turmaAtualId) {
+    alert('Crie ou selecione uma turma antes de cadastrar atividades.');
     return;
   }
 
@@ -260,8 +232,8 @@ async function salvarAtividade() {
   try {
     const professorId = usuario.perfilId || usuario.professorId || usuario.id;
     const resposta = atividadeExistente && atividadeExistente.persistida
-      ? await atualizarAtividade(professorId, atividadeIdEdicao, nome, descricao, prazo, disciplinaId, statusSelect)
-      : await criarAtividade(professorId, nome, descricao, prazo, disciplinaId, statusSelect);
+      ? await atualizarAtividade(professorId, atividadeIdEdicao, nome, descricao, prazo, turmaAtualId, statusSelect)
+      : await criarAtividade(professorId, nome, descricao, prazo, turmaAtualId, statusSelect);
 
     if (!resposta || resposta.id == null) {
       throw new Error('O servidor não retornou o identificador da atividade.');
@@ -517,7 +489,9 @@ function renderizarTrilha() {
   const grade = porId('atividades-grid');
   if (!grade) return;
 
-  grade.innerHTML = atividadesTurma.map(cardAtividadeHTML).join('');
+  grade.innerHTML = atividadesTurma.length
+    ? atividadesTurma.map(cardAtividadeHTML).join('')
+    : '<p>Nenhuma atividade cadastrada para esta turma.</p>';
   atualizarBarraProgresso();
 }
 
@@ -525,45 +499,49 @@ async function carregarTrilha() {
   carregarAtividadesSalvas();
 
   try {
-    if (typeof minhasTurmas === 'function') {
-      const turmas = await minhasTurmas();
-      if (turmas && turmas.length) {
-        const turmaPedida = Number(new URLSearchParams(location.search).get('turma'));
-        const turmaAtual = turmas.find(t => t.id === turmaPedida) || turmas[0];
-        porId('turma-titulo').textContent = turmaAtual.sala;
+    const turmas = await minhasTurmas();
+    if (!turmas.length) {
+      turmaAtualId = null;
+      turmaAtualNome = '';
+      porId('turma-titulo').textContent = 'NENHUMA TURMA CADASTRADA';
+      atividadesTurma = [];
+    } else {
+      const turmaPedida = Number(new URLSearchParams(location.search).get('turma'));
+      const turma = turmas.find(t => t.id === turmaPedida) || turmas[0];
+      turmaAtualId = turma.id;
+      turmaAtualNome = turma.sala;
+      porId('turma-titulo').textContent = turmaAtualNome;
 
-        disciplinasTurma = await disciplinasDaTurma(turmaAtual.id);
-        const atividadesLocais = atividadesTurma;
-        const atividadesServidor = await atividadesDaTurma(turmaAtual.id);
-        const idsServidor = new Set(atividadesServidor.map(a => String(a.id)));
-        const atividadesSalvas = new Map(
-          atividadesLocais
-            .filter(a => a.persistida)
-            .map(a => [String(a.id), a])
-        );
+      const atividadesServidor = await atividadesDaTurma(turmaAtualId);
+      const atividadesSalvas = new Map(
+        atividadesTurma
+          .filter(a => a.persistida)
+          .map(a => [String(a.id), a])
+      );
 
-        atividadesTurma = [
-          ...atividadesServidor.map(a => {
-            const salva = atividadesSalvas.get(String(a.id));
-            return {
-              ...a,
-              arquivoNome: salva ? salva.arquivoNome : null,
-              arquivoUrl: salva ? salva.arquivoUrl : null,
-              persistida: true
-            };
-          }),
-          ...atividadesLocais.filter(a => !a.persistida && !idsServidor.has(String(a.id)))
-        ];
-      }
+      atividadesTurma = atividadesServidor.map(a => {
+        const salva = atividadesSalvas.get(String(a.id));
+        return {
+          ...a,
+          arquivoNome: salva ? salva.arquivoNome : null,
+          arquivoUrl: salva ? salva.arquivoUrl : null,
+          persistida: true
+        };
+      });
     }
   } catch (err) {
-    console.warn("Utilizando armazenamento local.");
+    console.error('Não foi possível carregar as turmas e atividades do servidor.', err);
+    turmaAtualId = null;
+    turmaAtualNome = '';
+    atividadesTurma = [];
+    porId('turma-titulo').textContent = 'ERRO AO CARREGAR TURMAS';
+    alert(err.message || 'Não foi possível carregar as atividades.');
   }
 
   const botaoNovaAtividade = porId('btn-nova-atividade');
   const usuario = usuarioLogado();
   if (botaoNovaAtividade) {
-    botaoNovaAtividade.style.display = usuario && usuario.role === 'PROFESSOR' ? '' : 'none';
+    botaoNovaAtividade.style.display = usuario && usuario.role === 'PROFESSOR' && turmaAtualId ? '' : 'none';
   }
 
   renderizarTrilha();
