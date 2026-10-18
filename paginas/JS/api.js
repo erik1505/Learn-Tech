@@ -2,7 +2,9 @@
    LEARN TECH - COMUNICAÇÃO COM O BACK-END
    ========================================================= */
 
-const API = "/api";
+const API = window.location.port === "5500"
+  ? `${window.location.protocol}//${window.location.hostname}:8080/api`
+  : "/api";
 
 /* ---------- utilitarios ---------- */
 
