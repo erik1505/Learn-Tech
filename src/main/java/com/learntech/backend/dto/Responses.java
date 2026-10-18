@@ -65,6 +65,11 @@ public final class Responses {
                 statusK = ActivityStatus.valueOf(e.getStatusKanban().toUpperCase());
             }
         } catch (Exception ignored) {}
+        if (statusK == ActivityStatus.A_FAZER
+                && ((e.getTextoComentario() != null && !e.getTextoComentario().isBlank())
+                || (e.getArquivoEnviado() != null && !e.getArquivoEnviado().isBlank()))) {
+            statusK = ActivityStatus.CONCLUIDA;
+        }
 
         return new EntregaResponse(
                 e.getId(),

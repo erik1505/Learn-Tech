@@ -7,7 +7,7 @@
    ========================================================= */
 
 function textoDaNota(atividade, entrega) {
-  if (!entrega) {
+  if (!entrega || entrega.statusKanban !== 'CONCLUIDA') {
     return 'Não entregue';
   }
 

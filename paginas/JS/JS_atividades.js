@@ -414,7 +414,9 @@ function atualizarBarraProgresso() {
     return;
   }
 
-  const concluidas = atividadesTurma.filter(a => a.status === 'CONCLUIDA' || entregasAluno.has(a.id)).length;
+  const concluidas = atividadesTurma.filter(a =>
+    a.status === 'CONCLUIDA' || entregasAluno.get(a.id)?.statusKanban === 'CONCLUIDA'
+  ).length;
   const porcentagem = Math.round((concluidas / total) * 100);
 
   const fillBar = porId('progresso-fill');
@@ -446,18 +448,24 @@ document.addEventListener('click', function () {
 });
 
 function cardAtividadeHTML(a) {
+  const entregaAluno = entregasAluno.get(a.id);
+  const statusAluno = entregaAluno && entregaAluno.statusKanban;
+  const usuarioEhAluno = usuarioLogado()?.role === 'ALUNO';
   let classeStatus = 'card-nao-iniciado';
   let textoStatus = 'Não iniciado';
 
-  if (a.status === 'CONCLUIDA' || entregasAluno.has(a.id)) {
+  if (statusAluno === 'CONCLUIDA') {
     classeStatus = 'card-concluido';
     textoStatus = 'Concluido';
-  } else if (a.status === 'EM_ANDAMENTO') {
+  } else if (statusAluno === 'EM_ANDAMENTO' || (!usuarioEhAluno && a.status === 'EM_ANDAMENTO')) {
     classeStatus = 'card-andamento';
     textoStatus = 'Em andamento';
   } else if (a.status === 'BLOQUEADO') {
     classeStatus = 'card-bloqueada';
     textoStatus = 'Bloqueada';
+  } else if (!usuarioEhAluno && a.status === 'CONCLUIDA') {
+    classeStatus = 'card-concluido';
+    textoStatus = 'Concluido';
   }
 
   const safeTitulo = typeof esc === 'function' ? esc(a.titulo) : a.titulo;
@@ -499,6 +507,7 @@ async function carregarTrilha() {
   carregarAtividadesSalvas();
 
   try {
+    const usuario = usuarioLogado();
     const turmas = await minhasTurmas();
     if (!turmas.length) {
       turmaAtualId = null;
@@ -528,6 +537,14 @@ async function carregarTrilha() {
           persistida: true
         };
       });
+
+      if (usuario && usuario.role === 'ALUNO') {
+        const alunoId = usuario.perfilId || usuario.alunoId || usuario.id;
+        const entregas = await minhasNotas(alunoId);
+        entregasAluno = new Map(entregas.map(e => [e.atividadeId, e]));
+      } else {
+        entregasAluno.clear();
+      }
     }
   } catch (err) {
     console.error('Não foi possível carregar as turmas e atividades do servidor.', err);
@@ -547,16 +564,23 @@ async function carregarTrilha() {
   renderizarTrilha();
 }
 
-function verAtividade(id, pushHistory = true) {
+async function verAtividade(id, pushHistory = true) {
   const atividade = atividadesTurma.find(a => a.id === id);
   if (!atividade) return;
 
   atividadeAtualId = id;
 
-  if (atividade.status === 'A_FAZER') {
-    atividade.status = 'EM_ANDAMENTO';
-    salvarNoLocalStorage();
-    renderizarTrilha();
+  const usuario = usuarioLogado();
+  if (usuario && usuario.role === 'ALUNO' && atividade.persistida
+      && (!entregasAluno.has(id) || entregasAluno.get(id).statusKanban !== 'CONCLUIDA')) {
+    try {
+      await iniciarAtividadeAluno(id);
+      entregasAluno.set(id, { atividadeId: id, statusKanban: 'EM_ANDAMENTO' });
+      renderizarTrilha();
+    } catch (erro) {
+      alert(erro.message || 'Não foi possível atualizar o status da atividade.');
+      return;
+    }
   }
 
   porId('atividade-titulo').textContent = atividade.titulo;
@@ -582,7 +606,8 @@ function verAtividade(id, pushHistory = true) {
     btnEnvio.style.display = (u && u.role === 'ALUNO') ? 'block' : 'none';
   }
 
-  const estaEntregue = atividade.status === 'CONCLUIDA' || entregasAluno.has(id);
+  const estaEntregue = entregasAluno.get(id)?.statusKanban === 'CONCLUIDA'
+    || (usuario && usuario.role !== 'ALUNO' && atividade.status === 'CONCLUIDA');
   const statusTag = porId('atividade-status-tag');
   if (statusTag) {
     statusTag.textContent = estaEntregue ? 'CONCLUÍDO' : 'PENDENTE';
@@ -610,18 +635,16 @@ async function enviarTarefa() {
 
   try {
     await enviarEntrega(atividadeAtualId, texto, arquivoAlunoBase64);
-    alert('Tarefa enviada com sucesso!');
 
-    const ativ = atividadesTurma.find(a => a.id === atividadeAtualId);
-    if (ativ) {
-      ativ.status = 'CONCLUIDA';
-      salvarNoLocalStorage();
-    }
-    entregasAluno.set(atividadeAtualId, { data: new Date() });
+    entregasAluno.set(atividadeAtualId, {
+      atividadeId: atividadeAtualId,
+      statusKanban: 'CONCLUIDA'
+    });
 
     porId('painel-envio').classList.add('hidden');
     renderizarTrilha();
-    verAtividade(atividadeAtualId, false);
+    await verAtividade(atividadeAtualId, false);
+    alert('Tarefa enviada com sucesso!');
   } catch (e) {
     alert(e.message || 'Erro ao enviar tarefa.');
   }

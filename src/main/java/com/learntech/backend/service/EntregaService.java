@@ -36,22 +36,56 @@ public class EntregaService {
         Atividade atividade = atividadeRepository.findById(atividadeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
 
-        EntregaAtividade entrega = entregaAtividadeRepository.findByAtividadeIdAndAlunoRa(atividadeId, aluno.getRa())
-                .orElse(new EntregaAtividade());
+        EntregaAtividade entrega = obterOuCriarEntrega(atividade, aluno);
 
-        entrega.setAtividade(atividade);
-        entrega.setAluno(aluno);
         entrega.setTextoComentario(request.textoComentario());
         entrega.setArquivoEnviado(request.arquivoUrl());
         entrega.setDataEnvio(LocalDateTime.now());
+        entrega.setStatusKanban("CONCLUIDA");
 
         entregaAtividadeRepository.save(entrega);
+    }
+
+    @Transactional
+    public void iniciarAtividade(Integer atividadeId, Integer alunoId) {
+        Aluno aluno = userService.requireAluno(alunoId);
+        Atividade atividade = atividadeRepository.findById(atividadeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
+        EntregaAtividade entrega = obterOuCriarEntrega(atividade, aluno);
+        if (foiEnviada(entrega)) {
+            entrega.setStatusKanban("CONCLUIDA");
+            entregaAtividadeRepository.save(entrega);
+        } else {
+            entrega.setStatusKanban("EM_ANDAMENTO");
+            entrega.setDataEnvio(LocalDateTime.now());
+            entregaAtividadeRepository.save(entrega);
+        }
+    }
+
+    private EntregaAtividade obterOuCriarEntrega(Atividade atividade, Aluno aluno) {
+        EntregaAtividade entrega = entregaAtividadeRepository
+                .findByAtividadeIdAndAlunoRa(atividade.getId(), aluno.getRa())
+                .orElseGet(EntregaAtividade::new);
+        entrega.setAtividade(atividade);
+        entrega.setAluno(aluno);
+        return entrega;
+    }
+
+    private boolean foiEnviada(EntregaAtividade entrega) {
+        if ("CONCLUIDA".equalsIgnoreCase(entrega.getStatusKanban())) {
+            return true;
+        }
+        return "A_FAZER".equalsIgnoreCase(entrega.getStatusKanban())
+                && ((entrega.getTextoComentario() != null && !entrega.getTextoComentario().isBlank())
+                || (entrega.getArquivoEnviado() != null && !entrega.getArquivoEnviado().isBlank()));
     }
 
     public List<EntregaDetalheDTO> buscarEntregasDetalhes(Integer atividadeId, Integer professorId) {
         userService.requireProfessor(professorId);
 
-        List<EntregaAtividade> entregas = entregaAtividadeRepository.findByAtividadeId(atividadeId);
+        List<EntregaAtividade> entregas = entregaAtividadeRepository.findByAtividadeId(atividadeId).stream()
+                .filter(this::foiEnviada)
+                .toList();
 
         return entregas.stream().map(e -> new EntregaDetalheDTO(
                 e.getId(),

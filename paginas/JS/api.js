@@ -201,6 +201,16 @@ const enviarEntrega = (atividadeId, textoComentario, arquivoUrl, alunoId) => {
   });
 };
 
+const iniciarAtividadeAluno = (atividadeId, alunoId) => {
+  if (!alunoId) {
+    const u = usuarioLogado();
+    alunoId = u ? (u.perfilId || u.alunoId || u.id) : null;
+  }
+  return request("/entregas/atividade/" + atividadeId + "/iniciar?alunoId=" + alunoId, {
+    method: "POST"
+  });
+};
+
 const buscarEntregasParaCorrecao = (atividadeId, professorId) => {
   if (!professorId) {
     const u = usuarioLogado();
@@ -356,8 +366,8 @@ async function carregarAgenda() {
     let estadoFinal = "NAO_INICIADO";
     if (!liberada) {
       estadoFinal = "BLOQUEADO";
-    } else if (e && e.nota !== null) {
-      estadoFinal = "CONCLUIDO";
+    } else if (e && (e.statusKanban === "CONCLUIDA" || e.nota !== null)) {
+      estadoFinal = "CONCLUIDA";
     } else if (e || a.aberta) {
       estadoFinal = "EM_ANDAMENTO";
     }
@@ -368,7 +378,7 @@ async function carregarAgenda() {
       prazo: a.prazo,
       turmaId: a.turmaId,
       disciplinaNome: a.disciplinaNome,
-      entregue: !!e,
+      entregue: !!e && (e.statusKanban === "CONCLUIDA" || e.nota !== null),
       nota: e ? e.nota : null,
       status: estadoFinal,
       prioridade: e ? e.prioridade : "MEDIA",
