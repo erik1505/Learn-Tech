@@ -588,10 +588,10 @@ async function carregarTrilha() {
 }
 
 async function verAtividade(id, pushHistory = true) {
-  const atividade = atividadesTurma.find(a => a.id === id);
+  const atividade = atividadesTurma.find(a => String(a.id) === String(id));
   if (!atividade) return;
 
-  atividadeAtualId = id;
+  atividadeAtualId = atividade.id;
 
   const usuario = usuarioLogado();
 
