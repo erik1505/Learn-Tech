@@ -98,6 +98,7 @@ function navigateTo(screenTarget, pushHistory = true) {
     desativarModoFocoGeral();
     if (btnModoFoco) btnModoFoco.style.display = 'none';
     if (telaTrilha) telaTrilha.classList.remove('hidden');
+    renderizarTrilha();
   } else if (screenTarget === 'detalhe-atividade') {
     if (btnModoFoco) btnModoFoco.style.display = 'block';
     if (telaDetalhe) telaDetalhe.classList.remove('hidden');
@@ -258,7 +259,6 @@ async function salvarAtividade() {
   salvarNoLocalStorage();
 
   alert('Atividade salva com sucesso!');
-  renderizarTrilha();
   navigateTo('trilha-turma');
 }
 
@@ -612,7 +612,6 @@ async function verAtividade(id, pushHistory = true) {
     try {
       await iniciarAtividadeAluno(id);
       entregasAluno.set(id, { atividadeId: id, statusKanban: 'EM_ANDAMENTO' });
-      renderizarTrilha();
     } catch (erro) {
       alert(erro.message || 'Não foi possível atualizar o status da atividade.');
     }
