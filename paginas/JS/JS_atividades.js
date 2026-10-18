@@ -83,10 +83,33 @@ function salvarPostItsNoStorage() {
 }
 
 /* NAVEGAÇÃO SPA DIRETA */
+async function registrarSaidaAtividade(atividadeId) {
+  const usuario = usuarioLogado();
+  if (!usuario || usuario.role !== 'ALUNO' || atividadeId == null) return;
+
+  const entregaAtual = entregasAluno.get(atividadeId);
+  if (!entregaAtual || entregaAtual.statusKanban === 'CONCLUIDA') return;
+
+  try {
+    await sairAtividadeAluno(atividadeId);
+    entregasAluno.set(atividadeId, { atividadeId, statusKanban: 'A_FAZER' });
+  } catch (erro) {
+    console.warn('Não foi possível registrar a saída da atividade.', erro);
+  }
+}
+
 function navigateTo(screenTarget, pushHistory = true) {
   const telaTrilha = porId('screen-trilha-turma');
   const telaDetalhe = porId('screen-detalhe-atividade');
   const telaEdicao = porId('screen-edicao-atividade');
+
+  const usuario = usuarioLogado();
+  const saiuDaAtividade = atividadeAtualId != null && screenTarget !== 'detalhe-atividade'
+    && usuario && usuario.role === 'ALUNO' && telaDetalhe && !telaDetalhe.classList.contains('hidden');
+
+  if (saiuDaAtividade) {
+    registrarSaidaAtividade(atividadeAtualId);
+  }
 
   if (telaTrilha) telaTrilha.classList.add('hidden');
   if (telaDetalhe) telaDetalhe.classList.add('hidden');

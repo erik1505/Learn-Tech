@@ -62,6 +62,21 @@ public class EntregaService {
         }
     }
 
+    @Transactional
+    public void sairAtividade(Integer atividadeId, Integer alunoId) {
+        Aluno aluno = userService.requireAluno(alunoId);
+        Atividade atividade = atividadeRepository.findById(atividadeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
+
+        EntregaAtividade entrega = obterOuCriarEntrega(atividade, aluno);
+        if ("CONCLUIDA".equalsIgnoreCase(entrega.getStatusKanban())) {
+            return;
+        }
+
+        entrega.setStatusKanban("A_FAZER");
+        entregaAtividadeRepository.save(entrega);
+    }
+
     private EntregaAtividade obterOuCriarEntrega(Atividade atividade, Aluno aluno) {
         EntregaAtividade entrega = entregaAtividadeRepository
                 .findByAtividadeIdAndAlunoRa(atividade.getId(), aluno.getRa())

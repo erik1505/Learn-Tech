@@ -40,6 +40,14 @@ public class EntregaController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/atividade/{atividadeId}/sair")
+    public ResponseEntity<Void> sairAtividade(
+            @PathVariable Integer atividadeId,
+            @RequestParam Integer alunoId) {
+        entregaService.sairAtividade(atividadeId, alunoId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/atividade/{atividadeId}/detalhes")
     public ResponseEntity<List<EntregaDetalheDTO>> listarEntregasParaCorrecao(
             @PathVariable Integer atividadeId,

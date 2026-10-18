@@ -211,6 +211,16 @@ const iniciarAtividadeAluno = (atividadeId, alunoId) => {
   });
 };
 
+const sairAtividadeAluno = (atividadeId, alunoId) => {
+  if (!alunoId) {
+    const u = usuarioLogado();
+    alunoId = u ? (u.perfilId || u.alunoId || u.id) : null;
+  }
+  return request("/entregas/atividade/" + atividadeId + "/sair?alunoId=" + alunoId, {
+    method: "POST"
+  });
+};
+
 const buscarEntregasParaCorrecao = (atividadeId, professorId) => {
   if (!professorId) {
     const u = usuarioLogado();
