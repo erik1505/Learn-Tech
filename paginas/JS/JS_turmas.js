@@ -26,11 +26,26 @@ function showScreen(screen) {
 
 async function carregarMinhasTurmas() {
   const container = document.getElementById("turmas-lista");
+  const disponiveisContainer = document.getElementById("turmas-disponiveis");
+  const tituloDisponiveis = document.getElementById("titulo-turmas-disponiveis");
+  const usuario = usuarioLogado();
   try {
-    turmasCache = await minhasTurmas();
+    if (usuario && usuario.role === "ALUNO") {
+      const resultado = await Promise.all([minhasTurmas(), turmasDisponiveisParaAluno()]);
+      turmasCache = resultado[0];
+      disponiveisContainer.innerHTML = resultado[1].length
+        ? resultado[1].map(t => cardTurmaHTML(t, true)).join("")
+        : "<p>Nenhuma turma disponível para entrar.</p>";
+      tituloDisponiveis.classList.remove("hidden");
+    } else {
+      turmasCache = await minhasTurmas();
+      disponiveisContainer.innerHTML = "";
+      tituloDisponiveis.classList.add("hidden");
+    }
   } catch (err) {
     console.error("Não foi possível carregar as turmas do servidor.", err);
     turmasCache = [];
+    disponiveisContainer.innerHTML = "";
     container.innerHTML = `<p>Erro ao carregar as turmas: ${esc(err.message || "falha de conexão")}</p>`;
     return;
   }
@@ -44,7 +59,7 @@ async function carregarMinhasTurmas() {
 }
 
 /* RENDERIZAÇÃO DOS CARDS COM CLASSES E ESTRUTURA CSS */
-function cardTurmaHTML(t) {
+function cardTurmaHTML(t, disponivel = false) {
   const professor = typeof ehProfessor === 'function' ? ehProfessor() : true;
   const safeSala = typeof esc === 'function' ? esc(t.sala) : t.sala;
   const safeProf = typeof esc === 'function' ? esc(t.professorNome || "DOCENTE") : (t.professorNome || "DOCENTE");
@@ -69,9 +84,23 @@ function cardTurmaHTML(t) {
           </div>
         </div>
       </div>
-      <a href="atividades.html?turma=${t.id}" class="btn-ver-atividade">Ver atividade</a>
+      ${disponivel
+        ? `<button type="button" class="btn-ver-atividade" onclick="matricularNaTurma(${t.id}, this)">ENTRAR NA TURMA</button>`
+        : `<a href="atividades.html?turma=${t.id}" class="btn-ver-atividade">Ver atividade</a>`}
     </div>
   `;
+}
+
+async function matricularNaTurma(turmaId, botao) {
+  botao.disabled = true;
+  try {
+    await matricularAlunoNaTurma(turmaId);
+    alert("Matrícula realizada! A turma e suas atividades já estão disponíveis.");
+    await carregarMinhasTurmas();
+  } catch (err) {
+    alert("Não foi possível entrar na turma: " + err.message);
+    botao.disabled = false;
+  }
 }
 
 function toggleMenuTurma(event, id) {

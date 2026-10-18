@@ -39,4 +39,15 @@ public class TurmaController {
     public ResponseEntity<List<Responses.TurmaResponse>> turmasDoAluno(@PathVariable Integer alunoId) {
         return ResponseEntity.ok(turmaService.listarPorAluno(alunoId));
     }
+
+    @GetMapping("/disponiveis")
+    public ResponseEntity<List<Responses.TurmaResponse>> turmasDisponiveisParaAluno(@RequestParam Integer alunoId) {
+        return ResponseEntity.ok(turmaService.listarDisponiveisParaAluno(alunoId));
+    }
+
+    @PostMapping("/{turmaId}/matriculas")
+    public ResponseEntity<Responses.TurmaResponse> matricularAluno(
+            @PathVariable Integer turmaId, @RequestParam Integer alunoId) {
+        return ResponseEntity.ok(turmaService.matricularAluno(turmaId, alunoId));
+    }
 }

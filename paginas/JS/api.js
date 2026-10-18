@@ -105,6 +105,20 @@ const atualizarPerfil = (id, nome, email) =>
 const listarTurmas = () => request("/turmas");
 const turmasDoProfessor = (id) => request("/turmas/professor/" + id);
 const turmasDoAluno = (id) => request("/turmas/aluno/" + id);
+const turmasDisponiveisParaAluno = (alunoId) => {
+  if (!alunoId) {
+    const u = usuarioLogado();
+    alunoId = u ? (u.perfilId || u.alunoId || u.id) : null;
+  }
+  return request("/turmas/disponiveis?alunoId=" + alunoId);
+};
+const matricularAlunoNaTurma = (turmaId, alunoId) => {
+  if (!alunoId) {
+    const u = usuarioLogado();
+    alunoId = u ? (u.perfilId || u.alunoId || u.id) : null;
+  }
+  return request("/turmas/" + turmaId + "/matriculas?alunoId=" + alunoId, { method: "POST" });
+};
 
 const criarTurma = (quantidade, sala, linkGrupo, professorId) => {
   if (!professorId) {
