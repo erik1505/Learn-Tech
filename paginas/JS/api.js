@@ -49,7 +49,7 @@ async function request(caminho, opcoes) {
     let erro = {};
     try { erro = await resposta.json(); } catch (e) {}
     let msg = erro.message || "";
-    if (resposta.status >= 500) msg = "Erro no servidor.";
+    if (resposta.status >= 500 && !msg) msg = "Erro no servidor.";
     else if (!msg || msg.indexOf("Validation failed") === 0) msg = "Dados inválidos. Confira os campos.";
     throw new Error(msg);
   }
@@ -94,8 +94,14 @@ const cadastrar = (nome, email, senha, role, telefone) =>
 const entrar = (email, senha) =>
   request("/auth/login", { method: "POST", body: { email, senha } });
 
-const redefinirSenhaApi = (email, novaSenha) =>
-  request("/auth/redefinir-senha", { method: "PUT", body: { email, novaSenha } });
+const verificarCodigoLoginApi = (challengeId, codigo) =>
+  request("/auth/login/verificar-codigo", { method: "POST", body: { challengeId, codigo } });
+
+const solicitarCodigoRedefinicaoApi = (email) =>
+  request("/auth/redefinir-senha/codigo", { method: "POST", body: { email } });
+
+const redefinirSenhaApi = (challengeId, codigo, novaSenha) =>
+  request("/auth/redefinir-senha", { method: "PUT", body: { challengeId, codigo, novaSenha } });
 
 const atualizarPerfil = (id, nome, email) =>
   request("/perfil/" + id, { method: "PUT", body: { nome, email } });

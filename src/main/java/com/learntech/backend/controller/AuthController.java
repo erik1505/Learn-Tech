@@ -1,8 +1,11 @@
 package com.learntech.backend.controller;
 
 import com.learntech.backend.dto.LoginRequest;
+import com.learntech.backend.dto.EmailCodeRequest;
+import com.learntech.backend.dto.AuthChallengeResponse;
 import com.learntech.backend.dto.RedefinirSenhaRequest;
 import com.learntech.backend.dto.RegisterRequest;
+import com.learntech.backend.dto.SolicitarRedefinicaoRequest;
 import com.learntech.backend.service.UserProfile;
 import com.learntech.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -30,14 +33,30 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserProfile> login(@Valid @RequestBody LoginRequest request) {
-        UserProfile usuario = userService.login(request.email(), request.senha());
+    public ResponseEntity<AuthChallengeResponse> login(@Valid @RequestBody LoginRequest request) {
+        String challengeId = userService.iniciarLogin(request.email(), request.senha());
+        return ResponseEntity.ok(new AuthChallengeResponse(challengeId, "Código enviado para o e-mail cadastrado."));
+    }
+
+    @PostMapping("/login/verificar-codigo")
+    public ResponseEntity<UserProfile> verificarCodigoLogin(@Valid @RequestBody EmailCodeRequest request) {
+        UserProfile usuario = userService.verificarCodigoLogin(request.challengeId(), request.codigo());
         return ResponseEntity.ok(usuario);
+    }
+
+    @PostMapping("/redefinir-senha/codigo")
+    public ResponseEntity<AuthChallengeResponse> solicitarRedefinicaoSenha(
+            @Valid @RequestBody SolicitarRedefinicaoRequest request) {
+        String challengeId = userService.solicitarRedefinicaoSenha(request.email());
+        return ResponseEntity.ok(new AuthChallengeResponse(
+                challengeId,
+                "Se o e-mail estiver cadastrado, você receberá um código para redefinir a senha."
+        ));
     }
 
     @PutMapping("/redefinir-senha")
     public ResponseEntity<Map<String, String>> redefinirSenha(@Valid @RequestBody RedefinirSenhaRequest request) {
-        userService.redefinirSenha(request.email(), request.novaSenha());
+        userService.redefinirSenha(request.challengeId(), request.codigo(), request.novaSenha());
         return ResponseEntity.ok(Collections.singletonMap("message", "Senha redefinida com sucesso."));
     }
 }

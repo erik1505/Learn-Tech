@@ -113,6 +113,31 @@
             </div>
           </form>
 
+          <!-- SEGUNDA ETAPA DO LOGIN -->
+          <form id="form-login-codigo" class="auth-form hidden" onsubmit="event.preventDefault();">
+            <p class="auth-code-message">
+              Enviamos um código de seis dígitos para <strong id="login-codigo-email"></strong>.
+              O código expira em 10 minutos.
+            </p>
+            <div class="input-field-wrapper">
+              <div class="field-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 2" />
+                </svg>
+              </div>
+              <label class="field-label" for="login-codigo">CÓDIGO:</label>
+              <input type="text" id="login-codigo" class="field-input" inputmode="numeric"
+                     autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+            </div>
+            <div class="auth-links">
+              <span class="link-helper" onclick="setAuthMode('login')">Voltar ao login</span>
+            </div>
+            <div class="btn-submit-container">
+              <button type="submit" class="btn-submit">VERIFICAR E ACESSAR</button>
+            </div>
+          </form>
+
           <!-- FORMULÁRIO DE CADASTRO -->
           <form id="form-cadastro" class="auth-form hidden" onsubmit="event.preventDefault();">
             <div class="input-field-wrapper">
@@ -195,7 +220,7 @@
 
           <!-- FORMULÁRIO DE REDEFINIÇÃO DE SENHA -->
           <form id="form-reset" class="auth-form hidden" onsubmit="event.preventDefault();">
-            <div class="input-field-wrapper">
+            <div id="reset-email-wrapper" class="input-field-wrapper">
               <div class="field-icon">
                 <svg
                   viewBox="0 0 24 24"
@@ -212,7 +237,18 @@
               <label class="field-label" for="reset-email">E-MAIL ACADEMICO:</label>
               <input type="email" id="reset-email" class="field-input" required>
             </div>
-            <div class="input-field-wrapper">
+            <div id="reset-codigo-wrapper" class="input-field-wrapper hidden">
+              <div class="field-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 2" />
+                </svg>
+              </div>
+              <label class="field-label" for="reset-codigo">CÓDIGO:</label>
+              <input type="text" id="reset-codigo" class="field-input" inputmode="numeric"
+                     autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6">
+            </div>
+            <div id="reset-nova-senha-wrapper" class="input-field-wrapper hidden">
               <div class="field-icon">
                 <svg viewBox="0 0 24 24" fill="#ffffff">
                   <path d="M17 10h-1V7a4 4 0 0 0-8 0v3H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zm-5 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm2.1-7H9.9V7a2.1 2.1 0 0 1 4.2 0v3z" />
@@ -221,7 +257,7 @@
               <label class="field-label" for="reset-nova-senha">NOVA SENHA:</label>
               <input type="password" id="reset-nova-senha" class="field-input" required>
             </div>
-            <div class="input-field-wrapper">
+            <div id="reset-conf-senha-wrapper" class="input-field-wrapper hidden">
               <div class="field-icon">
                 <svg viewBox="0 0 24 24" fill="#ffffff">
                   <path d="M17 10h-1V7a4 4 0 0 0-8 0v3H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zm-5 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm2.1-7H9.9V7a2.1 2.1 0 0 1 4.2 0v3z" />
@@ -234,7 +270,7 @@
               <span class="link-helper" onclick="setAuthMode('login')">Lembrou da senha? Voltar ao login</span>
             </div>
             <div class="btn-submit-container">
-              <button type="submit" class="btn-submit btn-submit-wide">REDEFINIR SENHA</button>
+              <button id="reset-submit" type="submit" class="btn-submit btn-submit-wide">ENVIAR CÓDIGO</button>
             </div>
           </form>
         </div>
@@ -270,7 +306,7 @@
         </div>
       </footer>
 
-    <script src="./JS/api.js"></script>
-    <script src="./JS/JS_autenticacao.js"></script>
+    <script src="./JS/api.js?v=2"></script>
+    <script src="./JS/JS_autenticacao.js?v=2"></script>
   </body>
 </html>

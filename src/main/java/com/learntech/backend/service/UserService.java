@@ -3,6 +3,7 @@ package com.learntech.backend.service;
 import com.learntech.backend.dto.ProfileUpdateRequest;
 import com.learntech.backend.dto.RegisterRequest;
 import com.learntech.backend.model.Aluno;
+import com.learntech.backend.model.EmailVerificationPurpose;
 import com.learntech.backend.model.Professor;
 import com.learntech.backend.model.Role;
 import com.learntech.backend.model.Usuario;
@@ -21,13 +22,16 @@ public class UserService {
     private final ProfessorRepository professores;
     private final AlunoRepository alunos;
     private final PasswordEncoder encoder;
+    private final EmailVerificationService emailVerification;
 
     public UserService(UsuarioRepository usuarios, ProfessorRepository professores,
-                       AlunoRepository alunos, PasswordEncoder encoder) {
+                       AlunoRepository alunos, PasswordEncoder encoder,
+                       EmailVerificationService emailVerification) {
         this.usuarios = usuarios;
         this.professores = professores;
         this.alunos = alunos;
         this.encoder = encoder;
+        this.emailVerification = emailVerification;
     }
 
     @Transactional
@@ -59,20 +63,44 @@ public class UserService {
         return profileOf(usuario.getId());
     }
 
-    public UserProfile login(String email, String senha) {
+    public String iniciarLogin(String email, String senha) {
         Usuario usuario = usuarios.findByLoginIgnoreCase(email.trim())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos"));
         if (!encoder.matches(senha, usuario.getSenha())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos");
         }
+        return emailVerification.enviarCodigo(usuario.getLogin(), EmailVerificationPurpose.LOGIN);
+    }
+
+    public UserProfile verificarCodigoLogin(String challengeId, String codigo) {
+        String login = emailVerification.verificarCodigo(challengeId, codigo, EmailVerificationPurpose.LOGIN)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Código inválido ou expirado."));
+        Usuario usuario = usuarios.findByLoginIgnoreCase(login)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Código inválido ou expirado."));
         return profileOf(usuario.getId());
     }
 
     @Transactional
-    public void redefinirSenha(String email, String novaSenha) {
-        Usuario usuario = usuarios.findByLoginIgnoreCase(email.trim().toLowerCase())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "E-mail não encontrado"));
+    public String solicitarRedefinicaoSenha(String email) {
+        String normalizedEmail = email.trim().toLowerCase();
+        return usuarios.findByLoginIgnoreCase(normalizedEmail)
+                .map(usuario -> emailVerification.enviarCodigo(
+                        usuario.getLogin(),
+                        EmailVerificationPurpose.PASSWORD_RESET
+                ))
+                .orElseGet(() -> java.util.UUID.randomUUID().toString());
+    }
 
+    @Transactional
+    public void redefinirSenha(String challengeId, String codigo, String novaSenha) {
+        String login = emailVerification.verificarCodigo(
+                        challengeId,
+                        codigo,
+                        EmailVerificationPurpose.PASSWORD_RESET
+                )
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Código inválido ou expirado."));
+        Usuario usuario = usuarios.findByLoginIgnoreCase(login)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Código inválido ou expirado."));
         usuario.setSenha(encoder.encode(novaSenha));
         usuarios.save(usuario);
     }
