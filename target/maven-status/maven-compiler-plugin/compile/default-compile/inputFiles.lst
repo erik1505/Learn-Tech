@@ -12,6 +12,7 @@
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/controller/TurmaController.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/controller/UserController.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/AtividadeRequest.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/AtribuirNotaRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/DisciplinaRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/EntregaDetalheDTO.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/EntregaRequest.java

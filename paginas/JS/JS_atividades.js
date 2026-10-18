@@ -571,17 +571,6 @@ async function verAtividade(id, pushHistory = true) {
   atividadeAtualId = id;
 
   const usuario = usuarioLogado();
-  if (usuario && usuario.role === 'ALUNO' && atividade.persistida
-      && (!entregasAluno.has(id) || entregasAluno.get(id).statusKanban !== 'CONCLUIDA')) {
-    try {
-      await iniciarAtividadeAluno(id);
-      entregasAluno.set(id, { atividadeId: id, statusKanban: 'EM_ANDAMENTO' });
-      renderizarTrilha();
-    } catch (erro) {
-      alert(erro.message || 'Não foi possível atualizar o status da atividade.');
-      return;
-    }
-  }
 
   porId('atividade-titulo').textContent = atividade.titulo;
   porId('envio-atividade-titulo').textContent = atividade.titulo;
@@ -617,6 +606,17 @@ async function verAtividade(id, pushHistory = true) {
   carregarCorrecoesProfessor(id);
   fecharPostItExpandido();
   navigateTo('detalhe-atividade', pushHistory);
+
+  if (usuario && usuario.role === 'ALUNO' && atividade.persistida
+      && (!entregasAluno.has(id) || entregasAluno.get(id).statusKanban !== 'CONCLUIDA')) {
+    try {
+      await iniciarAtividadeAluno(id);
+      entregasAluno.set(id, { atividadeId: id, statusKanban: 'EM_ANDAMENTO' });
+      renderizarTrilha();
+    } catch (erro) {
+      alert(erro.message || 'Não foi possível atualizar o status da atividade.');
+    }
+  }
 }
 
 async function enviarTarefa() {
