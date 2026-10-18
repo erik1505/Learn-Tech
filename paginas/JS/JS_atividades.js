@@ -108,10 +108,7 @@ function navigateTo(screenTarget, pushHistory = true) {
   }
 
   if (pushHistory) {
-    const hash = screenTarget === 'detalhe-atividade' && atividadeAtualId != null
-      ? `#${screenTarget}/${atividadeAtualId}`
-      : `#${screenTarget}`;
-    history.pushState({ screen: screenTarget, atividadeId: atividadeAtualId }, '', hash);
+    history.pushState({ screen: screenTarget, atividadeId: atividadeAtualId }, '', `#${screenTarget}`);
   }
 }
 
@@ -744,20 +741,8 @@ async function salvarNotaAluno() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', async function () {
-  await carregarTrilha();
-
-  const detalheNaUrl = location.hash.match(/^#detalhe-atividade\/(\d+)$/);
-  const estadoAtual = history.state;
-  const atividadeId = detalheNaUrl
-    ? Number(detalheNaUrl[1])
-    : estadoAtual && estadoAtual.screen === 'detalhe-atividade'
-      ? Number(estadoAtual.atividadeId)
-      : null;
-
-  if (Number.isInteger(atividadeId)) {
-    await verAtividade(atividadeId, false);
-  }
+document.addEventListener('DOMContentLoaded', function () {
+  carregarTrilha();
 
   const btnNova = porId('btn-nova-atividade');
   if (btnNova) {
