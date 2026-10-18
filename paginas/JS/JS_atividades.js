@@ -108,7 +108,10 @@ function navigateTo(screenTarget, pushHistory = true) {
   }
 
   if (pushHistory) {
-    history.pushState({ screen: screenTarget, atividadeId: atividadeAtualId }, '', `#${screenTarget}`);
+    const hash = screenTarget === 'detalhe-atividade' && atividadeAtualId != null
+      ? `#${screenTarget}/${atividadeAtualId}`
+      : `#${screenTarget}`;
+    history.pushState({ screen: screenTarget, atividadeId: atividadeAtualId }, '', hash);
   }
 }
 
@@ -481,14 +484,14 @@ function cardAtividadeHTML(a) {
           </div>
         </div>
         <div class="card-dots-wrapper">
-          <button class="btn-card-dots" onclick="toggleMenuOpcoes(event, ${a.id})">⋮</button>
+          <button type="button" class="btn-card-dots" onclick="toggleMenuOpcoes(event, ${a.id})">⋮</button>
           <div id="dropdown-menu-${a.id}" class="dropdown-menu-card hidden">
             <button type="button" onclick="editarAtividade(${a.id})">EDITAR</button>
             <button type="button" class="btn-delete-option" onclick="deletarAtividadeLocal(${a.id})">EXCLUIR</button>
           </div>
         </div>
       </div>
-      <button class="btn-ver-atividade" onclick="verAtividade(${a.id})">VER ATIVIDADE</button>
+      <button type="button" class="btn-ver-atividade" onclick="verAtividade(${a.id})">VER ATIVIDADE</button>
     </div>
   `;
 }
@@ -741,8 +744,20 @@ async function salvarNotaAluno() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  carregarTrilha();
+document.addEventListener('DOMContentLoaded', async function () {
+  await carregarTrilha();
+
+  const detalheNaUrl = location.hash.match(/^#detalhe-atividade\/(\d+)$/);
+  const estadoAtual = history.state;
+  const atividadeId = detalheNaUrl
+    ? Number(detalheNaUrl[1])
+    : estadoAtual && estadoAtual.screen === 'detalhe-atividade'
+      ? Number(estadoAtual.atividadeId)
+      : null;
+
+  if (Number.isInteger(atividadeId)) {
+    await verAtividade(atividadeId, false);
+  }
 
   const btnNova = porId('btn-nova-atividade');
   if (btnNova) {
