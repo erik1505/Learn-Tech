@@ -71,7 +71,11 @@ function carregarAtividadesSalvas() {
 }
 
 function salvarNoLocalStorage() {
-  localStorage.setItem(STORAGE_KEY_ATIVIDADES, JSON.stringify(atividadesTurma));
+  try {
+    localStorage.setItem(STORAGE_KEY_ATIVIDADES, JSON.stringify(atividadesTurma));
+  } catch (e) {
+    console.warn('Não foi possível salvar as atividades localmente (limite de armazenamento).', e);
+  }
 }
 
 function salvarNotasLearnBook(texto) {
@@ -325,7 +329,7 @@ function renderizarPostIts() {
   container.innerHTML = listaPostIts.map(p => `
     <div class="postit-item postit-thumb" onclick="selecionarPostIt(${p.id})">
       <div class="postit-pin postit-striped-tape"></div>
-      <span>${p.titulo}</span>
+      <span>${esc(p.titulo)}</span>
     </div>
   `).join('');
 }
@@ -588,16 +592,21 @@ async function carregarTrilha() {
 }
 
 async function verAtividade(id, pushHistory = true) {
-  const atividade = atividadesTurma.find(a => String(a.id) === String(id));
+  const atividade = atividadesTurma.find(a => a.id === id);
   if (!atividade) return;
 
-  atividadeAtualId = atividade.id;
+  atividadeAtualId = id;
 
   const usuario = usuarioLogado();
 
   porId('atividade-titulo').textContent = atividade.titulo;
   porId('envio-atividade-titulo').textContent = atividade.titulo;
   porId('atividade-descricao').textContent = atividade.descricao || "Sem descrição disponível.";
+
+  const prazoEl = porId('atividade-prazo');
+  if (prazoEl) {
+    prazoEl.textContent = 'PRAZO: ' + (typeof formatarData === 'function' ? formatarData(atividade.prazo) : (atividade.prazo || '--/--/----'));
+  }
 
   const nomeArquivoEl = porId('card-ref-nome-arquivo');
   const btnBaixarRef = porId('btn-baixar-referencia');
@@ -630,8 +639,11 @@ async function verAtividade(id, pushHistory = true) {
   fecharPostItExpandido();
   navigateTo('detalhe-atividade', pushHistory);
 
+  // Só registra o início se a atividade ainda não estiver iniciada ou concluída.
+  // Evita requisições repetidas (e escritas no banco) a cada abertura/recarga da página.
+  const statusAtual = entregasAluno.get(id)?.statusKanban;
   if (usuario && usuario.role === 'ALUNO' && atividade.persistida
-      && (!entregasAluno.has(id) || entregasAluno.get(id).statusKanban !== 'CONCLUIDA')) {
+      && statusAtual !== 'CONCLUIDA' && statusAtual !== 'EM_ANDAMENTO') {
     try {
       await iniciarAtividadeAluno(id);
       entregasAluno.set(id, { atividadeId: id, statusKanban: 'EM_ANDAMENTO' });
@@ -763,11 +775,19 @@ async function salvarNotaAluno() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  carregarTrilha();
-
+/* INICIALIZAÇÃO */
+document.addEventListener('DOMContentLoaded', async function () {
   const btnNova = porId('btn-nova-atividade');
   if (btnNova) {
     btnNova.addEventListener('click', novaAtividade);
+  }
+
+  await carregarTrilha();
+
+  // Se a página for recarregada com uma atividade aberta, reabre a mesma tela
+  // em vez de voltar para a lista de atividades.
+  const estado = history.state;
+  if (estado && estado.screen === 'detalhe-atividade' && estado.atividadeId != null) {
+    verAtividade(estado.atividadeId, false);
   }
 });
