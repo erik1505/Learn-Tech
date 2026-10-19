@@ -1,8 +1,11 @@
 package com.learntech.backend.service;
 
+import com.learntech.backend.dto.AuthChallengeResponse;
 import com.learntech.backend.model.EmailVerificationCode;
 import com.learntech.backend.model.EmailVerificationPurpose;
 import com.learntech.backend.repository.EmailVerificationCodeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailException;
@@ -25,6 +28,7 @@ import java.util.UUID;
 
 @Service
 public class EmailVerificationService {
+    private static final Logger logger = LoggerFactory.getLogger(EmailVerificationService.class);
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final int CODE_LIFETIME_MINUTES = 10;
     private static final int RESEND_COOLDOWN_SECONDS = 60;
@@ -33,17 +37,20 @@ public class EmailVerificationService {
     private final EmailVerificationCodeRepository codes;
     private final JavaMailSender mailSender;
     private final String fromAddress;
+    private final String mailHost;
 
     public EmailVerificationService(EmailVerificationCodeRepository codes,
                                     JavaMailSender mailSender,
-                                    @Value("${app.mail.from}") String fromAddress) {
+                                    @Value("${app.mail.from}") String fromAddress,
+                                    @Value("${spring.mail.host:localhost}") String mailHost) {
         this.codes = codes;
         this.mailSender = mailSender;
         this.fromAddress = fromAddress;
+        this.mailHost = mailHost;
     }
 
     @Transactional
-    public String enviarCodigo(String login, EmailVerificationPurpose purpose) {
+    public AuthChallengeResponse enviarCodigo(String login, EmailVerificationPurpose purpose) {
         String normalizedLogin = login.trim().toLowerCase(Locale.ROOT);
         LocalDateTime criadoEm = LocalDateTime.now();
         Optional<EmailVerificationCode> codigoRecente =
@@ -51,7 +58,7 @@ public class EmailVerificationService {
         if (codigoRecente.isPresent()
                 && codigoRecente.get().getCreatedAt().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(criadoEm)
                 && codigoRecente.get().getExpiresAt().isAfter(criadoEm)) {
-            return codigoRecente.get().getId();
+            return new AuthChallengeResponse(codigoRecente.get().getId(), "Código já enviado recentemente. Verifique sua caixa de entrada.");
         }
 
         String challengeId = UUID.randomUUID().toString();
@@ -79,15 +86,37 @@ public class EmailVerificationService {
 
         try {
             mailSender.send(mensagem);
+            return new AuthChallengeResponse(
+                    challengeId,
+                    purpose == EmailVerificationPurpose.LOGIN
+                            ? "Código enviado para o e-mail cadastrado."
+                            : "Se o e-mail estiver cadastrado, você receberá um código para redefinir a senha."
+            );
         } catch (MailException erro) {
+            if (isLocalMailFallbackEnabled()) {
+                logger.warn("SMTP indisponível em {}. Usando código temporário para desenvolvimento.", mailHost, erro);
+                return new AuthChallengeResponse(
+                        challengeId,
+                        "SMTP indisponível. Código de teste para desenvolvimento: " + codigo
+                );
+            }
+
             throw new ResponseStatusException(
                     HttpStatus.SERVICE_UNAVAILABLE,
                     "Não foi possível enviar o código. Verifique a configuração SMTP do servidor.",
                     erro
             );
         }
+    }
 
-        return challengeId;
+    private boolean isLocalMailFallbackEnabled() {
+        if (mailHost == null || mailHost.isBlank()) {
+            return true;
+        }
+        String host = mailHost.trim();
+        return "localhost".equalsIgnoreCase(host)
+                || "127.0.0.1".equalsIgnoreCase(host)
+                || "0.0.0.0".equalsIgnoreCase(host);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

@@ -1,5 +1,6 @@
 package com.learntech.backend.service;
 
+import com.learntech.backend.dto.AuthChallengeResponse;
 import com.learntech.backend.dto.ProfileUpdateRequest;
 import com.learntech.backend.dto.RegisterRequest;
 import com.learntech.backend.model.Aluno;
@@ -63,7 +64,7 @@ public class UserService {
         return profileOf(usuario.getId());
     }
 
-    public String iniciarLogin(String email, String senha) {
+    public AuthChallengeResponse iniciarLogin(String email, String senha) {
         Usuario usuario = usuarios.findByLoginIgnoreCase(email.trim())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos"));
         if (!encoder.matches(senha, usuario.getSenha())) {
@@ -81,14 +82,17 @@ public class UserService {
     }
 
     @Transactional
-    public String solicitarRedefinicaoSenha(String email) {
+    public AuthChallengeResponse solicitarRedefinicaoSenha(String email) {
         String normalizedEmail = email.trim().toLowerCase();
         return usuarios.findByLoginIgnoreCase(normalizedEmail)
                 .map(usuario -> emailVerification.enviarCodigo(
                         usuario.getLogin(),
                         EmailVerificationPurpose.PASSWORD_RESET
                 ))
-                .orElseGet(() -> java.util.UUID.randomUUID().toString());
+                .orElseGet(() -> new AuthChallengeResponse(
+                        java.util.UUID.randomUUID().toString(),
+                        "Se o e-mail estiver cadastrado, você receberá um código para redefinir a senha."
+                ));
     }
 
     @Transactional

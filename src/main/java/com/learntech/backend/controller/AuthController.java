@@ -34,8 +34,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthChallengeResponse> login(@Valid @RequestBody LoginRequest request) {
-        String challengeId = userService.iniciarLogin(request.email(), request.senha());
-        return ResponseEntity.ok(new AuthChallengeResponse(challengeId, "Código enviado para o e-mail cadastrado."));
+        AuthChallengeResponse challenge = userService.iniciarLogin(request.email(), request.senha());
+        return ResponseEntity.ok(challenge);
     }
 
     @PostMapping("/login/verificar-codigo")
@@ -47,11 +47,8 @@ public class AuthController {
     @PostMapping("/redefinir-senha/codigo")
     public ResponseEntity<AuthChallengeResponse> solicitarRedefinicaoSenha(
             @Valid @RequestBody SolicitarRedefinicaoRequest request) {
-        String challengeId = userService.solicitarRedefinicaoSenha(request.email());
-        return ResponseEntity.ok(new AuthChallengeResponse(
-                challengeId,
-                "Se o e-mail estiver cadastrado, você receberá um código para redefinir a senha."
-        ));
+        AuthChallengeResponse challenge = userService.solicitarRedefinicaoSenha(request.email());
+        return ResponseEntity.ok(challenge);
     }
 
     @PutMapping("/redefinir-senha")

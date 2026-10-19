@@ -1,1 +1,8 @@
+com/learntech/backend/dto/AuthChallengeResponse.class
 com/learntech/backend/dto/AtribuirNotaRequest.class
+com/learntech/backend/model/EmailVerificationPurpose.class
+com/learntech/backend/dto/SolicitarRedefinicaoRequest.class
+com/learntech/backend/service/EmailVerificationService.class
+com/learntech/backend/dto/EmailCodeRequest.class
+com/learntech/backend/model/EmailVerificationCode.class
+com/learntech/backend/repository/EmailVerificationCodeRepository.class

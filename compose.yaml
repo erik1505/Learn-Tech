@@ -6,10 +6,27 @@ services:
       - "8080:8080"
     environment:
       DB_URL: jdbc:sqlite:/data/learntech.db
+      MAIL_HOST: maildev
+      MAIL_PORT: "1025"
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+      MAIL_SMTP_AUTH: "false"
+      MAIL_SMTP_STARTTLS: "false"
+      MAIL_SMTP_STARTTLS_REQUIRED: "false"
+      MAIL_FROM: no-reply@learntech.local
     volumes:
       - sqlite_data:/data
+    depends_on:
+      - maildev
     cpus: 1
     mem_limit: 768m
+
+  maildev:
+    image: maildev/maildev:latest
+    restart: unless-stopped
+    ports:
+      - "1080:1080"
+      - "1025:1025"
 
 volumes:
   sqlite_data:

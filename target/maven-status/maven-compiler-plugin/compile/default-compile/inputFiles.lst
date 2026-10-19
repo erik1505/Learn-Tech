@@ -13,7 +13,9 @@
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/controller/UserController.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/AtividadeRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/AtribuirNotaRequest.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/AuthChallengeResponse.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/DisciplinaRequest.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/EmailCodeRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/EntregaDetalheDTO.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/EntregaRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/LoginRequest.java
@@ -23,11 +25,14 @@
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/RedefinirSenhaRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/RegisterRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/Responses.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/SolicitarRedefinicaoRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/TurmaRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/ActivityStatus.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/Aluno.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/Atividade.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/Disciplina.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/EmailVerificationCode.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/EmailVerificationPurpose.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/EntregaAtividade.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/Matricula.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/Notificacao.java
@@ -40,6 +45,7 @@
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/AlunoRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/AtividadeRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/DisciplinaRepository.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/EmailVerificationCodeRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/EntregaAtividadeRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/MatriculaRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/NotificacaoRepository.java
@@ -47,6 +53,7 @@
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/ProfessorRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/TurmaRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/UsuarioRepository.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/EmailVerificationService.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/EntregaService.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/NotificationService.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/TurmaService.java
