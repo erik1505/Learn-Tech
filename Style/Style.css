@@ -95,6 +95,40 @@ nav a.active {
   align-items: center;
 }
 
+.auth-buttons.hidden,
+.home-user-actions.hidden {
+  display: none;
+}
+
+.home-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.home-user-actions .header-icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.home-user-actions .header-icon-btn svg {
+  width: 25px;
+  height: 25px;
+}
+
+.home-user-actions .header-icon-btn:hover {
+  color: #38bdf8;
+}
+
 .auth-buttons a {
   text-decoration: none;
 }

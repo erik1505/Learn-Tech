@@ -87,6 +87,64 @@ function createNotificationsPanel() {
   renderNotifications();
 }
 
+function createProfilePanel() {
+  if (!getElement('profile-panel')) {
+    const panel = document.createElement('aside');
+    panel.id = 'profile-panel';
+    panel.className = 'profile-notification-panel profile-panel';
+    panel.setAttribute('aria-hidden', 'true');
+    panel.innerHTML = `
+      <div class="profile-panel-header">
+        <div><span class="panel-eyebrow">MINHA CONTA</span><h2>Perfil</h2></div>
+        <button type="button" class="panel-close-btn" onclick="closeProfile()" title="Fechar" aria-label="Fechar perfil">×</button>
+      </div>
+      <div class="profile-summary">
+        <div class="profile-avatar" aria-hidden="true"></div>
+        <div class="profile-summary-text">
+          <strong id="profile-name"></strong>
+          <span id="profile-email"></span>
+        </div>
+      </div>
+      <div class="profile-info-list">
+        <div class="profile-info-row"><span>NOME</span><strong id="profile-name-info"></strong></div>
+        <div class="profile-info-row"><span>E-MAIL</span><strong id="profile-email-info"></strong></div>
+        <div class="profile-info-row"><span>TIPO DE CONTA</span><strong></strong></div>
+      </div>
+      <div class="profile-actions">
+        <button type="button" class="profile-action-primary" onclick="openEditProfile()">EDITAR PERFIL</button>
+        <button type="button" class="profile-action-secondary" onclick="logoutUser()">SAIR DA CONTA</button>
+      </div>
+    `;
+    document.body.appendChild(panel);
+  }
+
+  if (!getElement('profile-edit-modal')) {
+    const modal = document.createElement('div');
+    modal.id = 'profile-edit-modal';
+    modal.className = 'profile-edit-overlay';
+    modal.setAttribute('aria-hidden', 'true');
+    modal.innerHTML = `
+      <div class="profile-edit-modal" role="dialog" aria-modal="true" aria-labelledby="profile-edit-title">
+        <div class="profile-edit-header">
+          <div><span class="panel-eyebrow">MINHA CONTA</span><h2 id="profile-edit-title">Editar perfil</h2></div>
+          <button type="button" class="panel-close-btn" onclick="closeEditProfile()" title="Fechar" aria-label="Fechar edição">×</button>
+        </div>
+        <div class="profile-edit-form">
+          <label for="profile-name-input">NOME</label>
+          <input id="profile-name-input" type="text" autocomplete="name">
+          <label for="profile-email-input">E-MAIL</label>
+          <input id="profile-email-input" type="email" autocomplete="email">
+          <div class="profile-edit-buttons">
+            <button type="button" class="profile-action-secondary" onclick="closeEditProfile()">CANCELAR</button>
+            <button type="button" class="profile-action-primary" onclick="saveProfile()">SALVAR</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+}
+
 // Desenha a lista de notificações (ou a mensagem de lista vazia)
 function renderNotifications() {
   const list = getElement('notifications-list');
@@ -167,6 +225,10 @@ async function markNotificationAsRead(id) {
   notification.unread = false;
   renderNotifications();
 
+  if (typeof modoDemonstracaoAtivo === 'function' && modoDemonstracaoAtivo()) {
+    return;
+  }
+
   try {
     await marcarLida(id, usuarioLogado().id);
   } catch (erro) {
@@ -183,6 +245,10 @@ async function markAllNotificationsAsRead() {
   });
 
   renderNotifications();
+
+  if (typeof modoDemonstracaoAtivo === 'function' && modoDemonstracaoAtivo()) {
+    return;
+  }
 
   try {
     await marcarTodasLidas(usuarioLogado().id);
@@ -355,7 +421,9 @@ async function saveProfile() {
 
   try {
     const usuario = usuarioLogado();
-    const atualizado = await atualizarPerfil(usuario.id, newName, newEmail);
+    const atualizado = modoDemonstracaoAtivo()
+      ? { nome: newName, email: newEmail }
+      : await atualizarPerfil(usuario.id, newName, newEmail);
 
     salvarUsuario(Object.assign({}, usuario, { nome: atualizado.nome, email: atualizado.email }));
     preencherPerfil();
@@ -461,6 +529,12 @@ async function carregarNotificacoes() {
     return;
   }
 
+  if (usuario.modoDemonstracao) {
+    notificationsData = [];
+    renderNotifications();
+    return;
+  }
+
   try {
     const lista = await notificacoes(usuario.id);
 
@@ -523,11 +597,26 @@ window.addEventListener('resize', function () {
 
 // Início: cria o painel e liga o clique do sino
 document.addEventListener('DOMContentLoaded', function () {
+  createProfilePanel();
   createNotificationsPanel();
+
+  const profileButton = getElement('profile-button');
+  if (profileButton) {
+    profileButton.setAttribute('aria-controls', 'profile-panel');
+    profileButton.setAttribute('aria-expanded', 'false');
+  }
 
   const notificationButton = getElement('notification-button');
 
   if (notificationButton) {
+    notificationButton.setAttribute('aria-controls', 'notifications-panel');
+    notificationButton.setAttribute('aria-expanded', 'false');
+    if (!getElement('notification-badge')) {
+      const badge = document.createElement('span');
+      badge.id = 'notification-badge';
+      badge.className = 'notification-badge hidden';
+      notificationButton.appendChild(badge);
+    }
     notificationButton.addEventListener('click', function (event) {
       event.stopPropagation();
       toggleNotifications();
