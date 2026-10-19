@@ -88,9 +88,11 @@ public class EmailVerificationService {
             mailSender.send(mensagem);
             return new AuthChallengeResponse(
                     challengeId,
-                    purpose == EmailVerificationPurpose.LOGIN
-                            ? "Código enviado para o e-mail cadastrado."
-                            : "Se o e-mail estiver cadastrado, você receberá um código para redefinir a senha."
+                    "maildev".equalsIgnoreCase(mailHost.trim())
+                            ? "Código enviado ao e-mail de teste. Consulte http://localhost:1080."
+                            : purpose == EmailVerificationPurpose.LOGIN
+                                    ? "Código enviado para o e-mail cadastrado."
+                                    : "Se o e-mail estiver cadastrado, você receberá um código para redefinir a senha."
             );
         } catch (MailException erro) {
             if (isLocalMailFallbackEnabled()) {

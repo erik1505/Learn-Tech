@@ -97,6 +97,7 @@ async function fazerLogin(evento) {
     document.getElementById('login-codigo-email').textContent = email;
     document.getElementById('login-codigo').value = '';
     setAuthMode('login-codigo');
+    alert(desafio.message);
     if (botao) botao.disabled = false;
   } catch (erro) {
     alert(erro.message);
