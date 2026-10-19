@@ -395,8 +395,14 @@ function entrarModoDemonstracao() {
       descricao: "Atividade padrão para testar a navegação, edição e recursos da turma.",
       prazo: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       status: "A_FAZER",
+      disciplinaNome: "Matemática",
+      nota: 8.5,
       persistida: false
     });
+  } else {
+    const atividadeDemo = atividades.find(atividade => atividade.id === turmaId);
+    atividadeDemo.disciplinaNome = atividadeDemo.disciplinaNome || "Matemática";
+    if (atividadeDemo.nota == null) atividadeDemo.nota = 8.5;
   }
 
   localStorage.setItem(chaveTurmas, JSON.stringify(turmas));

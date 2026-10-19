@@ -92,9 +92,45 @@ function montarCardMateria(nomeMateria, atividades, entregas) {
   `;
 }
 
+function renderizarNotas(grade, atividades, entregas) {
+  const porDisciplina = new Map();
+
+  atividades.forEach(function (atividade) {
+    const nomeMateria = atividade.disciplinaNome || 'Outras atividades';
+    const lista = porDisciplina.get(nomeMateria) || [];
+    lista.push(atividade);
+    porDisciplina.set(nomeMateria, lista);
+  });
+
+  if (!porDisciplina.size) {
+    grade.innerHTML = '<p>Nenhuma atividade cadastrada ainda.</p>';
+    return;
+  }
+
+  grade.innerHTML = Array.from(porDisciplina.entries()).map(function (par) {
+    return montarCardMateria(par[0], par[1], entregas);
+  }).join('');
+}
+
 async function carregarNotas() {
   const usuario = usuarioLogado();
   const grade = document.getElementById('notas-grid');
+
+  if (usuario && usuario.modoDemonstracao) {
+    try {
+      const atividades = JSON.parse(localStorage.getItem('learntech_atividades_db') || '[]')
+        .filter(function (atividade) { return Number(atividade.turmaId) === 900001; });
+      renderizarNotas(grade, atividades, new Map());
+    } catch (erro) {
+      grade.innerHTML = '<p>Não foi possível carregar as notas de demonstração.</p>';
+    }
+    return;
+  }
+
+  if (!usuario) {
+    grade.innerHTML = '<p>Entre na sua conta para consultar as notas.</p>';
+    return;
+  }
 
   if (usuario.role !== 'ALUNO') {
     grade.innerHTML = '<p>As notas são exibidas para alunos. Para lançar notas, abra uma atividade.</p>';
@@ -105,25 +141,7 @@ async function carregarNotas() {
     const resultado = await Promise.all([minhasNotas(usuario.id), listarAtividades()]);
     const entregas = new Map(resultado[0].map(function (e) { return [e.atividadeId, e]; }));
     const atividades = resultado[1];
-
-    // Agrupa avaliações por matéria para resumir a nota e detalhar os lançamentos.
-    const porDisciplina = new Map();
-
-    atividades.forEach(function (atividade) {
-      const nomeMateria = atividade.disciplinaNome || 'Outras atividades';
-      const lista = porDisciplina.get(nomeMateria) || [];
-      lista.push(atividade);
-      porDisciplina.set(nomeMateria, lista);
-    });
-
-    if (!porDisciplina.size) {
-      grade.innerHTML = '<p>Nenhuma atividade cadastrada ainda.</p>';
-      return;
-    }
-
-    grade.innerHTML = Array.from(porDisciplina.entries()).map(function (par) {
-      return montarCardMateria(par[0], par[1], entregas);
-    }).join('');
+    renderizarNotas(grade, atividades, entregas);
   } catch (erro) {
     grade.innerHTML = '';
     alert(erro.message);
