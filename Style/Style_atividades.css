@@ -792,22 +792,32 @@ main {
   color: #0b091a;
   width: 100%;
   max-width: 580px;
-  min-height: 330px;
-  border-radius: 20px;
+  aspect-ratio: 1;
+  min-height: 0;
+  box-sizing: border-box;
+  border-radius: 2px;
   padding: 30px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: flex-start;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
 }
 
-.postit-card-expanded p, .postit-big-card-text {
+.postit-big-card-text {
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  padding: 0;
+  border: 0;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: #30270c;
   font-size: 16px;
-  font-weight: 900;
-  text-align: center;
-  text-transform: uppercase;
-  color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  font-weight: 500;
+  text-align: left;
+  text-transform: none;
+  line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
 }
