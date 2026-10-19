@@ -212,7 +212,7 @@ function editarAtividade(id) {
 async function deletarAtividadeLocal(id) {
   if (confirm("Tem certeza que deseja excluir esta atividade?")) {
     const atividade = atividadesTurma.find(a => a.id === id);
-    if (atividade && atividade.persistida) {
+    if (atividade && atividade.persistida && !modoDemonstracaoAtivo()) {
       try {
         await excluirAtividade(null, id);
       } catch (e) {
@@ -258,21 +258,37 @@ async function salvarAtividade() {
     : atividadeExistente && atividadeExistente.arquivoUrl;
 
   try {
-    const professorId = usuario.perfilId || usuario.professorId || usuario.id;
-    const resposta = atividadeExistente && atividadeExistente.persistida
-      ? await atualizarAtividade(professorId, atividadeIdEdicao, nome, descricao, prazo, turmaAtualId, statusSelect)
-      : await criarAtividade(professorId, nome, descricao, prazo, turmaAtualId, statusSelect);
+    let atividadeSalva;
+    if (modoDemonstracaoAtivo()) {
+      atividadeSalva = {
+        ...(atividadeExistente || {}),
+        id: atividadeExistente ? atividadeExistente.id : Date.now(),
+        titulo: nome,
+        descricao,
+        prazo,
+        turmaId: turmaAtualId,
+        status: statusSelect,
+        arquivoNome: arquivoNome || null,
+        arquivoUrl: arquivoUrl || null,
+        persistida: false
+      };
+    } else {
+      const professorId = usuario.perfilId || usuario.professorId || usuario.id;
+      const resposta = atividadeExistente && atividadeExistente.persistida
+        ? await atualizarAtividade(professorId, atividadeIdEdicao, nome, descricao, prazo, turmaAtualId, statusSelect)
+        : await criarAtividade(professorId, nome, descricao, prazo, turmaAtualId, statusSelect);
 
-    if (!resposta || resposta.id == null) {
-      throw new Error('O servidor não retornou o identificador da atividade.');
+      if (!resposta || resposta.id == null) {
+        throw new Error('O servidor não retornou o identificador da atividade.');
+      }
+
+      atividadeSalva = {
+        ...resposta,
+        arquivoNome: arquivoNome || null,
+        arquivoUrl: arquivoUrl || null,
+        persistida: true
+      };
     }
-
-    const atividadeSalva = {
-      ...resposta,
-      arquivoNome: arquivoNome || null,
-      arquivoUrl: arquivoUrl || null,
-      persistida: true
-    };
 
     if (atividadeIdEdicao != null) {
       atividadesTurma = atividadesTurma.filter(a => a.id !== atividadeIdEdicao);
@@ -548,29 +564,34 @@ async function carregarTrilha() {
       turmaAtualNome = turma.sala;
       porId('turma-titulo').textContent = turmaAtualNome;
 
-      const atividadesServidor = await atividadesDaTurma(turmaAtualId);
-      const atividadesSalvas = new Map(
-        atividadesTurma
-          .filter(a => a.persistida)
-          .map(a => [String(a.id), a])
-      );
-
-      atividadesTurma = atividadesServidor.map(a => {
-        const salva = atividadesSalvas.get(String(a.id));
-        return {
-          ...a,
-          arquivoNome: salva ? salva.arquivoNome : null,
-          arquivoUrl: salva ? salva.arquivoUrl : null,
-          persistida: true
-        };
-      });
-
-      if (usuario && usuario.role === 'ALUNO') {
-        const alunoId = usuario.perfilId || usuario.alunoId || usuario.id;
-        const entregas = await minhasNotas(alunoId);
-        entregasAluno = new Map(entregas.map(e => [e.atividadeId, e]));
-      } else {
+      if (usuario && usuario.modoDemonstracao) {
+        atividadesTurma = atividadesTurma.filter(a => Number(a.turmaId) === Number(turmaAtualId));
         entregasAluno.clear();
+      } else {
+        const atividadesServidor = await atividadesDaTurma(turmaAtualId);
+        const atividadesSalvas = new Map(
+          atividadesTurma
+            .filter(a => a.persistida)
+            .map(a => [String(a.id), a])
+        );
+
+        atividadesTurma = atividadesServidor.map(a => {
+          const salva = atividadesSalvas.get(String(a.id));
+          return {
+            ...a,
+            arquivoNome: salva ? salva.arquivoNome : null,
+            arquivoUrl: salva ? salva.arquivoUrl : null,
+            persistida: true
+          };
+        });
+
+        if (usuario && usuario.role === 'ALUNO') {
+          const alunoId = usuario.perfilId || usuario.alunoId || usuario.id;
+          const entregas = await minhasNotas(alunoId);
+          entregasAluno = new Map(entregas.map(e => [e.atividadeId, e]));
+        } else {
+          entregasAluno.clear();
+        }
       }
     }
   } catch (err) {
