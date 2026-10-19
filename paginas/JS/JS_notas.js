@@ -6,12 +6,90 @@
    Nota 0 significa "entregue, aguardando correção".
    ========================================================= */
 
-function textoDaNota(atividade, entrega) {
-  if (!entrega || entrega.statusKanban !== 'CONCLUIDA') {
-    return 'Não entregue';
+function pontuacaoDaAtividade(atividade, entrega) {
+  const nota = entrega && entrega.nota != null
+    ? entrega.nota
+    : atividade.nota != null ? atividade.nota : atividade.pontuacao;
+
+  if (nota == null || nota === '') return null;
+
+  const valor = Number(nota);
+  return Number.isFinite(valor) && valor > 0 ? valor : null;
+}
+
+function formatarPontuacao(nota) {
+  return new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 }).format(nota);
+}
+
+function textoDaNota(atividade, entrega, pontuacao) {
+  if (pontuacao != null) return formatarPontuacao(pontuacao) + ' pts';
+
+  const notaPendente = (entrega && entrega.nota != null && Number(entrega.nota) === 0)
+    || (atividade.nota != null && Number(atividade.nota) === 0);
+  if (notaPendente || (entrega && entrega.statusKanban === 'CONCLUIDA')) {
+    return 'Aguardando correção';
   }
 
-  return entrega.nota > 0 ? String(entrega.nota) : 'Aguardando correção';
+  return 'Não entregue';
+}
+
+function montarCardMateria(nomeMateria, atividades, entregas) {
+  const linhas = atividades.map(function (atividade) {
+    const entrega = entregas.get(atividade.id) || entregas.get(String(atividade.id));
+    const pontuacao = pontuacaoDaAtividade(atividade, entrega);
+    const textoPontuacao = textoDaNota(atividade, entrega, pontuacao);
+
+    return {
+      atividade: atividade,
+      pontuacao: pontuacao,
+      textoPontuacao: textoPontuacao
+    };
+  });
+
+  const pontuacoesLancadas = linhas.filter(function (linha) {
+    return linha.pontuacao != null;
+  });
+  const total = pontuacoesLancadas.reduce(function (soma, linha) {
+    return soma + linha.pontuacao;
+  }, 0);
+  const totalTexto = formatarPontuacao(total);
+  const resumoNota = pontuacoesLancadas.length ? totalTexto : '—';
+  const resumoLegenda = pontuacoesLancadas.length ? 'PONTOS' : 'SEM NOTAS';
+  const resumoQuantidade = pontuacoesLancadas.length + ' de ' + linhas.length + ' atividades com nota';
+
+  const listaAtividades = linhas.map(function (linha) {
+    const notaPendente = linha.pontuacao == null;
+    return `
+      <div class="grade-row">
+        <span class="grade-activity-name">${esc(linha.atividade.titulo || linha.atividade.nome || 'Atividade')}</span>
+        <span class="grade-score${notaPendente ? ' grade-score-pending' : ''}">${esc(linha.textoPontuacao)}</span>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <details class="subject-card">
+      <summary class="subject-summary">
+        <span class="subject-summary-copy">
+          <span class="subject-eyebrow">NOTA GERAL</span>
+          <strong class="subject-name">${esc(nomeMateria)}</strong>
+          <span class="subject-graded-count">${esc(resumoQuantidade)}</span>
+        </span>
+        <span class="subject-summary-score">
+          <strong>${esc(resumoNota)}</strong>
+          <span>${esc(resumoLegenda)}</span>
+        </span>
+        <span class="subject-chevron" aria-hidden="true"></span>
+      </summary>
+      <div class="subject-details">
+        <div class="grade-list">${listaAtividades}</div>
+        <div class="subject-total">
+          <span>Total das notas lançadas</span>
+          <strong>${esc(totalTexto)} pts</strong>
+        </div>
+      </div>
+    </details>
+  `;
 }
 
 async function carregarNotas() {
@@ -28,13 +106,14 @@ async function carregarNotas() {
     const entregas = new Map(resultado[0].map(function (e) { return [e.atividadeId, e]; }));
     const atividades = resultado[1];
 
-    // Agrupa as atividades por disciplina
+    // Agrupa avaliações por matéria para resumir a nota e detalhar os lançamentos.
     const porDisciplina = new Map();
 
     atividades.forEach(function (atividade) {
-      const lista = porDisciplina.get(atividade.disciplinaNome) || [];
+      const nomeMateria = atividade.disciplinaNome || 'Outras atividades';
+      const lista = porDisciplina.get(nomeMateria) || [];
       lista.push(atividade);
-      porDisciplina.set(atividade.disciplinaNome, lista);
+      porDisciplina.set(nomeMateria, lista);
     });
 
     if (!porDisciplina.size) {
@@ -43,11 +122,7 @@ async function carregarNotas() {
     }
 
     grade.innerHTML = Array.from(porDisciplina.entries()).map(function (par) {
-      const linhas = par[1].map(function (a) {
-        return '<div class="grade-row">' + esc(a.titulo) + ': ' + esc(textoDaNota(a, entregas.get(a.id))) + '</div>';
-      }).join('');
-
-      return '<article class="subject-card"><h2>' + esc(par[0]) + '</h2>' + linhas + '</article>';
+      return montarCardMateria(par[0], par[1], entregas);
     }).join('');
   } catch (erro) {
     grade.innerHTML = '';
