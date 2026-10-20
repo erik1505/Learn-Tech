@@ -444,3 +444,39 @@ main {
     padding: 16px 18px;
   }
 }
+
+@media (max-width: 480px) {
+  header {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  nav {
+    gap: 12px 18px;
+  }
+
+  nav a {
+    font-size: 13px;
+  }
+
+  main {
+    padding: 16px;
+  }
+
+  .hero-title {
+    font-size: clamp(27px, 8vw, 32px);
+    margin-bottom: 24px;
+  }
+
+  .hero-subtitle {
+    font-size: 13px;
+  }
+
+  .hero-carousel {
+    height: 220px;
+  }
+
+  .info-box {
+    padding: 14px;
+  }
+}

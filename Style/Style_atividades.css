@@ -902,3 +902,101 @@ select.form-input option, select.edit-input-field option {
     padding-top: 20px;
   }
 }
+
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .main-wrapper {
+    min-width: 0;
+  }
+
+  header,
+  header.main-header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  nav.nav-links,
+  nav.header-nav {
+    display: none;
+  }
+
+  main {
+    min-width: 0;
+    padding: 18px 16px 40px;
+  }
+
+  .page-title,
+  .section-title {
+    font-size: 22px;
+  }
+
+  .turma-header-banner,
+  .progress-capsule {
+    border-radius: 24px;
+    padding: 14px 20px 16px;
+  }
+
+  .atividade-container {
+    min-width: 0;
+    gap: 24px;
+  }
+
+  .painel-envio-lateral,
+  .right-sidebar-panel,
+  .painel-learn-book-lateral {
+    min-width: 0;
+    width: 100%;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .form-buttons-row {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-referencia {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .card-referencia .btn-baixar-ref {
+    position: static;
+    transform: none;
+    margin-left: auto;
+  }
+
+  .card-referencia .btn-baixar-ref:hover {
+    transform: none;
+  }
+
+  .card-prazo {
+    padding: 18px 14px;
+  }
+
+  #card-prazo-pontuacao .status-badge-pendente,
+  #card-prazo-pontuacao .status-badge-concluido {
+    position: static !important;
+    align-self: flex-start;
+  }
+
+  .postit-card-expanded,
+  .postit-big-card {
+    padding: 18px;
+  }
+
+  .btn-round-action,
+  .btn-round-blue,
+  .btn-abrir-envio {
+    max-width: 100%;
+    padding-inline: 18px;
+  }
+}

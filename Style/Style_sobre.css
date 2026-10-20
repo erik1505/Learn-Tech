@@ -190,7 +190,7 @@ body {
 .about-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: 350px 300px;
+  grid-template-rows: repeat(2, minmax(250px, auto));
   gap: 20px 26px;
 }
 
@@ -203,6 +203,7 @@ body {
   padding: 16px;
   overflow: hidden;
   transition: transform 0.2s, background-color 0.2s;
+  overflow-wrap: anywhere;
 }
 
 .about-card:hover {
@@ -277,7 +278,9 @@ body {
   }
 
   .about-card {
-    min-height: 195px;
+    min-height: 0;
+    height: auto;
+    overflow: visible;
   }
 }
 
@@ -302,7 +305,19 @@ body {
   }
 
   .about-card {
-    min-height: 190px;
+    min-height: 0;
+    height: auto;
+    padding: 16px;
+  }
+
+  .page-title {
+    font-size: 24px;
+    line-height: 1.2;
+  }
+
+  .header-nav {
+    gap: 14px;
+    flex-wrap: wrap;
   }
 
   .main-content {

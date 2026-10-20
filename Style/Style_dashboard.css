@@ -289,7 +289,7 @@ main.dashboard-content {
 
 @media (max-width: 1024px) {
   .stats-cards-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .timeline-track-container {
@@ -372,5 +372,40 @@ main.dashboard-content a {
 
   .timeline-activity-card {
     min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .stats-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  header.dashboard-header {
+    height: 68px;
+    padding-inline: 14px;
+  }
+
+  .header-user-actions {
+    gap: 12px;
+  }
+
+  .icon-action-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .dashboard-title {
+    font-size: 21px;
+  }
+
+  .calendar-header-title {
+    font-size: 19px;
+    margin-bottom: 22px;
+  }
+
+  .stat-card {
+    padding: 14px;
+    gap: 12px;
   }
 }

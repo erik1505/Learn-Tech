@@ -334,3 +334,27 @@ main {
     flex: 0 0 auto;
   }
 }
+
+@media (max-width: 560px) {
+  main {
+    padding: 12px 16px 28px;
+  }
+
+  .agenda-title {
+    font-size: 21px;
+    margin-bottom: 18px;
+  }
+
+  .timeline-viewport {
+    min-height: 0;
+    padding: 22px 14px;
+  }
+
+  .cards-row {
+    gap: 16px;
+  }
+
+  .activity-card {
+    padding: 16px;
+  }
+}
