@@ -35,6 +35,36 @@ public class UserService {
         this.emailVerification = emailVerification;
     }
 
+    private String normalizarTelefone(String telefone) {
+        if (telefone == null) {
+            return "";
+        }
+        return telefone.replaceAll("\\D+", "");
+    }
+
+    private Usuario localizarUsuarioPorIdentificador(String identificador) {
+        String valor = identificador == null ? "" : identificador.trim();
+        if (valor.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou telefone inválidos");
+        }
+
+        if (valor.contains("@")) {
+            return usuarios.findByLoginIgnoreCase(valor)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos"));
+        }
+
+        String telefone = normalizarTelefone(valor);
+        if (telefone.length() >= 10 && telefone.length() <= 11) {
+            return professores.findByTelefone(telefone)
+                    .map(Professor::getUsuario)
+                    .orElseGet(() -> alunos.findByTelefone(telefone)
+                            .map(Aluno::getUsuario)
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos")));
+        }
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou telefone inválidos");
+    }
+
     @Transactional
     public UserProfile register(RegisterRequest request) {
         String email = request.email().trim().toLowerCase();
@@ -64,9 +94,8 @@ public class UserService {
         return profileOf(usuario.getId());
     }
 
-    public AuthChallengeResponse iniciarLogin(String email, String senha) {
-        Usuario usuario = usuarios.findByLoginIgnoreCase(email.trim())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos"));
+    public AuthChallengeResponse iniciarLogin(String identificador, String senha) {
+        Usuario usuario = localizarUsuarioPorIdentificador(identificador);
         if (!encoder.matches(senha, usuario.getSenha())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos");
         }

@@ -80,6 +80,27 @@ function limparEtapaRedefinicao() {
   botao.textContent = 'ENVIAR CÓDIGO';
 }
 
+function atualizarLoginIdentificador() {
+  const tipo = document.getElementById('login-identificador-tipo');
+  const input = document.getElementById('login-identificador');
+  const label = document.querySelector('label[for="login-identificador"]');
+  if (!tipo || !input || !label) return;
+
+  if (tipo.value === 'telefone') {
+    input.type = 'tel';
+    input.inputMode = 'numeric';
+    input.pattern = '[0-9\s\(\)\-+]+';
+    input.placeholder = 'Ex.: 11999999999';
+    label.textContent = 'TELEFONE:';
+  } else {
+    input.type = 'email';
+    input.inputMode = 'email';
+    input.pattern = '';
+    input.placeholder = '';
+    label.textContent = 'E-MAIL:';
+  }
+}
+
 async function fazerLogin(evento) {
   evento.preventDefault();
 
@@ -87,14 +108,17 @@ async function fazerLogin(evento) {
   if (botao) botao.disabled = true;
 
   try {
-    const email = valorDe('login-email');
+    const identificador = valorDe('login-identificador');
     const senhaEl = document.getElementById('login-senha');
     const senha = senhaEl ? senhaEl.value : "";
 
-    const desafio = await entrar(email, senha);
+    const desafio = await entrar(identificador, senha);
     if (senhaEl) senhaEl.value = '';
     loginChallengeId = desafio.challengeId;
-    document.getElementById('login-codigo-email').textContent = email;
+    const codigoEmailEl = document.getElementById('login-codigo-email');
+    if (codigoEmailEl) {
+      codigoEmailEl.textContent = 'o e-mail vinculado à sua conta';
+    }
     document.getElementById('login-codigo').value = '';
     setAuthMode('login-codigo');
     alert(desafio.message);
@@ -104,6 +128,7 @@ async function fazerLogin(evento) {
     if (botao) botao.disabled = false;
   }
 }
+
 
 async function verificarCodigoLogin(evento) {
   evento.preventDefault();
@@ -219,6 +244,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const formLoginCodigo = document.getElementById('form-login-codigo');
   const formCadastro = document.getElementById('form-cadastro');
   const formReset = document.getElementById('form-reset');
+
+  const tipoLogin = document.getElementById('login-identificador-tipo');
+  if (tipoLogin) {
+    tipoLogin.addEventListener('change', atualizarLoginIdentificador);
+    atualizarLoginIdentificador();
+  }
 
   if (formLogin) formLogin.addEventListener('submit', fazerLogin);
   if (formLoginCodigo) formLoginCodigo.addEventListener('submit', verificarCodigoLogin);

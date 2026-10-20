@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface ProfessorRepository extends JpaRepository<Professor, Integer> {
     Optional<Professor> findByUsuarioId(Integer usuarioId);
+    Optional<Professor> findByTelefone(String telefone);
 }

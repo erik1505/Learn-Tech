@@ -34,7 +34,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthChallengeResponse> login(@Valid @RequestBody LoginRequest request) {
-        AuthChallengeResponse challenge = userService.iniciarLogin(request.email(), request.senha());
+        AuthChallengeResponse challenge = userService.iniciarLogin(request.identificador(), request.senha());
         return ResponseEntity.ok(challenge);
     }
 

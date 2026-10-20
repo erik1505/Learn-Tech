@@ -80,6 +80,19 @@
           <form id="form-login" class="auth-form" onsubmit="event.preventDefault();">
             <div class="input-field-wrapper">
               <div class="field-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7h16v10H4z" />
+                  <path d="m4 8 8 6 8-6" />
+                </svg>
+              </div>
+              <label class="field-label" for="login-identificador-tipo">TIPO DE IDENTIFICAÇÃO:</label>
+              <select id="login-identificador-tipo" class="field-input select-input">
+                <option value="email">E-mail</option>
+                <option value="telefone">Telefone</option>
+              </select>
+            </div>
+            <div class="input-field-wrapper">
+              <div class="field-icon">
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -92,8 +105,8 @@
                   <path d="m22 7-10 7L2 7" />
                 </svg>
               </div>
-              <label class="field-label" for="login-email">E-MAIL ACADEMICO:</label>
-              <input type="email" id="login-email" class="field-input" required>
+              <label class="field-label" for="login-identificador">E-MAIL:</label>
+              <input type="email" id="login-identificador" class="field-input" required>
             </div>
             <div class="input-field-wrapper">
               <div class="field-icon">
@@ -119,7 +132,7 @@
           <!-- SEGUNDA ETAPA DO LOGIN -->
           <form id="form-login-codigo" class="auth-form hidden" onsubmit="event.preventDefault();">
             <p class="auth-code-message">
-              Enviamos um código de seis dígitos para <strong id="login-codigo-email"></strong>.
+              Enviamos um código de seis dígitos para <strong id="login-codigo-email">o e-mail vinculado à sua conta</strong>.
               O código expira em 10 minutos.
             </p>
             <div class="input-field-wrapper">

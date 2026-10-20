@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface AlunoRepository extends JpaRepository<Aluno, Integer> {
     Optional<Aluno> findByUsuarioId(Integer usuarioId);
+    Optional<Aluno> findByTelefone(String telefone);
 }
