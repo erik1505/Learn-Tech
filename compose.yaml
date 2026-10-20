@@ -22,6 +22,7 @@ services:
     mem_limit: 768m
 
   maildev:
+    # Captura e-mails de desenvolvimento; não entrega mensagens a caixas reais.
     image: maildev/maildev:latest
     restart: unless-stopped
     ports:
