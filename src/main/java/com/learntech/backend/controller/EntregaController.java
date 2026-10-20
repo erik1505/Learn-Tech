@@ -3,6 +3,8 @@ package com.learntech.backend.controller;
 import com.learntech.backend.dto.AtribuirNotaRequest;
 import com.learntech.backend.dto.EntregaDetalheDTO;
 import com.learntech.backend.dto.EntregaRequest;
+import com.learntech.backend.dto.PrioridadeRequest;
+import com.learntech.backend.dto.Responses;
 import com.learntech.backend.service.EntregaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -46,6 +48,16 @@ public class EntregaController {
             @RequestParam Integer alunoId) {
         entregaService.sairAtividade(atividadeId, alunoId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/atividade/{atividadeId}/prioridade")
+    public ResponseEntity<Responses.EntregaResponse> atualizarPrioridade(
+            @PathVariable Integer atividadeId,
+            @RequestParam Integer alunoId,
+            @Valid @RequestBody PrioridadeRequest request) {
+        return ResponseEntity.ok(entregaService.atualizarPrioridade(
+                atividadeId, alunoId, request.prioridade()
+        ));
     }
 
     @GetMapping("/atividade/{atividadeId}/detalhes")

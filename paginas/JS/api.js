@@ -231,6 +231,17 @@ const sairAtividadeAluno = (atividadeId, alunoId) => {
   });
 };
 
+const atualizarPrioridadeAtividade = (atividadeId, prioridade, alunoId) => {
+  if (!alunoId) {
+    const u = usuarioLogado();
+    alunoId = u ? (u.perfilId || u.alunoId || u.id) : null;
+  }
+  return request("/entregas/atividade/" + atividadeId + "/prioridade?alunoId=" + alunoId, {
+    method: "PUT",
+    body: { prioridade }
+  });
+};
+
 const buscarEntregasParaCorrecao = (atividadeId, professorId) => {
   if (!professorId) {
     const u = usuarioLogado();
@@ -423,8 +434,9 @@ async function minhasAtividades() {
   if (!u) return [];
   const profId = u.perfilId || u.professorId || u.id;
   const todas = await listarAtividades();
-  if (u.role !== "PROFESSOR") return todas;
-  const turmas = await turmasDoProfessor(profId);
+  const turmas = u.role === "PROFESSOR"
+    ? await turmasDoProfessor(profId)
+    : await turmasDoAluno(profId);
   const ids = new Set(turmas.map(function (t) { return t.id; }));
   return todas.filter(function (a) { return ids.has(a.turmaId); });
 }
@@ -441,13 +453,17 @@ async function carregarAgenda() {
     const e = porAtividade.get(a.id);
     const liberada = estaDesbloqueada(a);
     
-    let estadoFinal = "NAO_INICIADO";
-    if (!liberada) {
+    let estadoFinal = a.status || "A_FAZER";
+    if (u.role === "ALUNO" && !liberada) {
       estadoFinal = "BLOQUEADO";
-    } else if (e && (e.statusKanban === "CONCLUIDA" || e.nota !== null)) {
+    } else if (u.role === "ALUNO" && e && (e.statusKanban === "CONCLUIDA" || e.nota !== null)) {
       estadoFinal = "CONCLUIDA";
-    } else if (e || a.aberta) {
+    } else if (u.role === "ALUNO" && e && e.statusKanban === "EM_ANDAMENTO") {
       estadoFinal = "EM_ANDAMENTO";
+    } else if (u.role === "ALUNO" && e && e.statusKanban === "A_FAZER") {
+      estadoFinal = "A_FAZER";
+    } else if (u.role === "ALUNO" && !e) {
+      estadoFinal = "A_FAZER";
     }
 
     return {
@@ -459,7 +475,7 @@ async function carregarAgenda() {
       entregue: !!e && (e.statusKanban === "CONCLUIDA" || e.nota !== null),
       nota: e ? e.nota : null,
       status: estadoFinal,
-      prioridade: e ? e.prioridade : "MEDIA",
+      prioridade: e && e.prioridade ? e.prioridade : "MEDIA",
       desbloqueada: liberada,
       dataDesbloqueio: a.dataDesbloqueio
     };

@@ -161,6 +161,12 @@ main {
   color: #cbd5e1;
 }
 
+.activity-card .card-subject {
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+}
+
 .status-select-container {
   display: flex;
   align-items: center;
@@ -188,12 +194,25 @@ main {
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  cursor: pointer;
+  cursor: default;
+  flex: 1;
 }
 
-.status-dropdown span:last-child {
-  font-size: 9px;
+.priority-control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   color: #cbd5e1;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.priority-control select {
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 /* BADGES DE PRIORIDADE */
@@ -211,6 +230,11 @@ main {
   letter-spacing: 0.5px;
   text-transform: uppercase;
   cursor: pointer;
+}
+
+.priority-badge:disabled {
+  opacity: 0.65;
+  cursor: wait;
 }
 
 .priority-dot {

@@ -2,9 +2,11 @@ package com.learntech.backend.service;
 
 import com.learntech.backend.dto.EntregaDetalheDTO;
 import com.learntech.backend.dto.EntregaRequest;
+import com.learntech.backend.dto.Responses;
 import com.learntech.backend.model.Aluno;
 import com.learntech.backend.model.Atividade;
 import com.learntech.backend.model.EntregaAtividade;
+import com.learntech.backend.model.Priority;
 import com.learntech.backend.repository.AtividadeRepository;
 import com.learntech.backend.repository.EntregaAtividadeRepository;
 import org.springframework.http.HttpStatus;
@@ -75,6 +77,17 @@ public class EntregaService {
 
         entrega.setStatusKanban("A_FAZER");
         entregaAtividadeRepository.save(entrega);
+    }
+
+    @Transactional
+    public Responses.EntregaResponse atualizarPrioridade(
+            Integer atividadeId, Integer alunoId, Priority prioridade) {
+        Aluno aluno = userService.requireAluno(alunoId);
+        Atividade atividade = atividadeRepository.findById(atividadeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
+        EntregaAtividade entrega = obterOuCriarEntrega(atividade, aluno);
+        entrega.setPrioridade(prioridade.name());
+        return Responses.of(entregaAtividadeRepository.save(entrega));
     }
 
     private EntregaAtividade obterOuCriarEntrega(Atividade atividade, Aluno aluno) {
