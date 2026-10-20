@@ -1,20 +1,40 @@
 # Configuração de envio de e-mail
 
-O `docker compose` usa o Maildev por padrão. Ele captura as mensagens para teste,
-mas não as entrega a caixas de e-mail reais. As mensagens locais ficam disponíveis
-em <http://localhost:1080>.
-
-Para enviar códigos de login e recuperação de senha para endereços reais:
+O `docker compose` usa SMTP do Gmail por padrão. Para enviar de uma conta Gmail,
+configure as credenciais antes de iniciar a aplicação:
 
 1. Copie `.env.example` para `.env`.
-2. Preencha as variáveis com os dados do seu provedor SMTP. O exemplo usa Gmail:
-   use uma senha de app, não a senha normal da conta, e configure `MAIL_FROM`
-   com um endereço autorizado por esse provedor.
-3. Reinicie a aplicação para carregar a configuração:
+2. Substitua `MAIL_USERNAME` pelo endereço Gmail e `MAIL_PASSWORD` por uma senha
+   de app do Google (não a senha normal da conta). A senha de app exige que a
+   verificação em duas etapas esteja ativada na conta Google.
+3. Defina `MAIL_FROM` com o mesmo endereço Gmail autorizado.
+4. Inicie ou reinicie a aplicação para carregar a configuração:
 
    ```sh
    docker compose up --build -d
    ```
+
+Sem credenciais válidas, o Gmail recusará a autenticação e a solicitação do
+código retornará um erro em vez de indicar que a mensagem foi enviada.
+
+Para desenvolvimento sem entrega real, configure no `.env`:
+
+```dotenv
+MAIL_HOST=maildev
+MAIL_PORT=1025
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_SMTP_AUTH=false
+MAIL_SMTP_STARTTLS=false
+MAIL_SMTP_STARTTLS_REQUIRED=false
+MAIL_FROM=no-reply@learntech.local
+```
+
+Então inicie também o Maildev, disponível em <http://localhost:1080>:
+
+```sh
+docker compose --profile dev up --build -d
+```
 
 `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_SMTP_AUTH`,
 `MAIL_SMTP_STARTTLS`, `MAIL_SMTP_STARTTLS_REQUIRED` e `MAIL_FROM` são lidos pelo

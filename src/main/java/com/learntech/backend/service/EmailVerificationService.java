@@ -95,30 +95,13 @@ public class EmailVerificationService {
                                     : "Se o e-mail estiver cadastrado, você receberá um código para redefinir a senha."
             );
         } catch (MailException erro) {
-            if (isLocalMailFallbackEnabled()) {
-                logger.warn("SMTP indisponível em {}. Usando código temporário para desenvolvimento.", mailHost, erro);
-                return new AuthChallengeResponse(
-                        challengeId,
-                        "SMTP indisponível. Código de teste para desenvolvimento: " + codigo
-                );
-            }
-
+            logger.error("Falha ao enviar código de verificação pelo servidor SMTP {}.", mailHost, erro);
             throw new ResponseStatusException(
                     HttpStatus.SERVICE_UNAVAILABLE,
                     "Não foi possível enviar o código. Verifique a configuração SMTP do servidor.",
                     erro
             );
         }
-    }
-
-    private boolean isLocalMailFallbackEnabled() {
-        if (mailHost == null || mailHost.isBlank()) {
-            return true;
-        }
-        String host = mailHost.trim();
-        return "localhost".equalsIgnoreCase(host)
-                || "127.0.0.1".equalsIgnoreCase(host)
-                || "0.0.0.0".equalsIgnoreCase(host);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
