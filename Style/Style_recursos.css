@@ -2,7 +2,7 @@ body.resource-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #10151f;
+  background: linear-gradient(#1b1033, #0a0d18);
   color: #f6f7f9;
 }
 
@@ -63,7 +63,7 @@ body.resource-page {
   width: 100%;
   max-width: 960px;
   margin: 0 auto;
-  padding: 64px 24px 80px;
+  padding: clamp(40px, 6vw, 64px) 24px clamp(56px, 8vw, 80px);
   flex: 1;
 }
 
@@ -77,7 +77,7 @@ body.resource-page {
 
 .resource-main h1 {
   margin-bottom: 16px;
-  font-size: 36px;
+  font-size: clamp(28px, 3vw, 36px);
   line-height: 1.15;
 }
 
@@ -144,11 +144,24 @@ body.resource-page {
 
 .resource-contact-links a {
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .resource-section {
   padding: 10px 0 28px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.resource-page .footer {
+  padding-inline: max(24px, calc((100vw - 1120px) / 2));
+  gap: clamp(20px, 4vw, 55px);
+}
+
+@media (max-width: 900px) {
+  .resource-page .footer {
+    padding: 25px 24px;
+    gap: 24px;
+  }
 }
 
 @media (max-width: 700px) {
@@ -168,7 +181,18 @@ body.resource-page {
     padding: 44px 20px 60px;
   }
 
-  .resource-main h1 {
-    font-size: 30px;
+  .resource-page .footer {
+    padding: 25px 20px;
+    gap: 30px;
+  }
+}
+
+@media (max-width: 380px) {
+  .resource-main {
+    padding-inline: 16px;
+  }
+
+  .resource-header {
+    padding-inline: 16px;
   }
 }
