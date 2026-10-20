@@ -14,6 +14,15 @@ configure as credenciais antes de iniciar a aplicação:
    docker compose up --build -d
    ```
 
+Se executar pelo IntelliJ em vez do Docker, o arquivo `.env` não é carregado
+automaticamente. Abra **Run > Edit Configurations...**, selecione a configuração
+da aplicação Spring Boot e informe as mesmas variáveis no campo **Environment
+variables**, por exemplo:
+
+```text
+MAIL_USERNAME=seu-endereco@gmail.com;MAIL_PASSWORD=sua-senha-de-app;MAIL_FROM=seu-endereco@gmail.com
+```
+
 Sem credenciais válidas, o Gmail recusará a autenticação e a solicitação do
 código retornará um erro em vez de indicar que a mensagem foi enviada.
 
