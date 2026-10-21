@@ -4,13 +4,39 @@
    ========================================================= */
 
 const CLASSE_PRIORIDADE_CAL = { ALTA: 'alta', MEDIA: 'media', BAIXA: 'baixa' };
+const AGENDA_DEMO = new URLSearchParams(window.location.search).get('demo') === '1';
+const CHAVE_PRIORIDADES_DEMO = 'learntech_agenda_demo_prioridades';
+
+function atividadesAgendaDemo() {
+  const agora = new Date();
+  const atividades = [
+    { id: 'demo-1', nome: 'Revisão de funções', prazoDias: 1, prazoHoras: 18, disciplinaNome: 'Matemática', status: 'EM_ANDAMENTO', prioridade: 'ALTA' },
+    { id: 'demo-2', nome: 'Resumo: Revolução Industrial', prazoDias: 2, prazoHoras: 12, disciplinaNome: 'História', status: 'A_FAZER', prioridade: 'MEDIA' },
+    { id: 'demo-3', nome: 'Exercícios de cinemática', prazoDias: 4, prazoHoras: 9, disciplinaNome: 'Física', status: 'A_FAZER', prioridade: 'BAIXA' },
+    { id: 'demo-4', nome: 'Redação: tecnologia e sociedade', prazoDias: 6, prazoHoras: 20, disciplinaNome: 'Língua Portuguesa', status: 'CONCLUIDA', prioridade: 'MEDIA' },
+    { id: 'demo-5', nome: 'Pesquisa sobre ecossistemas', prazoDias: 9, prazoHoras: 16, disciplinaNome: 'Biologia', status: 'A_FAZER', prioridade: 'ALTA' }
+  ];
+
+  let prioridades = {};
+  try { prioridades = JSON.parse(localStorage.getItem(CHAVE_PRIORIDADES_DEMO) || '{}'); } catch (erro) {}
+
+  return atividades.map(function (atividade) {
+    const prazo = new Date(agora);
+    prazo.setDate(prazo.getDate() + atividade.prazoDias);
+    prazo.setHours(atividade.prazoHoras, 0, 0, 0);
+    return Object.assign({}, atividade, {
+      prazo: prazo.toISOString(),
+      prioridade: prioridades[atividade.id] || atividade.prioridade
+    });
+  });
+}
 
 function cardAgendaCalendario(item) {
   const usuario = usuarioLogado();
   const prioridade = ['ALTA', 'MEDIA', 'BAIXA'].includes(item.prioridade)
     ? item.prioridade
     : 'MEDIA';
-  const controlePrioridade = usuario && usuario.role === 'ALUNO'
+  const controlePrioridade = (AGENDA_DEMO || usuario && usuario.role === 'ALUNO')
     ? `<label class="priority-control">
         <span>MINHA PRIORIDADE</span>
         <select class="priority-badge ${CLASSE_PRIORIDADE_CAL[prioridade]}" data-atividade-id="${esc(item.id)}" aria-label="Prioridade para ${esc(item.nome)}">
@@ -40,6 +66,16 @@ function cardAgendaCalendario(item) {
 async function alterarPrioridadeCalendario(evento) {
   const seletor = evento.target.closest('select[data-atividade-id]');
   if (!seletor) return;
+
+  if (AGENDA_DEMO) {
+    let prioridades = {};
+    try { prioridades = JSON.parse(localStorage.getItem(CHAVE_PRIORIDADES_DEMO) || '{}'); } catch (erro) {}
+    prioridades[seletor.dataset.atividadeId] = seletor.value;
+    localStorage.setItem(CHAVE_PRIORIDADES_DEMO, JSON.stringify(prioridades));
+    seletor.className = `priority-badge ${CLASSE_PRIORIDADE_CAL[seletor.value]}`;
+    return;
+  }
+
   seletor.disabled = true;
 
   try {
@@ -58,7 +94,7 @@ async function carregarCalendario() {
   linha.innerHTML = '<p>Carregando atividades...</p>';
 
   try {
-    const agenda = await carregarAgenda();
+    const agenda = AGENDA_DEMO ? atividadesAgendaDemo() : await carregarAgenda();
 
     linha.innerHTML = agenda.length
       ? agenda.map(cardAgendaCalendario).join('')
@@ -72,5 +108,6 @@ async function carregarCalendario() {
 document.addEventListener('DOMContentLoaded', function () {
   const linha = document.getElementById('agenda-cards');
   if (linha) linha.addEventListener('change', alterarPrioridadeCalendario);
+  if (AGENDA_DEMO) document.getElementById('agenda-demo-notice').hidden = false;
   carregarCalendario();
 });
