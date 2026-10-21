@@ -6,14 +6,14 @@ services:
       - "8080:8080"
     environment:
       DB_URL: jdbc:sqlite:/data/learntech.db
-      MAIL_HOST: "${MAIL_HOST:-smtp.gmail.com}"
+      MAIL_HOST: "${MAIL_HOST:-smtp.resend.com}"
       MAIL_PORT: "${MAIL_PORT:-587}"
-      MAIL_USERNAME: "${MAIL_USERNAME:-}"
+      MAIL_USERNAME: "${MAIL_USERNAME:-resend}"
       MAIL_PASSWORD: "${MAIL_PASSWORD:-}"
       MAIL_SMTP_AUTH: "${MAIL_SMTP_AUTH:-true}"
       MAIL_SMTP_STARTTLS: "${MAIL_SMTP_STARTTLS:-true}"
       MAIL_SMTP_STARTTLS_REQUIRED: "${MAIL_SMTP_STARTTLS_REQUIRED:-true}"
-      MAIL_FROM: "${MAIL_FROM:-${MAIL_USERNAME:-no-reply@learntech.local}}"
+      MAIL_FROM: "${MAIL_FROM:-no-reply@learntech.local}"
       SMS_GATEWAY_URL: "${SMS_GATEWAY_URL:-}"
       SMS_GATEWAY_USERNAME: "${SMS_GATEWAY_USERNAME:-}"
       SMS_GATEWAY_PASSWORD: "${SMS_GATEWAY_PASSWORD:-}"
