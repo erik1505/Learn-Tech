@@ -226,6 +226,58 @@ main {
   text-align: center;
 }
 
+.login-channel-options {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.login-channel-options legend {
+  margin-bottom: 10px;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.login-channel-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.login-channel-option[hidden] {
+  display: none;
+}
+
+.login-channel-option:has(input:checked) {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.login-channel-option input {
+  accent-color: #38bdf8;
+}
+
+.login-channel-option span {
+  display: grid;
+  gap: 3px;
+  font-weight: 700;
+}
+
+.login-channel-option small {
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 500;
+}
+
 .link-helper {
   color: #94a3b8;
   font-size: 12.5px;

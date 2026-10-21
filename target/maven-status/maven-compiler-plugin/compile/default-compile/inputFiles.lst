@@ -18,9 +18,12 @@
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/EmailCodeRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/EntregaDetalheDTO.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/EntregaRequest.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/LoginChallengeResponse.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/LoginCodeDeliveryRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/LoginRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/NotaRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/PostItRequest.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/PrioridadeRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/ProfileUpdateRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/RedefinirSenhaRequest.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/dto/RegisterRequest.java
@@ -55,6 +58,7 @@
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/UsuarioRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/EmailVerificationService.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/EntregaService.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/LocalSmsGatewayService.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/NotificationService.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/TurmaService.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/UserProfile.java

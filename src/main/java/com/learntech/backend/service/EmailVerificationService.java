@@ -36,17 +36,105 @@ public class EmailVerificationService {
 
     private final EmailVerificationCodeRepository codes;
     private final JavaMailSender mailSender;
+    private final LocalSmsGatewayService smsGateway;
     private final String fromAddress;
     private final String mailHost;
 
     public EmailVerificationService(EmailVerificationCodeRepository codes,
                                     JavaMailSender mailSender,
+                                    LocalSmsGatewayService smsGateway,
                                     @Value("${app.mail.from}") String fromAddress,
                                     @Value("${spring.mail.host:localhost}") String mailHost) {
         this.codes = codes;
         this.mailSender = mailSender;
+        this.smsGateway = smsGateway;
         this.fromAddress = fromAddress;
         this.mailHost = mailHost;
+    }
+
+    @Transactional
+    public String prepararDesafioLogin(String login) {
+        String normalizedLogin = login.trim().toLowerCase(Locale.ROOT);
+        LocalDateTime agora = LocalDateTime.now();
+        Optional<EmailVerificationCode> recente = codes
+                .findTopByLoginAndPurposeAndConsumedFalseOrderByCreatedAtDesc(
+                        normalizedLogin, EmailVerificationPurpose.LOGIN);
+        if (recente.isPresent()
+                && recente.get().getCreatedAt().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(agora)
+                && recente.get().getExpiresAt().isAfter(agora)) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
+                    "Aguarde 60 segundos antes de iniciar outro login.");
+        }
+
+        String challengeId = UUID.randomUUID().toString();
+        codes.deleteByLoginAndPurposeAndConsumedFalse(normalizedLogin, EmailVerificationPurpose.LOGIN);
+        codes.save(new EmailVerificationCode(
+                challengeId,
+                normalizedLogin,
+                EmailVerificationPurpose.LOGIN,
+                "PENDING",
+                agora,
+                agora.plusMinutes(5)
+        ));
+        return challengeId;
+    }
+
+    @Transactional(readOnly = true)
+    public String loginDoDesafioLogin(String challengeId) {
+        return desafioLoginPendente(challengeId).getLogin();
+    }
+
+    @Transactional
+    public AuthChallengeResponse enviarCodigoLogin(String challengeId, String canal, String telefone) {
+        EmailVerificationCode desafio = desafioLoginPendente(challengeId);
+        LocalDateTime agora = LocalDateTime.now();
+        String codigo = "%06d".formatted(RANDOM.nextInt(1_000_000));
+        String mensagem = "Seu código de acesso Learn Tech é " + codigo
+                + ". Ele expira em " + CODE_LIFETIME_MINUTES + " minutos.";
+
+        if ("EMAIL".equals(canal)) {
+            SimpleMailMessage email = new SimpleMailMessage();
+            email.setFrom(fromAddress);
+            email.setTo(desafio.getLogin());
+            email.setSubject("Código de acesso - Learn Tech");
+            email.setText(mensagem + " Se você não solicitou este código, ignore esta mensagem.");
+            try {
+                mailSender.send(email);
+            } catch (MailException erro) {
+                logger.error("Falha ao enviar código de login pelo SMTP {}.", mailHost, erro);
+                throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                        "Não foi possível enviar o código. Verifique a configuração SMTP do servidor.", erro);
+            }
+        } else if ("SMS".equals(canal)) {
+            smsGateway.enviarCodigo(telefone, mensagem);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Canal de envio inválido.");
+        }
+
+        desafio.setCodeHash(hash(challengeId, codigo));
+        desafio.setCreatedAt(agora);
+        desafio.setExpiresAt(agora.plusMinutes(CODE_LIFETIME_MINUTES));
+        desafio.setAttempts(0);
+        codes.save(desafio);
+
+        String destino = "SMS".equals(canal) ? "SMS" : "e-mail";
+        String message = "maildev".equalsIgnoreCase(mailHost.trim()) && "EMAIL".equals(canal)
+                ? "Código enviado ao e-mail de teste. Consulte http://localhost:1080."
+                : "Código enviado por " + destino + ".";
+        return new AuthChallengeResponse(challengeId, message);
+    }
+
+    private EmailVerificationCode desafioLoginPendente(String challengeId) {
+        if (challengeId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Desafio inválido ou expirado.");
+        }
+        return codes.findById(challengeId)
+                .filter(codigo -> codigo.getPurpose() == EmailVerificationPurpose.LOGIN
+                        && !codigo.isConsumed()
+                        && "PENDING".equals(codigo.getCodeHash())
+                        && codigo.getExpiresAt().isAfter(LocalDateTime.now()))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                        "Desafio inválido ou expirado."));
     }
 
     @Transactional
@@ -118,6 +206,7 @@ public class EmailVerificationService {
         EmailVerificationCode desafio = encontrado.get();
         if (desafio.getPurpose() != purpose
                 || desafio.isConsumed()
+            || "PENDING".equals(desafio.getCodeHash())
                 || desafio.getAttempts() >= MAX_ATTEMPTS
                 || desafio.getExpiresAt().isBefore(LocalDateTime.now())) {
             return Optional.empty();

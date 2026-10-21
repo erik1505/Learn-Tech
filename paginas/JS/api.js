@@ -95,8 +95,11 @@ const cadastrar = (nome, email, senha, role, telefone) =>
     } 
   });
 
-const entrar = (identificador, senha) =>
-  request("/auth/login", { method: "POST", body: { identificador, senha } });
+const entrar = (email, senha) =>
+  request("/auth/login", { method: "POST", body: { email, senha } });
+
+const enviarCodigoLoginApi = (challengeId, canal) =>
+  request("/auth/login/enviar-codigo", { method: "POST", body: { challengeId, canal } });
 
 const verificarCodigoLoginApi = (challengeId, codigo) =>
   request("/auth/login/verificar-codigo", { method: "POST", body: { challengeId, codigo } });

@@ -1,6 +1,8 @@
 package com.learntech.backend.controller;
 
 import com.learntech.backend.dto.LoginRequest;
+import com.learntech.backend.dto.LoginCodeDeliveryRequest;
+import com.learntech.backend.dto.LoginChallengeResponse;
 import com.learntech.backend.dto.EmailCodeRequest;
 import com.learntech.backend.dto.AuthChallengeResponse;
 import com.learntech.backend.dto.RedefinirSenhaRequest;
@@ -33,9 +35,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthChallengeResponse> login(@Valid @RequestBody LoginRequest request) {
-        AuthChallengeResponse challenge = userService.iniciarLogin(request.identificador(), request.senha());
+    public ResponseEntity<LoginChallengeResponse> login(@Valid @RequestBody LoginRequest request) {
+        LoginChallengeResponse challenge = userService.iniciarLogin(request.email(), request.senha());
         return ResponseEntity.ok(challenge);
+    }
+
+    @PostMapping("/login/enviar-codigo")
+    public ResponseEntity<AuthChallengeResponse> enviarCodigoLogin(
+            @Valid @RequestBody LoginCodeDeliveryRequest request) {
+        return ResponseEntity.ok(userService.enviarCodigoLogin(request.challengeId(), request.canal()));
     }
 
     @PostMapping("/login/verificar-codigo")

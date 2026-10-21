@@ -5,17 +5,19 @@
 
 function setAuthMode(mode) {
   const loginForm = document.getElementById('form-login');
+  const loginChannelForm = document.getElementById('form-login-canal');
   const loginCodeForm = document.getElementById('form-login-codigo');
   const cadForm = document.getElementById('form-cadastro');
   const resetForm = document.getElementById('form-reset');
   const title = document.getElementById('auth-main-title');
 
   if (loginForm) loginForm.classList.add('hidden');
+  if (loginChannelForm) loginChannelForm.classList.add('hidden');
   if (loginCodeForm) loginCodeForm.classList.add('hidden');
   if (cadForm) cadForm.classList.add('hidden');
   if (resetForm) resetForm.classList.add('hidden');
 
-  if (mode !== 'login-codigo') loginChallengeId = null;
+  if (mode !== 'login-canal' && mode !== 'login-codigo') loginChallengeId = null;
   if (mode !== 'login-codigo') {
     const codigoLogin = document.getElementById('login-codigo');
     if (codigoLogin) codigoLogin.value = '';
@@ -25,9 +27,12 @@ function setAuthMode(mode) {
   if (mode === 'login' && loginForm) {
     loginForm.classList.remove('hidden');
     if (title) title.innerHTML = 'LOGAR <span class="accent-blue">CONTA</span>';
+  } else if (mode === 'login-canal' && loginChannelForm) {
+    loginChannelForm.classList.remove('hidden');
+    if (title) title.innerHTML = 'CONFIRME <span class="accent-blue">SUA IDENTIDADE</span>';
   } else if (mode === 'login-codigo' && loginCodeForm) {
     loginCodeForm.classList.remove('hidden');
-    if (title) title.innerHTML = 'VERIFIQUE <span class="accent-blue">SEU E-MAIL</span>';
+    if (title) title.innerHTML = 'VERIFIQUE <span class="accent-blue">SUA CONTA</span>';
   } else if (mode === 'cadastro' && cadForm) {
     cadForm.classList.remove('hidden');
     if (title) title.innerHTML = 'CRIAR <span class="accent-blue">SUA CONTA</span>';
@@ -41,7 +46,6 @@ function setAuthMode(mode) {
    INTEGRAÇÃO COM O BACK-END (login, cadastro e redefinição)
    ========================================================= */
 
-const TELEFONE_MAXIMO = 2147483647; // a coluna Telefone do banco é INT
 let loginChallengeId = null;
 let resetChallengeId = null;
 
@@ -80,25 +84,13 @@ function limparEtapaRedefinicao() {
   botao.textContent = 'ENVIAR CÓDIGO';
 }
 
-function atualizarLoginIdentificador() {
-  const tipo = document.getElementById('login-identificador-tipo');
-  const input = document.getElementById('login-identificador');
-  const label = document.querySelector('label[for="login-identificador"]');
-  if (!tipo || !input || !label) return;
-
-  if (tipo.value === 'telefone') {
-    input.type = 'tel';
-    input.inputMode = 'numeric';
-    input.pattern = '[0-9\s\(\)\-+]+';
-    input.placeholder = 'Ex.: 11999999999';
-    label.textContent = 'TELEFONE:';
-  } else {
-    input.type = 'email';
-    input.inputMode = 'email';
-    input.pattern = '';
-    input.placeholder = '';
-    label.textContent = 'E-MAIL:';
-  }
+function mostrarOpcoesCanalLogin(desafio) {
+  loginChallengeId = desafio.challengeId;
+  document.getElementById('login-email-mascarado').textContent = desafio.emailMascarado;
+  document.getElementById('login-telefone-mascarado').textContent = desafio.telefoneMascarado || '';
+  document.getElementById('login-sms-option').hidden = !desafio.smsDisponivel;
+  document.querySelector('input[name="login-canal"][value="EMAIL"]').checked = true;
+  setAuthMode('login-canal');
 }
 
 async function fazerLogin(evento) {
@@ -108,23 +100,38 @@ async function fazerLogin(evento) {
   if (botao) botao.disabled = true;
 
   try {
-    const identificador = valorDe('login-identificador');
+    const email = valorDe('login-identificador');
     const senhaEl = document.getElementById('login-senha');
     const senha = senhaEl ? senhaEl.value : "";
 
-    const desafio = await entrar(identificador, senha);
+    const desafio = await entrar(email, senha);
     if (senhaEl) senhaEl.value = '';
-    loginChallengeId = desafio.challengeId;
-    const codigoEmailEl = document.getElementById('login-codigo-email');
-    if (codigoEmailEl) {
-      codigoEmailEl.textContent = 'o e-mail vinculado à sua conta';
-    }
-    document.getElementById('login-codigo').value = '';
-    setAuthMode('login-codigo');
-    alert(desafio.message);
+    mostrarOpcoesCanalLogin(desafio);
     if (botao) botao.disabled = false;
   } catch (erro) {
     alert(erro.message);
+    if (botao) botao.disabled = false;
+  }
+}
+
+async function enviarCodigoLogin(evento) {
+  evento.preventDefault();
+  const botao = evento.target.querySelector('button[type="submit"]');
+  if (botao) botao.disabled = true;
+
+  try {
+    const canal = document.querySelector('input[name="login-canal"]:checked').value;
+    const resposta = await enviarCodigoLoginApi(loginChallengeId, canal);
+    const destino = canal === 'SMS'
+      ? document.getElementById('login-telefone-mascarado').textContent
+      : document.getElementById('login-email-mascarado').textContent;
+    document.getElementById('login-codigo-destino').textContent = destino;
+    document.getElementById('login-codigo').value = '';
+    setAuthMode('login-codigo');
+    alert(resposta.message);
+  } catch (erro) {
+    alert(erro.message || 'Não foi possível enviar o código.');
+  } finally {
     if (botao) botao.disabled = false;
   }
 }
@@ -154,10 +161,10 @@ async function fazerCadastro(evento) {
   const roleEl = document.getElementById('cad-role');
   const senha = senhaEl ? senhaEl.value : "";
   const role = roleEl ? roleEl.value : "ALUNO";
-  const telefone = Number(valorDe('cad-tel').replace(/\D/g, ''));
+  const telefone = valorDe('cad-tel').replace(/\D/g, '');
 
-  if (!telefone || telefone > TELEFONE_MAXIMO) {
-    alert('Telefone inválido. Digite apenas números (até 9 dígitos, sem DDD).');
+  if (!/^[1-9][0-9]{9,10}$/.test(telefone)) {
+    alert('Telefone inválido. Informe o DDD e um número com 10 ou 11 dígitos.');
     return;
   }
 
@@ -181,10 +188,7 @@ async function fazerCadastro(evento) {
     if (senhaCadastro) senhaCadastro.value = '';
     try {
       const desafio = await entrar(valorDe('cad-email'), senha);
-      loginChallengeId = desafio.challengeId;
-      document.getElementById('login-codigo-email').textContent = valorDe('cad-email');
-      document.getElementById('login-codigo').value = '';
-      setAuthMode('login-codigo');
+      mostrarOpcoesCanalLogin(desafio);
     } catch (erro) {
       setAuthMode('login');
       alert(`Conta criada, mas não foi possível enviar o código de acesso. Faça login para tentar novamente. ${erro.message}`);
@@ -241,17 +245,13 @@ async function redefinirSenha(evento) {
 
 document.addEventListener('DOMContentLoaded', function () {
   const formLogin = document.getElementById('form-login');
+  const loginChannelForm = document.getElementById('form-login-canal');
   const formLoginCodigo = document.getElementById('form-login-codigo');
   const formCadastro = document.getElementById('form-cadastro');
   const formReset = document.getElementById('form-reset');
 
-  const tipoLogin = document.getElementById('login-identificador-tipo');
-  if (tipoLogin) {
-    tipoLogin.addEventListener('change', atualizarLoginIdentificador);
-    atualizarLoginIdentificador();
-  }
-
   if (formLogin) formLogin.addEventListener('submit', fazerLogin);
+  if (loginChannelForm) loginChannelForm.addEventListener('submit', enviarCodigoLogin);
   if (formLoginCodigo) formLoginCodigo.addEventListener('submit', verificarCodigoLogin);
   if (formCadastro) formCadastro.addEventListener('submit', fazerCadastro);
   if (formReset) formReset.addEventListener('submit', redefinirSenha);

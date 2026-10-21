@@ -49,3 +49,27 @@ docker compose --profile dev up --build -d
 `MAIL_SMTP_STARTTLS`, `MAIL_SMTP_STARTTLS_REQUIRED` e `MAIL_FROM` são lidos pelo
 serviço. O arquivo `.env` não deve ser versionado; não coloque credenciais reais
 no código nem no `.env.example`.
+
+## SMS sem provedor pago
+
+Para enviar SMS sem tarifa de API, use o projeto open-source [SMS Gateway para Android](https://github.com/capcom6/android-sms-gateway)
+no modo **Local Server**. Instale o aplicativo em um Android com chip, inicie o
+servidor local e configure no `.env` o endereço, usuário e senha exibidos pelo
+aplicativo:
+
+```dotenv
+SMS_GATEWAY_URL=http://192.168.1.100:8080/message
+SMS_GATEWAY_USERNAME=usuario-exibido-no-app
+SMS_GATEWAY_PASSWORD=senha-exibida-no-app
+```
+
+O backend deve conseguir acessar o IP do telefone pela rede local ou por uma
+VPN. Não exponha a porta do telefone diretamente à internet. Em Docker, o host
+do backend precisa ter rota até o Android. Depois, reinicie a aplicação com
+`docker compose up --build -d`. A escolha de SMS só aparece quando o gateway
+está configurado e a conta possui telefone válido com DDD.
+
+O aplicativo e a API local não cobram tarifa de provedor, mas cada mensagem usa
+o plano/SIM do telefone; só será gratuito se a operadora incluir SMS no plano.
+Em ambientes como Codespaces, o container pode não alcançar a rede local do
+celular sem uma VPN ou túnel privado.

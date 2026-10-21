@@ -1,6 +1,7 @@
 package com.learntech.backend.service;
 
 import com.learntech.backend.dto.AuthChallengeResponse;
+import com.learntech.backend.dto.LoginChallengeResponse;
 import com.learntech.backend.dto.ProfileUpdateRequest;
 import com.learntech.backend.dto.RegisterRequest;
 import com.learntech.backend.model.Aluno;
@@ -24,45 +25,39 @@ public class UserService {
     private final AlunoRepository alunos;
     private final PasswordEncoder encoder;
     private final EmailVerificationService emailVerification;
+    private final LocalSmsGatewayService smsGateway;
 
     public UserService(UsuarioRepository usuarios, ProfessorRepository professores,
                        AlunoRepository alunos, PasswordEncoder encoder,
-                       EmailVerificationService emailVerification) {
+                       EmailVerificationService emailVerification, LocalSmsGatewayService smsGateway) {
         this.usuarios = usuarios;
         this.professores = professores;
         this.alunos = alunos;
         this.encoder = encoder;
         this.emailVerification = emailVerification;
+        this.smsGateway = smsGateway;
     }
 
     private String normalizarTelefone(String telefone) {
-        if (telefone == null) {
-            return "";
-        }
-        return telefone.replaceAll("\\D+", "");
+        return telefone == null ? "" : telefone.replaceAll("\\D+", "");
     }
 
-    private Usuario localizarUsuarioPorIdentificador(String identificador) {
-        String valor = identificador == null ? "" : identificador.trim();
-        if (valor.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou telefone inválidos");
+    private boolean telefoneBrasileiroValido(String telefone) {
+        String digits = normalizarTelefone(telefone);
+        if (digits.startsWith("55") && (digits.length() == 12 || digits.length() == 13)) {
+            digits = digits.substring(2);
         }
+        return digits.matches("[1-9][0-9]{9,10}");
+    }
 
-        if (valor.contains("@")) {
-            return usuarios.findByLoginIgnoreCase(valor)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos"));
-        }
+    private String mascararEmail(String email) {
+        int separador = email.indexOf('@');
+        return email.substring(0, 1) + "***" + email.substring(separador);
+    }
 
-        String telefone = normalizarTelefone(valor);
-        if (telefone.length() >= 10 && telefone.length() <= 11) {
-            return professores.findByTelefone(telefone)
-                    .map(Professor::getUsuario)
-                    .orElseGet(() -> alunos.findByTelefone(telefone)
-                            .map(Aluno::getUsuario)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos")));
-        }
-
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou telefone inválidos");
+    private String mascararTelefone(String telefone) {
+        String digits = normalizarTelefone(telefone);
+        return "Final " + digits.substring(digits.length() - 4);
     }
 
     @Transactional
@@ -94,12 +89,42 @@ public class UserService {
         return profileOf(usuario.getId());
     }
 
-    public AuthChallengeResponse iniciarLogin(String identificador, String senha) {
-        Usuario usuario = localizarUsuarioPorIdentificador(identificador);
+    public LoginChallengeResponse iniciarLogin(String email, String senha) {
+        Usuario usuario = usuarios.findByLoginIgnoreCase(email.trim())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos"));
         if (!encoder.matches(senha, usuario.getSenha())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos");
         }
-        return emailVerification.enviarCodigo(usuario.getLogin(), EmailVerificationPurpose.LOGIN);
+
+        UserProfile perfil = profileOf(usuario.getId());
+        boolean smsDisponivel = smsGateway.configurado() && telefoneBrasileiroValido(perfil.telefone());
+        return new LoginChallengeResponse(
+                emailVerification.prepararDesafioLogin(usuario.getLogin()),
+                mascararEmail(usuario.getLogin()),
+                smsDisponivel ? mascararTelefone(perfil.telefone()) : null,
+                smsDisponivel,
+                "Senha confirmada. Escolha onde deseja receber seu código."
+        );
+    }
+
+    public AuthChallengeResponse enviarCodigoLogin(String challengeId, String canal) {
+        String telefone = null;
+        if ("SMS".equals(canal)) {
+            String login = emailVerification.loginDoDesafioLogin(challengeId);
+            Usuario usuario = usuarios.findByLoginIgnoreCase(login)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                            "Desafio inválido ou expirado."));
+            telefone = profileOf(usuario.getId()).telefone();
+            if (!smsGateway.configurado()) {
+                throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                        "O gateway local de SMS não está configurado no servidor.");
+            }
+            if (!telefoneBrasileiroValido(telefone)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Não há um telefone válido com DDD cadastrado.");
+            }
+        }
+        return emailVerification.enviarCodigoLogin(challengeId, canal, telefone);
     }
 
     public UserProfile verificarCodigoLogin(String challengeId, String codigo) {

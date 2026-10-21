@@ -14,6 +14,9 @@ services:
       MAIL_SMTP_STARTTLS: "${MAIL_SMTP_STARTTLS:-true}"
       MAIL_SMTP_STARTTLS_REQUIRED: "${MAIL_SMTP_STARTTLS_REQUIRED:-true}"
       MAIL_FROM: "${MAIL_FROM:-${MAIL_USERNAME:-no-reply@learntech.local}}"
+      SMS_GATEWAY_URL: "${SMS_GATEWAY_URL:-}"
+      SMS_GATEWAY_USERNAME: "${SMS_GATEWAY_USERNAME:-}"
+      SMS_GATEWAY_PASSWORD: "${SMS_GATEWAY_PASSWORD:-}"
     volumes:
       - sqlite_data:/data
     cpus: 1

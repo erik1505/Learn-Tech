@@ -85,28 +85,8 @@
                   <path d="m4 8 8 6 8-6" />
                 </svg>
               </div>
-              <label class="field-label" for="login-identificador-tipo">TIPO DE IDENTIFICAÇÃO:</label>
-              <select id="login-identificador-tipo" class="field-input select-input">
-                <option value="email">E-mail</option>
-                <option value="telefone">Telefone</option>
-              </select>
-            </div>
-            <div class="input-field-wrapper">
-              <div class="field-icon">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#ffffff"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <rect x="2" y="4" width="20" height="16" rx="1" />
-                  <path d="m22 7-10 7L2 7" />
-                </svg>
-              </div>
               <label class="field-label" for="login-identificador">E-MAIL:</label>
-              <input type="email" id="login-identificador" class="field-input" required>
+              <input type="email" id="login-identificador" class="field-input" autocomplete="email" required>
             </div>
             <div class="input-field-wrapper">
               <div class="field-icon">
@@ -129,10 +109,32 @@
             </div>
           </form>
 
+          <!-- ESCOLHA DO CANAL DE DUPLA VALIDAÇÃO -->
+          <form id="form-login-canal" class="auth-form hidden" onsubmit="event.preventDefault();">
+            <p class="auth-code-message">Senha confirmada. Escolha onde deseja receber seu código de acesso.</p>
+            <fieldset class="login-channel-options">
+              <legend>ENVIAR CÓDIGO POR</legend>
+              <label class="login-channel-option">
+                <input type="radio" name="login-canal" value="EMAIL" checked>
+                <span>E-mail <small id="login-email-mascarado"></small></span>
+              </label>
+              <label id="login-sms-option" class="login-channel-option" hidden>
+                <input type="radio" name="login-canal" value="SMS">
+                <span>SMS <small id="login-telefone-mascarado"></small></span>
+              </label>
+            </fieldset>
+            <div class="auth-links">
+              <span class="link-helper" onclick="setAuthMode('login')">Voltar ao login</span>
+            </div>
+            <div class="btn-submit-container">
+              <button type="submit" class="btn-submit">ENVIAR CÓDIGO</button>
+            </div>
+          </form>
+
           <!-- SEGUNDA ETAPA DO LOGIN -->
           <form id="form-login-codigo" class="auth-form hidden" onsubmit="event.preventDefault();">
             <p class="auth-code-message">
-              Enviamos um código de seis dígitos para <strong id="login-codigo-email">o e-mail vinculado à sua conta</strong>.
+              Enviamos um código de seis dígitos para <strong id="login-codigo-destino"></strong>.
               O código expira em 10 minutos.
             </p>
             <div class="input-field-wrapper">
@@ -202,7 +204,7 @@
                 </svg>
               </div>
               <label class="field-label" for="cad-tel">TELEFONE:</label>
-              <input type="tel" id="cad-tel" class="field-input" inputmode="numeric" placeholder="Somente números" required>
+              <input type="tel" id="cad-tel" class="field-input" inputmode="numeric" maxlength="15" placeholder="DDD + número" required>
             </div>
             <div class="input-field-wrapper">
               <div class="field-icon">

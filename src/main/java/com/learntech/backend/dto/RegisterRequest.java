@@ -4,6 +4,7 @@ import com.learntech.backend.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record RegisterRequest(
@@ -22,5 +23,6 @@ public record RegisterRequest(
         Role role,
 
         @NotBlank(message = "O telefone é obrigatório")
+        @Pattern(regexp = "[1-9][0-9]{9,10}", message = "Informe um telefone com DDD e 10 ou 11 dígitos")
         String telefone
 ) {}

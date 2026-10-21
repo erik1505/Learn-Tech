@@ -5,4 +5,5 @@ com/learntech/backend/dto/SolicitarRedefinicaoRequest.class
 com/learntech/backend/service/EmailVerificationService.class
 com/learntech/backend/dto/EmailCodeRequest.class
 com/learntech/backend/model/EmailVerificationCode.class
+com/learntech/backend/service/LocalSmsGatewayService.class
 com/learntech/backend/repository/EmailVerificationCodeRepository.class
