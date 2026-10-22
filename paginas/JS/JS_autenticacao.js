@@ -19,6 +19,9 @@ function setAuthMode(mode) {
 
   if (mode !== 'login-canal' && mode !== 'login-codigo') loginChallengeId = null;
   if (mode !== 'login-codigo') {
+    sessionStorage.removeItem('learnTech.loginCodeChallenge');
+  }
+  if (mode !== 'login-codigo') {
     const codigoLogin = document.getElementById('login-codigo');
     if (codigoLogin) codigoLogin.value = '';
   }
@@ -93,6 +96,33 @@ function mostrarOpcoesCanalLogin(desafio) {
   setAuthMode('login-canal');
 }
 
+function restaurarEtapaCodigoLogin() {
+  const dadosSalvos = sessionStorage.getItem('learnTech.loginCodeChallenge');
+  if (!dadosSalvos) return;
+
+  let desafio;
+  try {
+    desafio = JSON.parse(dadosSalvos);
+  } catch {
+    sessionStorage.removeItem('learnTech.loginCodeChallenge');
+    return;
+  }
+
+  if (!desafio
+      || typeof desafio.challengeId !== 'string'
+      || typeof desafio.destino !== 'string'
+      || !Number.isFinite(desafio.expiraEm)
+      || desafio.expiraEm <= Date.now()) {
+    sessionStorage.removeItem('learnTech.loginCodeChallenge');
+    return;
+  }
+
+  loginChallengeId = desafio.challengeId;
+  document.getElementById('login-codigo-destino').textContent = desafio.destino;
+  document.getElementById('login-codigo-status').textContent = desafio.mensagem || '';
+  setAuthMode('login-codigo');
+}
+
 async function fazerLogin(evento) {
   evento.preventDefault();
 
@@ -129,6 +159,12 @@ async function enviarCodigoLogin(evento) {
     const destino = canal === 'SMS'
       ? document.getElementById('login-telefone-mascarado').textContent
       : document.getElementById('login-email-mascarado').textContent;
+    sessionStorage.setItem('learnTech.loginCodeChallenge', JSON.stringify({
+      challengeId: resposta.challengeId,
+      destino,
+      mensagem: resposta.message,
+      expiraEm: Date.now() + 10 * 60 * 1000
+    }));
     document.getElementById('login-codigo-destino').textContent = destino;
     document.getElementById('login-codigo-status').textContent = resposta.message;
     document.getElementById('login-codigo').value = '';
@@ -152,6 +188,7 @@ async function verificarCodigoLogin(evento) {
       loginChallengeId,
       valorDe('login-codigo')
     );
+    sessionStorage.removeItem('learnTech.loginCodeChallenge');
     entrarNoSistema(usuario);
   } catch (erro) {
     alert(erro.message || 'Não foi possível validar o código.');
@@ -260,4 +297,5 @@ document.addEventListener('DOMContentLoaded', function () {
   if (formLoginCodigo) formLoginCodigo.addEventListener('submit', verificarCodigoLogin);
   if (formCadastro) formCadastro.addEventListener('submit', fazerCadastro);
   if (formReset) formReset.addEventListener('submit', redefinirSenha);
+  restaurarEtapaCodigoLogin();
 });
