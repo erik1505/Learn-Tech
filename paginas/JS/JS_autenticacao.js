@@ -21,6 +21,9 @@ function setAuthMode(mode) {
   if (mode !== 'login-codigo') {
     sessionStorage.removeItem('learnTech.loginCodeChallenge');
   }
+  if (mode !== 'login-canal') {
+    sessionStorage.removeItem('learnTech.loginChannelChallenge');
+  }
   if (mode !== 'login-codigo') {
     const codigoLogin = document.getElementById('login-codigo');
     if (codigoLogin) codigoLogin.value = '';
@@ -93,34 +96,68 @@ function mostrarOpcoesCanalLogin(desafio) {
   document.getElementById('login-telefone-mascarado').textContent = desafio.telefoneMascarado || '';
   document.getElementById('login-sms-option').hidden = !desafio.smsDisponivel;
   document.querySelector('input[name="login-canal"][value="EMAIL"]').checked = true;
+  sessionStorage.setItem('learnTech.loginChannelChallenge', JSON.stringify({
+    challengeId: desafio.challengeId,
+    emailMascarado: desafio.emailMascarado,
+    telefoneMascarado: desafio.telefoneMascarado || '',
+    smsDisponivel: desafio.smsDisponivel,
+    expiraEm: Date.now() + 5 * 60 * 1000
+  }));
   setAuthMode('login-canal');
 }
 
-function restaurarEtapaCodigoLogin() {
+function restaurarEtapaLogin() {
   const dadosSalvos = sessionStorage.getItem('learnTech.loginCodeChallenge');
-  if (!dadosSalvos) return;
+  if (dadosSalvos) {
+    let desafio;
+    try {
+      desafio = JSON.parse(dadosSalvos);
+    } catch {
+      sessionStorage.removeItem('learnTech.loginCodeChallenge');
+    }
 
-  let desafio;
+    if (desafio
+        && typeof desafio.challengeId === 'string'
+        && typeof desafio.destino === 'string'
+        && Number.isFinite(desafio.expiraEm)
+        && desafio.expiraEm > Date.now()) {
+      loginChallengeId = desafio.challengeId;
+      document.getElementById('login-codigo-destino').textContent = desafio.destino;
+      document.getElementById('login-codigo-status').textContent = desafio.mensagem || '';
+      setAuthMode('login-codigo');
+      return;
+    }
+    sessionStorage.removeItem('learnTech.loginCodeChallenge');
+  }
+
+  const dadosCanal = sessionStorage.getItem('learnTech.loginChannelChallenge');
+  if (!dadosCanal) return;
+
+  let desafioCanal;
   try {
-    desafio = JSON.parse(dadosSalvos);
+    desafioCanal = JSON.parse(dadosCanal);
   } catch {
-    sessionStorage.removeItem('learnTech.loginCodeChallenge');
+    sessionStorage.removeItem('learnTech.loginChannelChallenge');
     return;
   }
 
-  if (!desafio
-      || typeof desafio.challengeId !== 'string'
-      || typeof desafio.destino !== 'string'
-      || !Number.isFinite(desafio.expiraEm)
-      || desafio.expiraEm <= Date.now()) {
-    sessionStorage.removeItem('learnTech.loginCodeChallenge');
+  if (!desafioCanal
+      || typeof desafioCanal.challengeId !== 'string'
+      || typeof desafioCanal.emailMascarado !== 'string'
+      || typeof desafioCanal.telefoneMascarado !== 'string'
+      || typeof desafioCanal.smsDisponivel !== 'boolean'
+      || !Number.isFinite(desafioCanal.expiraEm)
+      || desafioCanal.expiraEm <= Date.now()) {
+    sessionStorage.removeItem('learnTech.loginChannelChallenge');
     return;
   }
 
-  loginChallengeId = desafio.challengeId;
-  document.getElementById('login-codigo-destino').textContent = desafio.destino;
-  document.getElementById('login-codigo-status').textContent = desafio.mensagem || '';
-  setAuthMode('login-codigo');
+  loginChallengeId = desafioCanal.challengeId;
+  document.getElementById('login-email-mascarado').textContent = desafioCanal.emailMascarado;
+  document.getElementById('login-telefone-mascarado').textContent = desafioCanal.telefoneMascarado;
+  document.getElementById('login-sms-option').hidden = !desafioCanal.smsDisponivel;
+  document.querySelector('input[name="login-canal"][value="EMAIL"]').checked = true;
+  setAuthMode('login-canal');
 }
 
 async function fazerLogin(evento) {
@@ -297,5 +334,5 @@ document.addEventListener('DOMContentLoaded', function () {
   if (formLoginCodigo) formLoginCodigo.addEventListener('submit', verificarCodigoLogin);
   if (formCadastro) formCadastro.addEventListener('submit', fazerCadastro);
   if (formReset) formReset.addEventListener('submit', redefinirSenha);
-  restaurarEtapaCodigoLogin();
+  restaurarEtapaLogin();
 });
