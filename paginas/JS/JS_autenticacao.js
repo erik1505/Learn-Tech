@@ -122,13 +122,18 @@ async function enviarCodigoLogin(evento) {
   try {
     const canal = document.querySelector('input[name="login-canal"]:checked').value;
     const resposta = await enviarCodigoLoginApi(loginChallengeId, canal);
+    if (!resposta || !resposta.challengeId) {
+      throw new Error('Não foi possível confirmar o envio do código. Tente novamente.');
+    }
+    loginChallengeId = resposta.challengeId;
     const destino = canal === 'SMS'
       ? document.getElementById('login-telefone-mascarado').textContent
       : document.getElementById('login-email-mascarado').textContent;
     document.getElementById('login-codigo-destino').textContent = destino;
+    document.getElementById('login-codigo-status').textContent = resposta.message;
     document.getElementById('login-codigo').value = '';
     setAuthMode('login-codigo');
-    alert(resposta.message);
+    document.getElementById('login-codigo').focus();
   } catch (erro) {
     alert(erro.message || 'Não foi possível enviar o código.');
   } finally {
