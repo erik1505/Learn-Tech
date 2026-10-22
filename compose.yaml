@@ -6,9 +6,9 @@ services:
       - "8080:8080"
     environment:
       DB_URL: jdbc:sqlite:/data/learntech.db
-      MAIL_HOST: "${MAIL_HOST:-smtp.resend.com}"
+      MAIL_HOST: "${MAIL_HOST:-smtp.gmail.com}"
       MAIL_PORT: "${MAIL_PORT:-587}"
-      MAIL_USERNAME: "${MAIL_USERNAME:-resend}"
+      MAIL_USERNAME: "${MAIL_USERNAME:-}"
       MAIL_PASSWORD: "${MAIL_PASSWORD:-}"
       MAIL_SMTP_AUTH: "${MAIL_SMTP_AUTH:-true}"
       MAIL_SMTP_STARTTLS: "${MAIL_SMTP_STARTTLS:-true}"

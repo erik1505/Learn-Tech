@@ -1,77 +1,81 @@
-# Configuração de envio de e-mail com Resend
+# Configuração de envio de e-mail com Gmail SMTP
 
-O backend envia os códigos de login e de redefinição de senha por SMTP. O
-destinatário é o endereço informado/cadastrado por cada usuário; as variáveis
-abaixo configuram somente o serviço e o endereço remetente.
+O backend envia códigos de login e de redefinição de senha por Gmail SMTP. O
+destinatário é o e-mail informado/cadastrado por cada usuário; `MAIL_USERNAME`
+e `MAIL_FROM` identificam a conta que envia as mensagens. Não é necessário ter
+um domínio próprio.
 
-## Preparar o Resend
+## Preparar a conta Gmail
 
-1. Crie uma conta em <https://resend.com/>.
-2. No painel, adicione e verifique um domínio remetente seguindo as instruções
-   de DNS do Resend. Use um endereço desse domínio em `MAIL_FROM`.
-3. Crie uma API key no painel. Trate-a como senha: não a compartilhe nem a
-   envie para o repositório.
-4. Confira os limites e condições atuais do plano gratuito em
-   <https://resend.com/pricing>.
+1. Escolha uma conta Gmail para ser o remetente do sistema. É recomendável usar
+   uma conta separada da sua conta pessoal.
+2. Ative a verificação em duas etapas na Conta Google.
+3. Crie uma senha de app em <https://myaccount.google.com/apppasswords>.
+   O Google exibe uma senha de 16 caracteres; use-a no sistema, não a senha
+   normal da conta.
+4. Guarde a senha de app em local seguro. Não a compartilhe nem a envie para o
+   repositório. O Google pode revogar senhas de app quando a senha principal da
+   conta é alterada.
 
-O Resend exige uma API key e um domínio verificado para envio SMTP. O endereço
-em `MAIL_FROM` precisa pertencer a um domínio verificado na conta.
+Senhas de app só ficam disponíveis para algumas contas com verificação em duas
+etapas. Contas gerenciadas por organizações, com Proteção Avançada ou com
+configurações específicas podem não oferecer essa opção. Consulte a
+[documentação do Google](https://support.google.com/accounts/answer/185833).
 
 ## Executar pelo IntelliJ
 
-Na configuração **Run > Edit Configurations...** da aplicação Spring Boot,
-preencha **Environment variables** com os valores da sua conta:
+Abra **Run > Edit Configurations...**, selecione a configuração da aplicação
+Spring Boot e preencha **Environment variables**. Substitua o e-mail e a senha
+de exemplo pelos valores da sua conta:
 
 ```text
-MAIL_HOST=smtp.resend.com;MAIL_PORT=587;MAIL_USERNAME=resend;MAIL_PASSWORD=re_sua_api_key;MAIL_SMTP_AUTH=true;MAIL_SMTP_STARTTLS=true;MAIL_SMTP_STARTTLS_REQUIRED=true;MAIL_FROM=no-reply@seu-dominio-verificado.com
+MAIL_HOST=smtp.gmail.com;MAIL_PORT=587;MAIL_USERNAME=seu-email@gmail.com;MAIL_PASSWORD=sua-senha-de-app;MAIL_SMTP_AUTH=true;MAIL_SMTP_STARTTLS=true;MAIL_SMTP_STARTTLS_REQUIRED=true;MAIL_FROM=seu-email@gmail.com
 ```
 
-Troque `re_sua_api_key` pela chave criada no Resend e `MAIL_FROM` por um
-remetente do domínio verificado. Salve e reinicie a aplicação para carregar as
-variáveis.
+Use o mesmo endereço Gmail em `MAIL_USERNAME` e `MAIL_FROM`. Salve e reinicie
+a aplicação para carregar as variáveis.
 
 ## Executar pelo Docker Compose
 
 1. Copie `.env.example` para `.env`.
-2. Edite `.env`: substitua `MAIL_PASSWORD` pela API key real e `MAIL_FROM` por
-   um remetente do seu domínio verificado.
+2. Edite `.env` e informe seu endereço Gmail em `MAIL_USERNAME` e `MAIL_FROM`,
+   além da senha de app em `MAIL_PASSWORD`.
 3. Na pasta que contém `compose.yaml`, inicie o backend:
 
    ```sh
    docker compose up --build -d app
    ```
 
-O Docker Compose carrega o `.env` automaticamente. Para conferir o estado do
-serviço:
+O Docker Compose carrega o `.env` automaticamente. Confira se o serviço iniciou
+com `docker compose ps`. Não versione o `.env`; ele contém uma credencial
+secreta. O `.env.example` contém somente valores ilustrativos.
 
-```sh
-docker compose ps
-```
-
-Não versione o `.env`; ele contém uma credencial secreta. O `.env.example`
-contém apenas valores ilustrativos.
+O Gmail aplica limites de envio e pode bloquear temporariamente mensagens se
+detectar atividade incomum. Para mais informações, consulte os
+[limites de envio do Gmail](https://support.google.com/a/answer/166852).
+Uma conta Gmail pessoal pode servir para desenvolvimento ou baixo volume, mas
+não é um serviço de envio transacional com garantia de entrega.
 
 ## Teste local sem entrega real
 
-Para desenvolvimento, também é possível usar o Maildev em vez do Resend. Essa
-opção precisa do Docker em execução:
+Para testar sem enviar e-mails a caixas reais, você também pode usar Maildev
+com Docker:
 
 ```sh
 docker compose --profile dev up --build -d
 ```
 
-Configure o backend para usar `MAIL_HOST=maildev`, porta `1025`, autenticação
-desativada e STARTTLS desativado. Se o backend roda pelo IntelliJ fora do
-Docker, `maildev` não será resolvido como host: use `MAIL_HOST=localhost`.
-Consulte as mensagens capturadas em <http://localhost:1080>. Essas mensagens
-não são entregues a caixas de e-mail reais.
+Configure a aplicação com `MAIL_HOST=localhost` se ela roda pelo IntelliJ fora
+do Docker (use `maildev` quando o próprio backend roda no Compose), `MAIL_PORT=1025`,
+autenticação desativada e STARTTLS desativado. Consulte as mensagens capturadas
+em <http://localhost:1080>.
 
 ## Variáveis SMTP
 
 `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`,
 `MAIL_SMTP_AUTH`, `MAIL_SMTP_STARTTLS`, `MAIL_SMTP_STARTTLS_REQUIRED` e
-`MAIL_FROM` são lidos pelo backend. Para o Resend, use `smtp.resend.com`,
-usuário `resend`, a API key como senha e STARTTLS na porta `587`.
+`MAIL_FROM` são lidos pelo backend. Para Gmail, use `smtp.gmail.com`, porta
+`587`, autenticação e STARTTLS ativados.
 
 ## SMS sem provedor pago
 
