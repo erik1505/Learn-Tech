@@ -24,6 +24,9 @@ function setAuthMode(mode) {
   if (mode !== 'login-canal') {
     sessionStorage.removeItem('learnTech.loginChannelChallenge');
   }
+  if (mode !== 'reset') {
+    sessionStorage.removeItem('learnTech.passwordResetChallenge');
+  }
   if (mode !== 'login-codigo') {
     const codigoLogin = document.getElementById('login-codigo');
     if (codigoLogin) codigoLogin.value = '';
@@ -65,8 +68,22 @@ function entrarNoSistema(usuario) {
   window.location.href = 'dashboard.html';
 }
 
+function mostrarCarregamentoAuth(mensagem) {
+  const carregamento = document.getElementById('auth-loading');
+  document.getElementById('auth-loading-message').textContent = mensagem;
+  carregamento.classList.remove('hidden');
+  carregamento.setAttribute('aria-hidden', 'false');
+}
+
+function esconderCarregamentoAuth() {
+  const carregamento = document.getElementById('auth-loading');
+  carregamento.classList.add('hidden');
+  carregamento.setAttribute('aria-hidden', 'true');
+}
+
 function limparEtapaRedefinicao() {
   resetChallengeId = null;
+  sessionStorage.removeItem('learnTech.passwordResetChallenge');
   const emailWrapper = document.getElementById('reset-email-wrapper');
   const codigoWrapper = document.getElementById('reset-codigo-wrapper');
   const senhaWrapper = document.getElementById('reset-nova-senha-wrapper');
@@ -75,6 +92,7 @@ function limparEtapaRedefinicao() {
   const senha = document.getElementById('reset-nova-senha');
   const confirmacao = document.getElementById('reset-conf-senha');
   const botao = document.getElementById('reset-submit');
+  const status = document.getElementById('reset-status');
 
   if (!emailWrapper) return;
   codigo.value = '';
@@ -88,6 +106,8 @@ function limparEtapaRedefinicao() {
   senha.required = false;
   confirmacao.required = false;
   botao.textContent = 'ENVIAR CÓDIGO';
+  status.textContent = '';
+  status.classList.add('hidden');
 }
 
 function mostrarOpcoesCanalLogin(desafio) {
@@ -188,6 +208,7 @@ async function enviarCodigoLogin(evento) {
 
   try {
     const canal = document.querySelector('input[name="login-canal"]:checked').value;
+    mostrarCarregamentoAuth(canal === 'EMAIL' ? 'Enviando o código por e-mail...' : 'Enviando o código por SMS...');
     const resposta = await enviarCodigoLoginApi(loginChallengeId, canal);
     if (!resposta || !resposta.challengeId) {
       throw new Error('Não foi possível confirmar o envio do código. Tente novamente.');
@@ -210,6 +231,7 @@ async function enviarCodigoLogin(evento) {
   } catch (erro) {
     alert(erro.message || 'Não foi possível enviar o código.');
   } finally {
+    esconderCarregamentoAuth();
     if (botao) botao.disabled = false;
   }
 }
@@ -287,8 +309,17 @@ async function redefinirSenha(evento) {
 
   try {
     if (!resetChallengeId) {
+      mostrarCarregamentoAuth('Enviando o código de redefinição por e-mail...');
       const desafio = await solicitarCodigoRedefinicaoApi(valorDe('reset-email'));
+      if (!desafio || !desafio.challengeId) {
+        throw new Error('Não foi possível confirmar o envio do código. Tente novamente.');
+      }
       resetChallengeId = desafio.challengeId;
+      sessionStorage.setItem('learnTech.passwordResetChallenge', JSON.stringify({
+        challengeId: desafio.challengeId,
+        mensagem: desafio.message,
+        expiraEm: Date.now() + 10 * 60 * 1000
+      }));
       document.getElementById('reset-email-wrapper').classList.add('hidden');
       document.getElementById('reset-codigo-wrapper').classList.remove('hidden');
       document.getElementById('reset-nova-senha-wrapper').classList.remove('hidden');
@@ -297,7 +328,9 @@ async function redefinirSenha(evento) {
       document.getElementById('reset-nova-senha').required = true;
       document.getElementById('reset-conf-senha').required = true;
       botao.textContent = 'REDEFINIR SENHA';
-      alert(desafio.message);
+      const status = document.getElementById('reset-status');
+      status.textContent = desafio.message;
+      status.classList.remove('hidden');
       return;
     }
 
@@ -313,13 +346,50 @@ async function redefinirSenha(evento) {
     }
 
     await redefinirSenhaApi(resetChallengeId, valorDe('reset-codigo'), novaSenha);
+    sessionStorage.removeItem('learnTech.passwordResetChallenge');
     alert('Senha redefinida com sucesso! Faça login com a sua nova senha.');
     setAuthMode('login');
   } catch (erro) {
     alert(erro.message || 'Erro ao redefinir a senha.');
   } finally {
+    esconderCarregamentoAuth();
     if (botao) botao.disabled = false;
   }
+}
+
+function restaurarEtapaRedefinicao() {
+  const dadosSalvos = sessionStorage.getItem('learnTech.passwordResetChallenge');
+  if (!dadosSalvos) return;
+
+  let desafio;
+  try {
+    desafio = JSON.parse(dadosSalvos);
+  } catch {
+    sessionStorage.removeItem('learnTech.passwordResetChallenge');
+    return;
+  }
+
+  if (!desafio
+      || typeof desafio.challengeId !== 'string'
+      || !Number.isFinite(desafio.expiraEm)
+      || desafio.expiraEm <= Date.now()) {
+    sessionStorage.removeItem('learnTech.passwordResetChallenge');
+    return;
+  }
+
+  resetChallengeId = desafio.challengeId;
+  document.getElementById('reset-email-wrapper').classList.add('hidden');
+  document.getElementById('reset-codigo-wrapper').classList.remove('hidden');
+  document.getElementById('reset-nova-senha-wrapper').classList.remove('hidden');
+  document.getElementById('reset-conf-senha-wrapper').classList.remove('hidden');
+  document.getElementById('reset-codigo').required = true;
+  document.getElementById('reset-nova-senha').required = true;
+  document.getElementById('reset-conf-senha').required = true;
+  document.getElementById('reset-submit').textContent = 'REDEFINIR SENHA';
+  const status = document.getElementById('reset-status');
+  status.textContent = desafio.mensagem || 'Informe o código enviado para o seu e-mail.';
+  status.classList.remove('hidden');
+  setAuthMode('reset');
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -335,4 +405,5 @@ document.addEventListener('DOMContentLoaded', function () {
   if (formCadastro) formCadastro.addEventListener('submit', fazerCadastro);
   if (formReset) formReset.addEventListener('submit', redefinirSenha);
   restaurarEtapaLogin();
+  restaurarEtapaRedefinicao();
 });

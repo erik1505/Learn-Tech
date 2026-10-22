@@ -13,6 +13,14 @@
     <link rel="stylesheet" href="../Style/style_footer.css">
   </head>
   <body>
+    <div id="auth-loading" class="auth-loading hidden" role="status" aria-live="polite" aria-hidden="true">
+      <div class="auth-loading-card">
+        <span class="auth-loading-spinner" aria-hidden="true"></span>
+        <p id="auth-loading-message">Enviando e-mail...</p>
+        <small>Aguarde alguns instantes.</small>
+      </div>
+    </div>
+
     <!-- HEADER -->
     <header>
       <a href="../index.html" class="brand-logo">
@@ -285,6 +293,7 @@
               <label class="field-label" for="reset-conf-senha">NOVA SENHA:</label>
               <input type="password" id="reset-conf-senha" class="field-input">
             </div>
+            <p id="reset-status" class="auth-code-message hidden" role="status" aria-live="polite"></p>
             <div class="auth-links">
               <span class="link-helper" onclick="setAuthMode('login')">Lembrou da senha? Voltar ao login</span>
             </div>
@@ -326,6 +335,6 @@
       </footer>
 
     <script src="./JS/api.js?v=4"></script>
-    <script src="./JS/JS_autenticacao.js?v=5"></script>
+    <script src="./JS/JS_autenticacao.js?v=6"></script>
   </body>
 </html>
