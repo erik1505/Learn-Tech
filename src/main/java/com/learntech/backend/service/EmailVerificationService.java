@@ -59,11 +59,8 @@ public class EmailVerificationService {
         Optional<EmailVerificationCode> recente = codes
                 .findTopByLoginAndPurposeAndConsumedFalseOrderByCreatedAtDesc(
                         normalizedLogin, EmailVerificationPurpose.LOGIN);
-        if (recente.isPresent()
-                && recente.get().getCreatedAt().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(agora)
-                && recente.get().getExpiresAt().isAfter(agora)) {
-            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
-                    "Aguarde 60 segundos antes de iniciar outro login.");
+        if (recente.isPresent() && recente.get().getExpiresAt().isAfter(agora)) {
+            return recente.get().getId();
         }
 
         String challengeId = UUID.randomUUID().toString();
@@ -88,6 +85,13 @@ public class EmailVerificationService {
     public AuthChallengeResponse enviarCodigoLogin(String challengeId, String canal, String telefone) {
         EmailVerificationCode desafio = desafioLoginPendente(challengeId);
         LocalDateTime agora = LocalDateTime.now();
+        if (!"PENDING".equals(desafio.getCodeHash())
+                && desafio.getCreatedAt().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(agora)) {
+            return new AuthChallengeResponse(
+                    challengeId,
+                    "Código enviado recentemente. Verifique sua caixa de entrada."
+            );
+        }
         String codigo = "%06d".formatted(RANDOM.nextInt(1_000_000));
         String mensagem = "Seu código de acesso Learn Tech é " + codigo
                 + ". Ele expira em " + CODE_LIFETIME_MINUTES + " minutos.";
