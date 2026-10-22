@@ -39,6 +39,28 @@ function setPanelOpen(panelId, buttonId, isOpen) {
    ========================================================= */
 
 let notificationsData = [];
+const DEMO_NOTIFICATIONS_READ_KEY = 'learntech_notificacoes_demo_lidas';
+
+function carregarNotificacoesDemo() {
+  const lidas = new Set(JSON.parse(localStorage.getItem(DEMO_NOTIFICATIONS_READ_KEY) || '[]'));
+  const notificacoes = [
+    { id: 'demo-notificacao-1', icon: '📅', title: 'Atividade próxima do prazo', message: 'Revisão de funções vence amanhã.', time: 'Agora' },
+    { id: 'demo-notificacao-2', icon: '✅', title: 'Atividade concluída', message: 'Redação: tecnologia e sociedade foi marcada como concluída.', time: 'Há 1 h' },
+    { id: 'demo-notificacao-3', icon: '🧪', title: 'Modo de demonstração', message: 'Você está vendo notificações fictícias; nenhuma foi enviada pelo servidor.', time: 'Hoje' }
+  ];
+
+  notificationsData = notificacoes.map(function (notification) {
+    return Object.assign({}, notification, { unread: !lidas.has(notification.id) });
+  });
+  renderNotifications();
+}
+
+function salvarNotificacoesDemoLidas() {
+  const lidas = notificationsData
+    .filter(function (notification) { return !notification.unread; })
+    .map(function (notification) { return notification.id; });
+  localStorage.setItem(DEMO_NOTIFICATIONS_READ_KEY, JSON.stringify(lidas));
+}
 
 
 /* =========================================================
@@ -226,6 +248,13 @@ async function markNotificationAsRead(id) {
   renderNotifications();
 
   if (typeof modoDemonstracaoAtivo === 'function' && modoDemonstracaoAtivo()) {
+    try {
+      salvarNotificacoesDemoLidas();
+    } catch (erro) {
+      notification.unread = true;
+      renderNotifications();
+      alert('Não foi possível salvar a notificação como lida neste navegador.');
+    }
     return;
   }
 
@@ -234,6 +263,7 @@ async function markNotificationAsRead(id) {
   } catch (erro) {
     notification.unread = true;
     renderNotifications();
+    alert(erro.message || 'Não foi possível marcar a notificação como lida.');
   }
 }
 
@@ -247,6 +277,13 @@ async function markAllNotificationsAsRead() {
   renderNotifications();
 
   if (typeof modoDemonstracaoAtivo === 'function' && modoDemonstracaoAtivo()) {
+    try {
+      salvarNotificacoesDemoLidas();
+    } catch (erro) {
+      notificationsData.forEach(function (n, i) { n.unread = anteriores[i]; });
+      renderNotifications();
+      alert('Não foi possível salvar as notificações neste navegador.');
+    }
     return;
   }
 
@@ -255,6 +292,7 @@ async function markAllNotificationsAsRead() {
   } catch (erro) {
     notificationsData.forEach(function (n, i) { n.unread = anteriores[i]; });
     renderNotifications();
+    alert(erro.message || 'Não foi possível marcar todas as notificações como lidas.');
   }
 }
 
@@ -530,8 +568,13 @@ async function carregarNotificacoes() {
   }
 
   if (usuario.modoDemonstracao) {
-    notificationsData = [];
-    renderNotifications();
+    try {
+      carregarNotificacoesDemo();
+    } catch (erro) {
+      console.warn('Notificações de demonstração:', erro.message);
+      notificationsData = [];
+      renderNotifications();
+    }
     return;
   }
 
