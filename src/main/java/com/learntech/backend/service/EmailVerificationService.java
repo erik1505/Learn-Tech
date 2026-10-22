@@ -78,12 +78,12 @@ public class EmailVerificationService {
 
     @Transactional(readOnly = true)
     public String loginDoDesafioLogin(String challengeId) {
-        return desafioLoginPendente(challengeId).getLogin();
+        return desafioLoginAtivo(challengeId).getLogin();
     }
 
     @Transactional
     public AuthChallengeResponse enviarCodigoLogin(String challengeId, String canal, String telefone) {
-        EmailVerificationCode desafio = desafioLoginPendente(challengeId);
+        EmailVerificationCode desafio = desafioLoginAtivo(challengeId);
         LocalDateTime agora = LocalDateTime.now();
         if (!"PENDING".equals(desafio.getCodeHash())
                 && desafio.getCreatedAt().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(agora)) {
@@ -128,14 +128,13 @@ public class EmailVerificationService {
         return new AuthChallengeResponse(challengeId, message);
     }
 
-    private EmailVerificationCode desafioLoginPendente(String challengeId) {
+    private EmailVerificationCode desafioLoginAtivo(String challengeId) {
         if (challengeId == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Desafio inválido ou expirado.");
         }
         return codes.findById(challengeId)
                 .filter(codigo -> codigo.getPurpose() == EmailVerificationPurpose.LOGIN
                         && !codigo.isConsumed()
-                        && "PENDING".equals(codigo.getCodeHash())
                         && codigo.getExpiresAt().isAfter(LocalDateTime.now()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                         "Desafio inválido ou expirado."));
