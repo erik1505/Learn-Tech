@@ -2,9 +2,12 @@
    LEARN TECH - COMUNICAÇÃO COM O BACK-END
    ========================================================= */
 
+const codespaceHost = window.location.hostname.match(/^(.*)-\d+\.app\.github\.dev$/);
 const API = window.location.port === "5500"
   ? `${window.location.protocol}//${window.location.hostname}:8080/api`
-  : "/api";
+  : codespaceHost
+    ? `${window.location.protocol}//${codespaceHost[1]}-8080.app.github.dev/api`
+    : "/api";
 
 /* ---------- utilitarios ---------- */
 
