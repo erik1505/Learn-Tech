@@ -157,6 +157,22 @@ main {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
+.demo-test-card {
+  border-color: #38bdf8;
+}
+
+.demo-test-badge {
+  align-self: flex-start;
+  padding: 4px 8px;
+  border: 1px solid rgba(56, 189, 248, 0.55);
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.12);
+  color: #7dd3fc;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+}
+
 .activity-card .card-title {
   font-size: 13px;
   font-weight: 900;

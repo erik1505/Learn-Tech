@@ -14,7 +14,8 @@ function atividadesAgendaDemo() {
     { id: 'demo-2', nome: 'Resumo: Revolução Industrial', prazoDias: 2, prazoHoras: 12, disciplinaNome: 'História', status: 'A_FAZER', prioridade: 'MEDIA' },
     { id: 'demo-3', nome: 'Exercícios de cinemática', prazoDias: 4, prazoHoras: 9, disciplinaNome: 'Física', status: 'A_FAZER', prioridade: 'BAIXA' },
     { id: 'demo-4', nome: 'Redação: tecnologia e sociedade', prazoDias: 6, prazoHoras: 20, disciplinaNome: 'Língua Portuguesa', status: 'CONCLUIDA', prioridade: 'MEDIA' },
-    { id: 'demo-5', nome: 'Pesquisa sobre ecossistemas', prazoDias: 9, prazoHoras: 16, disciplinaNome: 'Biologia', status: 'A_FAZER', prioridade: 'ALTA' }
+    { id: 'demo-5', nome: 'Pesquisa sobre ecossistemas', prazoDias: 9, prazoHoras: 16, disciplinaNome: 'Biologia', status: 'A_FAZER', prioridade: 'ALTA' },
+    { id: 'demo-teste', nome: 'Atividade teste do calendário', prazoDias: 3, prazoHoras: 15, disciplinaNome: 'Demonstração', status: 'A_FAZER', prioridade: 'MEDIA', testeDemo: true }
   ];
 
   let prioridades = {};
@@ -51,7 +52,8 @@ function cardAgendaCalendario(item) {
       </div>`;
 
   return `
-    <div class="activity-card">
+    <div class="activity-card${AGENDA_DEMO && item.testeDemo ? ' demo-test-card' : ''}">
+      ${AGENDA_DEMO && item.testeDemo ? '<span class="demo-test-badge">ATIVIDADE DE TESTE</span>' : ''}
       <div class="card-title">${esc(item.nome)}</div>
       <div class="card-subject">${esc(item.disciplinaNome || 'Atividade')}</div>
       <div class="card-date">DATA DE ENTREGA: ${esc(formatarData(item.prazo))}</div>
