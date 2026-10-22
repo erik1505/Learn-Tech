@@ -4,7 +4,8 @@
    ========================================================= */
 
 const CLASSE_PRIORIDADE_CAL = { ALTA: 'alta', MEDIA: 'media', BAIXA: 'baixa' };
-const AGENDA_DEMO = new URLSearchParams(window.location.search).get('demo') === '1';
+const AGENDA_DEMO = new URLSearchParams(window.location.search).get('demo') === '1'
+  || modoDemonstracaoAtivo();
 const CHAVE_PRIORIDADES_DEMO = 'learntech_agenda_demo_prioridades';
 
 function atividadesAgendaDemo() {
