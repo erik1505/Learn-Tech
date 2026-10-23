@@ -54,7 +54,7 @@ public class NotaController {
         e.setNota(r.nota());
         EntregaAtividade saved = entregas.save(e);
 
-        notifications.create(r.alunoId(), "Atividade corrigida", "Uma atividade enviada por você foi corrigida.", "✅");
+        notifications.notifyGrade(e.getAluno(), e.getAtividade(), r.nota());
 
         return Responses.of(saved);
     }

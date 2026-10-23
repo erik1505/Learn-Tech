@@ -1,9 +1,10 @@
 # Configuração de envio de e-mail com Gmail SMTP
 
-O backend envia códigos de login e de redefinição de senha por Gmail SMTP. O
-destinatário é o e-mail informado/cadastrado por cada usuário; `MAIL_USERNAME`
-e `MAIL_FROM` identificam a conta que envia as mensagens. Não é necessário ter
-um domínio próprio.
+O backend envia códigos de login e de redefinição de senha, além de avisos de
+novas atividades, alterações em atividades e notas corrigidas. Os avisos de
+atividades e notas são enviados aos e-mails dos alunos com matrícula ativa na
+turma. `MAIL_USERNAME` e `MAIL_FROM` identificam a conta que envia as
+mensagens. Não é necessário ter um domínio próprio.
 
 ## Preparar a conta Gmail
 

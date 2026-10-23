@@ -328,6 +328,8 @@ function openNotifications() {
     return;
   }
 
+  carregarNotificacoes();
+
   // Só um painel aberto por vez: fecha o perfil
   setPanelOpen('profile-panel', 'profile-button', false);
 

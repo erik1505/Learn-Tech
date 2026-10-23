@@ -9,6 +9,7 @@ import com.learntech.backend.model.Turma;
 import com.learntech.backend.repository.AtividadeRepository;
 import com.learntech.backend.repository.DisciplinaRepository;
 import com.learntech.backend.repository.TurmaRepository;
+import com.learntech.backend.service.NotificationService;
 import com.learntech.backend.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +25,15 @@ public class AtividadeController {
     private final DisciplinaRepository disciplinas;
     private final TurmaRepository turmas;
     private final UserService users;
+    private final NotificationService notifications;
 
     public AtividadeController(AtividadeRepository repository, DisciplinaRepository disciplinas,
-                               TurmaRepository turmas, UserService users) {
+                               TurmaRepository turmas, UserService users, NotificationService notifications) {
         this.repository = repository;
         this.disciplinas = disciplinas;
         this.turmas = turmas;
         this.users = users;
+        this.notifications = notifications;
     }
 
     @GetMapping
@@ -55,7 +58,9 @@ public class AtividadeController {
         users.requireProfessor(professorId);
         Atividade a = new Atividade();
         apply(a, r);
-        return Responses.of(repository.save(a));
+        Atividade saved = repository.save(a);
+        notifications.notifyActivity(saved.getDisciplina().getTurma().getId(), saved, true);
+        return Responses.of(saved);
     }
 
     @PutMapping("/{id}")
@@ -63,7 +68,9 @@ public class AtividadeController {
         users.requireProfessor(professorId);
         Atividade a = find(id);
         apply(a, r);
-        return Responses.of(repository.save(a));
+        Atividade saved = repository.save(a);
+        notifications.notifyActivity(saved.getDisciplina().getTurma().getId(), saved, false);
+        return Responses.of(saved);
     }
 
     @DeleteMapping("/{id}")

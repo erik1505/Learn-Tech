@@ -23,13 +23,16 @@ public class EntregaService {
     private final EntregaAtividadeRepository entregaAtividadeRepository;
     private final AtividadeRepository atividadeRepository;
     private final UserService userService;
+    private final NotificationService notifications;
 
     public EntregaService(EntregaAtividadeRepository entregaAtividadeRepository,
                           AtividadeRepository atividadeRepository,
-                          UserService userService) {
+                          UserService userService,
+                          NotificationService notifications) {
         this.entregaAtividadeRepository = entregaAtividadeRepository;
         this.atividadeRepository = atividadeRepository;
         this.userService = userService;
+        this.notifications = notifications;
     }
 
     @Transactional
@@ -136,5 +139,6 @@ public class EntregaService {
 
         entrega.setNota(nota);
         entregaAtividadeRepository.save(entrega);
+        notifications.notifyGrade(entrega.getAluno(), entrega.getAtividade(), nota);
     }
 }

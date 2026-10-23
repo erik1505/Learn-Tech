@@ -85,6 +85,7 @@ function limparEtapaRedefinicao() {
   resetChallengeId = null;
   sessionStorage.removeItem('learnTech.passwordResetChallenge');
   const emailWrapper = document.getElementById('reset-email-wrapper');
+  const email = document.getElementById('reset-email');
   const codigoWrapper = document.getElementById('reset-codigo-wrapper');
   const senhaWrapper = document.getElementById('reset-nova-senha-wrapper');
   const confirmacaoWrapper = document.getElementById('reset-conf-senha-wrapper');
@@ -99,6 +100,7 @@ function limparEtapaRedefinicao() {
   senha.value = '';
   confirmacao.value = '';
   emailWrapper.classList.remove('hidden');
+  email.required = true;
   codigoWrapper.classList.add('hidden');
   senhaWrapper.classList.add('hidden');
   confirmacaoWrapper.classList.add('hidden');
@@ -321,6 +323,7 @@ async function redefinirSenha(evento) {
         expiraEm: Date.now() + 10 * 60 * 1000
       }));
       document.getElementById('reset-email-wrapper').classList.add('hidden');
+      document.getElementById('reset-email').required = false;
       document.getElementById('reset-codigo-wrapper').classList.remove('hidden');
       document.getElementById('reset-nova-senha-wrapper').classList.remove('hidden');
       document.getElementById('reset-conf-senha-wrapper').classList.remove('hidden');
@@ -379,6 +382,7 @@ function restaurarEtapaRedefinicao() {
 
   resetChallengeId = desafio.challengeId;
   document.getElementById('reset-email-wrapper').classList.add('hidden');
+  document.getElementById('reset-email').required = false;
   document.getElementById('reset-codigo-wrapper').classList.remove('hidden');
   document.getElementById('reset-nova-senha-wrapper').classList.remove('hidden');
   document.getElementById('reset-conf-senha-wrapper').classList.remove('hidden');

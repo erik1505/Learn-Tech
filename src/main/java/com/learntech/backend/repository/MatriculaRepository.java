@@ -7,5 +7,6 @@ import java.util.List;
 public interface MatriculaRepository extends JpaRepository<Matricula, Integer> {
     List<Matricula> findByAlunoRa(Integer ra);
     List<Matricula> findByTurmaId(Integer turmaId);
+    List<Matricula> findByTurmaIdAndStatusIgnoreCase(Integer turmaId, String status);
     boolean existsByAlunoRaAndTurmaId(Integer ra, Integer turmaId);
 }
