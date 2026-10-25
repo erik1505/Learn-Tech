@@ -55,6 +55,24 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>${project.basedir}</directory>
+        <targetPath>static</targetPath>
+        <includes>
+          <include>index.html</include>
+          <include>documentacao.html</include>
+          <include>faq.html</include>
+          <include>suporte.html</include>
+          <include>Style/**</include>
+          <include>paginas/**</include>
+          <include>src/image.png</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>

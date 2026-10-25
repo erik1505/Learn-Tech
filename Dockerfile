@@ -6,10 +6,9 @@ ENV MAVEN_OPTS="-Xms128m -Xmx512m"
 COPY pom.xml .
 RUN mvn -B dependency:go-offline
 COPY src ./src
-COPY index.html ./src/main/resources/static/index.html
-COPY Style ./src/main/resources/static/Style
-COPY paginas ./src/main/resources/static/paginas
-COPY src/image.png ./src/main/resources/static/src/image.png
+COPY index.html documentacao.html faq.html suporte.html ./
+COPY Style ./Style
+COPY paginas ./paginas
 RUN mvn -B -DskipTests package
 
 FROM eclipse-temurin:21-jre-jammy
