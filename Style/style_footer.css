@@ -3,6 +3,25 @@
    Usado em todas as páginas (o HTML do footer é o mesmo).
    ========================================================== */
 
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+body.has-sidebar {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.page-wrapper,
+.main-wrapper {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
 
 .footer {
   width: 100%;

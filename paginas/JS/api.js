@@ -82,7 +82,27 @@ function aplicarPapel() {
     if (el.dataset.somente !== papel) el.style.display = "none";
   });
 }
-document.addEventListener("DOMContentLoaded", aplicarPapel);
+function aplicarDestinoLogos() {
+  if (!usuarioLogado()) return;
+
+  const destinoDashboard = window.location.pathname.includes("/paginas/")
+    ? "dashboard.html"
+    : "./paginas/dashboard.html";
+
+  document.querySelectorAll("a").forEach(function (link) {
+    if (
+      link.matches(".brand, .brand-logo, .footer-logo") ||
+      link.querySelector(".sidebar-logo")
+    ) {
+      link.href = destinoDashboard;
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  aplicarPapel();
+  aplicarDestinoLogos();
+});
 
 /* ---------- autenticacao e perfil ---------- */
 

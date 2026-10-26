@@ -308,6 +308,9 @@ body {
   .header-nav {
     order: 3;
     width: 100%;
+    flex: 0 0 100%;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
   .grades-grid {

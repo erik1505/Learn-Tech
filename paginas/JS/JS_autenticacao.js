@@ -280,22 +280,22 @@ async function fazerCadastro(evento) {
   if (botao) botao.disabled = true;
 
   try {
+    const email = valorDe('cad-email');
     await cadastrar(
       valorDe('cad-nome'),
-      valorDe('cad-email'),
+      email,
       senha,
       role,
       telefone
     );
     const senhaCadastro = document.getElementById('cad-senha');
     if (senhaCadastro) senhaCadastro.value = '';
-    try {
-      const desafio = await entrar(valorDe('cad-email'), senha);
-      mostrarOpcoesCanalLogin(desafio);
-    } catch (erro) {
-      setAuthMode('login');
-      alert(`Conta criada, mas não foi possível enviar o código de acesso. Faça login para tentar novamente. ${erro.message}`);
-    }
+    const emailLogin = document.getElementById('login-identificador');
+    const senhaLogin = document.getElementById('login-senha');
+    if (emailLogin) emailLogin.value = email;
+    if (senhaLogin) senhaLogin.value = '';
+    setAuthMode('login');
+    alert('Conta criada com sucesso! Faça login para continuar.');
     if (botao) botao.disabled = false;
   } catch (erro) {
     alert(erro.message);
