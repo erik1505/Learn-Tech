@@ -187,6 +187,20 @@ aside.sidebar.collapsed .btn-sair span {
   position: relative;
 }
 
+body.has-sidebar .main-wrapper > header:not(.main-header) {
+  position: relative;
+}
+
+body.has-sidebar .main-wrapper > header:not(.main-header) > nav,
+body.has-sidebar .main-wrapper > header.main-header > nav.nav-links {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max-content;
+  margin: 0;
+  transform: translate(-50%, -50%);
+}
+
 /* Botão hambúrguer que só aparece no mobile para abrir a gaveta do menu */
 .mobile-menu-trigger {
   display: none;
