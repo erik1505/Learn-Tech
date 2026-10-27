@@ -58,7 +58,7 @@
   display: block;
   margin-bottom: 4px;
   color: #5c91f5;
-  font-size: 9px;
+  font-size: 9.9px;
   font-weight: 900;
   letter-spacing: 1px;
 }
@@ -68,7 +68,7 @@
 .profile-edit-header h2 {
   margin: 0;
   color: #ffffff;
-  font-size: 18px;
+  font-size: 19.8px;
   font-weight: 800;
 }
 
@@ -81,7 +81,7 @@
   border: none;
   background: transparent;
   color: #ffffff;
-  font-size: 25px;
+  font-size: 27.5px;
   line-height: 1;
   cursor: pointer;
   border-radius: 6px;
@@ -114,7 +114,7 @@
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-size: 19px;
+  font-size: 20.9px;
   font-weight: 800;
 }
 
@@ -125,7 +125,7 @@
 .profile-summary-text strong {
   display: block;
   color: #ffffff;
-  font-size: 16px;
+  font-size: 17.6px;
   font-weight: 800;
   word-break: break-word;
 }
@@ -134,7 +134,7 @@
   display: block;
   margin-top: 4px;
   color: #999dac;
-  font-size: 11px;
+  font-size: 12.1px;
   word-break: break-word;
 }
 
@@ -155,14 +155,14 @@
 
 .profile-info-row span {
   color: #777c8e;
-  font-size: 9px;
+  font-size: 9.9px;
   font-weight: 900;
   letter-spacing: 0.8px;
 }
 
 .profile-info-row strong {
   color: #ffffff;
-  font-size: 12px;
+  font-size: 13.2px;
   font-weight: 700;
   word-break: break-word;
 }
@@ -185,7 +185,7 @@
   min-height: 40px;
   border-radius: 7px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12.1px;
   font-weight: 900;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
@@ -264,7 +264,7 @@
   display: block;
   margin-bottom: 7px;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 12.1px;
   font-weight: 800;
 }
 
@@ -280,7 +280,7 @@
   background: #181a29;
   color: #ffffff;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14.3px;
 }
 
 .profile-edit-form input:focus {
@@ -323,7 +323,7 @@
   color: #ffffff;
   border: 2px solid #0f0d1e;
   border-radius: 50px;
-  font-size: 9px;
+  font-size: 9.9px;
   font-weight: 800;
   line-height: 1;
   pointer-events: none;
@@ -382,7 +382,7 @@
   display: block;
   margin-bottom: 4px;
   color: #858199;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 1.5px;
 }
@@ -390,7 +390,7 @@
 #notifications-panel h2 {
   margin: 0;
   color: #ffffff;
-  font-size: 18px;
+  font-size: 19.8px;
   font-weight: 800;
 }
 
@@ -405,7 +405,7 @@
   border-radius: 8px;
   background: transparent;
   color: #aaa6ba;
-  font-size: 24px;
+  font-size: 26.4px;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
@@ -431,7 +431,7 @@
   background: transparent;
   color: #7ea3ff;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13.2px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -508,7 +508,7 @@
   justify-content: center;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.07);
-  font-size: 18px;
+  font-size: 19.8px;
 }
 
 .notification-content {
@@ -520,20 +520,20 @@
 
 .notification-content strong {
   color: #ffffff;
-  font-size: 13px;
+  font-size: 14.3px;
   font-weight: 750;
   line-height: 1.35;
 }
 
 .notification-message {
   color: #aaa6b9;
-  font-size: 12px;
+  font-size: 13.2px;
   line-height: 1.4;
 }
 
 .notification-time {
   color: #716d82;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .notification-dot {
@@ -574,18 +574,18 @@
   margin-bottom: 10px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.06);
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .notifications-empty strong {
   margin-bottom: 5px;
   color: #ffffff;
-  font-size: 14px;
+  font-size: 15.4px;
 }
 
 .notifications-empty span {
   color: #77738a;
-  font-size: 12px;
+  font-size: 13.2px;
 }
 
 
@@ -640,14 +640,14 @@
   .notification-icon {
     width: 36px;
     height: 36px;
-    font-size: 16px;
+    font-size: 17.6px;
   }
 
   .notification-content strong {
-    font-size: 12px;
+    font-size: 13.2px;
   }
 
   .notification-message {
-    font-size: 11px;
+    font-size: 12.1px;
   }
 }

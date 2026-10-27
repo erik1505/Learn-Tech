@@ -731,7 +731,7 @@ function renderizarListaAlunosCorrecao() {
   if (!lista) return;
 
   if (!entregasAtividadeAtual || entregasAtividadeAtual.length === 0) {
-    lista.innerHTML = `<p style="color: #94a3b8; font-size: 13px;">Nenhuma entrega realizada até o momento.</p>`;
+    lista.innerHTML = `<p style="color: #94a3b8; font-size: 14.3px;">Nenhuma entrega realizada até o momento.</p>`;
     porId('visualizador-envio-aluno').classList.add('hidden');
     return;
   }
@@ -739,7 +739,7 @@ function renderizarListaAlunosCorrecao() {
   lista.innerHTML = entregasAtividadeAtual.map(e => `
     <div onclick="selecionarEntregaAluno(${e.entregaId})" class="aluno-item-btn" style="background: ${entregaSelecionadaId === e.entregaId ? '#2563eb' : '#0f121d'};">
       <span><strong>${esc(e.alunoNome)}</strong></span>
-      <span style="font-size: 11px; font-weight: bold; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 12px;">
+      <span style="font-size: 12.1px; font-weight: bold; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 12px;">
         ${e.nota !== null && e.nota !== undefined ? 'Nota: ' + e.nota : 'Pendente'}
       </span>
     </div>

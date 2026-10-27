@@ -58,7 +58,7 @@ header {
 }
 
 .brand-logo span {
-  font-size: 19px;
+  font-size: 20.9px;
   font-weight: 800;
   letter-spacing: 0.5px;
   transition: color 0.2s ease, transform 0.2s ease;
@@ -79,7 +79,7 @@ nav a {
   color: #ffffff;
   text-decoration: none;
   font-weight: 800;
-  font-size: 20px;
+  font-size: 22px;
   letter-spacing: 0.5px;
   transition: color 0.2s ease, transform 0.2s ease;
 }
@@ -105,7 +105,7 @@ nav a.active {
   color: #ffffff;
   padding: 8px 24px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 14.3px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
@@ -148,14 +148,14 @@ main {
 
 .hero-subtitle {
   color: #00e575;
-  font-size: 15px;
+  font-size: 16.5px;
   font-weight: 800;
   letter-spacing: 0.5px;
   margin-bottom: 16px;
 }
 
 .hero-title {
-  font-size: 46px;
+  font-size: 50.6px;
   font-weight: 900;
   line-height: 1.15;
   margin-bottom: 36px;
@@ -186,7 +186,7 @@ main {
   color: #ffffff;
   padding: 13px 32px;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 16.5px;
   font-weight: 700;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
@@ -324,7 +324,7 @@ main {
 }
 
 .info-box h3 {
-  font-size: 14px;
+  font-size: 15.4px;
   font-weight: 700;
   margin-bottom: 10px;
   letter-spacing: 0.2px;
@@ -332,7 +332,7 @@ main {
 
 .info-box p {
   color: #cbd5e1;
-  font-size: 11.5px;
+  font-size: 12.7px;
   line-height: 1.5;
   font-weight: 400;
 }
@@ -352,7 +352,7 @@ main {
   }
 
   nav a {
-    font-size: 16px;
+    font-size: 17.6px;
   }
 
   main {
@@ -386,7 +386,7 @@ main {
   }
 
   .brand-logo span {
-    font-size: 17px;
+    font-size: 18.7px;
   }
 
   nav {
@@ -396,7 +396,7 @@ main {
   }
 
   nav a {
-    font-size: 15px;
+    font-size: 16.5px;
   }
 
   .auth-buttons {
@@ -409,7 +409,7 @@ main {
   }
 
   .hero-title {
-    font-size: 32px;
+    font-size: 35.2px;
   }
 
   .hero-buttons {
@@ -456,7 +456,7 @@ main {
   }
 
   nav a {
-    font-size: 13px;
+    font-size: 14.3px;
   }
 
   main {
@@ -464,12 +464,12 @@ main {
   }
 
   .hero-title {
-    font-size: clamp(27px, 8vw, 32px);
+    font-size: clamp(29.7px, 8.8vw, 35.2px);
     margin-bottom: 24px;
   }
 
   .hero-subtitle {
-    font-size: 13px;
+    font-size: 14.3px;
   }
 
   .hero-carousel {

@@ -29,7 +29,7 @@ header {
 }
 
 .brand-logo span {
-  font-size: 16px;
+  font-size: 17.6px;
   font-weight: 800;
   letter-spacing: 0.5px;
 }
@@ -53,7 +53,7 @@ nav a {
   color: #ffffff;
   text-decoration: none;
   font-weight: 800;
-  font-size: 17px;
+  font-size: 18.7px;
   letter-spacing: 0.8px;
   text-transform: uppercase;
   transition: color 0.2s;
@@ -76,7 +76,7 @@ nav a:hover {
   color: #ffffff;
   padding: 7px 22px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 14.3px;
   font-weight: 700;
   cursor: pointer;
   transition: border-color 0.2s;
@@ -88,7 +88,7 @@ nav a:hover {
   color: #ffffff;
   padding: 7px 22px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 14.3px;
   font-weight: 700;
   cursor: pointer;
   transition: border-color 0.2s;
@@ -132,7 +132,7 @@ main {
 }
 
 .auth-title {
-  font-size: 34px;
+  font-size: 37.4px;
   font-weight: 900;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -189,7 +189,7 @@ main {
 }
 
 .field-label {
-  font-size: 13.5px;
+  font-size: 14.9px;
   font-weight: 800;
   letter-spacing: 0.8px;
   white-space: nowrap;
@@ -204,7 +204,7 @@ main {
   border: none;
   outline: none;
   color: #ffffff;
-  font-size: 15px;
+  font-size: 16.5px;
   padding-left: 6px;
   letter-spacing: 0.5px;
   font-weight: 600;
@@ -221,7 +221,7 @@ main {
 
 .auth-code-message {
   color: #cbd5e1;
-  font-size: 14px;
+  font-size: 15.4px;
   line-height: 1.6;
   text-align: center;
 }
@@ -252,13 +252,13 @@ main {
 }
 
 .auth-loading-card p {
-  font-size: 15px;
+  font-size: 16.5px;
   font-weight: 700;
 }
 
 .auth-loading-card small {
   color: #94a3b8;
-  font-size: 12px;
+  font-size: 13.2px;
 }
 
 .auth-loading-spinner {
@@ -293,7 +293,7 @@ main {
 .login-channel-options legend {
   margin-bottom: 10px;
   color: #cbd5e1;
-  font-size: 12px;
+  font-size: 13.2px;
   font-weight: 800;
 }
 
@@ -330,13 +330,13 @@ main {
 
 .login-channel-option small {
   color: #94a3b8;
-  font-size: 12px;
+  font-size: 13.2px;
   font-weight: 500;
 }
 
 .link-helper {
   color: #94a3b8;
-  font-size: 12.5px;
+  font-size: 13.8px;
   text-decoration: none;
   cursor: pointer;
   font-weight: 600;
@@ -362,7 +362,7 @@ main {
   min-width: 240px;
   height: 48px;
   border-radius: 24px;
-  font-size: 14px;
+  font-size: 15.4px;
   font-weight: 800;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -390,7 +390,7 @@ main {
   border-radius: 6px;
   background: transparent;
   color: #ffffff;
-  font-size: 12px;
+  font-size: 13.2px;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
@@ -439,7 +439,7 @@ main {
   }
 
   .auth-title {
-    font-size: 26px;
+    font-size: 28.6px;
   }
 
   .book-illustration {
@@ -452,7 +452,7 @@ main {
   }
 
   .field-label {
-    font-size: 11px;
+    font-size: 12.1px;
   }
 
   .input-field-wrapper {
@@ -470,7 +470,7 @@ main {
   }
 
   .auth-title {
-    font-size: 23px;
+    font-size: 25.3px;
   }
 
   .book-illustration {
@@ -489,7 +489,7 @@ main {
 
   .field-input {
     min-width: 0;
-    font-size: 14px;
+    font-size: 15.4px;
   }
 
   .btn-submit,

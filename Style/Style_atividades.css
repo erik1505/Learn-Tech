@@ -54,7 +54,7 @@ nav.nav-links a, nav.header-nav a {
   color: #ffffff;
   text-decoration: none;
   font-weight: 800;
-  font-size: 16px;
+  font-size: 17.6px;
   letter-spacing: 0.8px;
   text-transform: uppercase;
   cursor: pointer;
@@ -81,7 +81,7 @@ nav.nav-links a.active, nav.header-nav a.active {
   color: #ffffff;
   padding: 5px 16px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 12.1px;
   font-weight: 800;
   letter-spacing: 0.5px;
   cursor: pointer;
@@ -160,7 +160,7 @@ main {
 }
 
 .page-title, .section-title {
-  font-size: 26px;
+  font-size: 28.6px;
   font-weight: 900;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -192,7 +192,7 @@ main {
 }
 
 .turma-banner-title, .capsule-title {
-  font-size: 16px;
+  font-size: 17.6px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -202,7 +202,7 @@ main {
 .progresso-info, .capsule-meta-row {
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -242,7 +242,7 @@ main {
   border: none;
   padding: 10px 28px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 12.1px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -315,7 +315,7 @@ main {
 }
 
 .card-texts h4 {
-  font-size: 12px;
+  font-size: 13.2px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -323,7 +323,7 @@ main {
 }
 
 .card-texts p {
-  font-size: 10.5px;
+  font-size: 11.6px;
   text-transform: capitalize;
   margin-top: 3px;
   opacity: 0.9;
@@ -333,7 +333,7 @@ main {
   background: transparent;
   border: none;
   color: #ffffff;
-  font-size: 20px;
+  font-size: 22px;
   cursor: pointer;
   padding: 4px;
 }
@@ -342,7 +342,7 @@ main {
   width: 100%;
   height: 34px;
   border-radius: 5px;
-  font-size: 11.5px;
+  font-size: 12.7px;
   font-weight: 800;
   text-transform: uppercase;
   cursor: pointer;
@@ -386,20 +386,20 @@ main {
 
 .atividade-nome {
   color: #34d399;
-  font-size: 18px;
+  font-size: 19.8px;
   font-weight: 900;
   text-transform: uppercase;
 }
 
 .section-label {
-  font-size: 12px;
+  font-size: 13.2px;
   font-weight: 800;
   color: #ffffff;
   text-transform: uppercase;
 }
 
 .atividade-desc-texto {
-  font-size: 11px;
+  font-size: 12.1px;
   line-height: 1.5;
   color: #cbd5e1;
 }
@@ -431,7 +431,7 @@ main {
 }
 
 .card-ref-content span {
-  font-size: 11px;
+  font-size: 12.1px;
   font-weight: 800;
   color: #ffffff;
   text-transform: uppercase;
@@ -450,7 +450,7 @@ main {
   color: #0b091a;
   padding: 6px 12px;
   border-radius: 6px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 900;
   text-decoration: none;
   text-transform: uppercase;
@@ -479,14 +479,14 @@ main {
 }
 
 .prazo-title {
-  font-size: 11px;
+  font-size: 12.1px;
   font-weight: 800;
   color: #ffffff;
   text-transform: uppercase;
 }
 
 .card-prazo p {
-  font-size: 10px;
+  font-size: 11px;
   color: #94a3b8;
   text-transform: uppercase;
 }
@@ -502,7 +502,7 @@ main {
   background: transparent;
   border: none;
   color: #ffffff;
-  font-size: 20px;
+  font-size: 22px;
   cursor: pointer;
   padding: 4px;
   line-height: 1;
@@ -525,7 +525,7 @@ main {
   left: auto !important;
   background-color: #cbd5e1;
   color: #0b091a;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 900;
   padding: 4px 10px;
   border-radius: 12px;
@@ -554,7 +554,7 @@ main {
   border: none;
   padding: 12px 36px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 12.1px;
   font-weight: 900;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -574,7 +574,7 @@ main {
   color: #ffffff;
   padding: 10px 22px;
   border-radius: 8px;
-  font-size: 11px;
+  font-size: 12.1px;
   font-weight: 700;
   cursor: pointer;
   align-self: flex-start;
@@ -601,7 +601,7 @@ main {
 }
 
 .painel-envio-header h3, .sidebar-block-title {
-  font-size: 15px;
+  font-size: 16.5px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -617,7 +617,7 @@ main {
 }
 
 .painel-envio-body label {
-  font-size: 11px;
+  font-size: 12.1px;
   font-weight: 800;
   color: #ffffff;
   text-transform: uppercase;
@@ -635,7 +635,7 @@ main {
   resize: vertical;
   outline: none;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 13.2px;
 }
 
 .painel-envio-body textarea:focus {
@@ -655,7 +655,7 @@ main {
   color: #ffffff;
   padding: 10px 16px;
   border-radius: 8px;
-  font-size: 11px;
+  font-size: 12.1px;
   font-weight: 900;
   text-transform: uppercase;
   cursor: pointer;
@@ -667,7 +667,7 @@ main {
 }
 
 #nome-arquivo-selecionado, #edit-nome-arquivo-selecionado {
-  font-size: 11px;
+  font-size: 12.1px;
   color: #cbd5e1;
   word-break: break-word;
 }
@@ -679,7 +679,7 @@ main {
   width: 100%;
   height: 42px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13.2px;
   font-weight: 900;
   text-transform: uppercase;
   cursor: pointer;
@@ -707,7 +707,7 @@ main {
 }
 
 .learn-book-title {
-  font-size: 18px;
+  font-size: 19.8px;
   font-weight: 800;
   text-align: center;
   margin-bottom: 16px;
@@ -725,7 +725,7 @@ main {
   color: #ffffff;
   resize: none;
   outline: none;
-  font-size: 11px;
+  font-size: 12.1px;
   font-weight: 800;
   text-align: center;
 }
@@ -770,7 +770,7 @@ main {
 }
 
 .postit-item span, .postit-thumb span {
-  font-size: 13px;
+  font-size: 14.3px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -820,7 +820,7 @@ main {
   resize: none;
   background: transparent;
   color: #30270c;
-  font-size: 16px;
+  font-size: 17.6px;
   font-weight: 500;
   text-align: left;
   text-transform: none;
@@ -850,7 +850,7 @@ main {
 }
 
 .form-group label {
-  font-size: 11px;
+  font-size: 12.1px;
   font-weight: 900;
   text-transform: uppercase;
   color: #ffffff;
@@ -865,7 +865,7 @@ main {
   border-radius: 8px;
   padding: 10px 14px;
   color: #ffffff;
-  font-size: 12px;
+  font-size: 13.2px;
   font-weight: 700;
   outline: none;
 }
@@ -932,7 +932,7 @@ select.form-input option, select.edit-input-field option {
 
   .page-title,
   .section-title {
-    font-size: 22px;
+    font-size: 24.2px;
   }
 
   .turma-header-banner,
