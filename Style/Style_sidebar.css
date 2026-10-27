@@ -201,6 +201,11 @@ body.has-sidebar .main-wrapper > header.main-header > nav.nav-links {
   transform: translate(-50%, -50%);
 }
 
+body.has-sidebar .main-wrapper > header > .header-right,
+body.has-sidebar .main-wrapper > header > .header-user-actions {
+  margin-left: auto;
+}
+
 /* Botão hambúrguer que só aparece no mobile para abrir a gaveta do menu */
 .mobile-menu-trigger {
   display: none;
