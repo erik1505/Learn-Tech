@@ -4,7 +4,7 @@ A importação é executada por um operador autorizado da Learn Tech no ambiente
 
 ## Preparar o arquivo
 
-Use [modelo-importacao-escola.csv](./modelo-importacao-escola.csv), codificado em UTF-8. Aceitamos separador vírgula ou ponto e vírgula. Cada linha representa a matrícula de um aluno em uma turma/disciplina e repete os dados da escola, turma e professor.
+Use [modelo-importacao-escola.csv](./modelo-importacao-escola.csv), codificado em UTF-8. O modelo usa ponto e vírgula como separador para que, ao abrir no Excel em português, cada campo apareça em uma coluna. O importador também aceita arquivos separados por vírgula. Cada linha representa a matrícula de um aluno em uma turma/disciplina e repete os dados da escola, turma e professor.
 
 | Coluna | Obrigatória | Significado |
 |---|---|---|
