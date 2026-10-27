@@ -30,6 +30,9 @@ public class PostItController {
     @GetMapping("/atividade/{atividadeId}")
     public List<Responses.PostItResponse> list(@PathVariable Integer atividadeId, @RequestParam Integer alunoId) {
         Aluno aluno = users.requireAluno(alunoId);
+        Atividade atividade = atividades.findById(atividadeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
+        users.requireActivityAccess(atividade, false);
         return repository.findByAlunoRaAndAtividadeId(aluno.getRa(), atividadeId).stream().map(Responses::of).toList();
     }
 
@@ -40,6 +43,7 @@ public class PostItController {
         Responses.required(r.conteudo(), "conteudo");
         Atividade atividade = atividades.findById(atividadeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
+        users.requireActivityAccess(atividade, false);
         PostIt p = new PostIt();
         p.setTitulo(r.titulo()); p.setConteudo(r.conteudo()); p.setAtividade(atividade); p.setAluno(aluno);
         return Responses.of(repository.save(p));

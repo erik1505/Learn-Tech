@@ -14,10 +14,14 @@ public class UserController {
 
     /** {id} = ID_usuario (o "id" devolvido no login). */
     @GetMapping("/{id}")
-    public Responses.UserResponse get(@PathVariable Integer id) { return Responses.of(service.profileOf(id)); }
+    public Responses.UserResponse get(@PathVariable Integer id) {
+        service.requireCurrentUser(id);
+        return Responses.of(service.profileOf(id));
+    }
 
     @PutMapping("/{id}")
     public Responses.UserResponse update(@PathVariable Integer id, @Valid @RequestBody ProfileUpdateRequest request) {
+        service.requireCurrentUser(id);
         return Responses.of(service.update(id, request));
     }
 }

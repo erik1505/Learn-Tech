@@ -463,7 +463,7 @@ async function saveProfile() {
     const usuario = usuarioLogado();
     const atualizado = modoDemonstracaoAtivo()
       ? { nome: newName, email: newEmail }
-      : await atualizarPerfil(usuario.id, newName, newEmail);
+      : await atualizarPerfil(usuario.usuarioId || usuario.id, newName, newEmail);
 
     salvarUsuario(Object.assign({}, usuario, { nome: atualizado.nome, email: atualizado.email }));
     preencherPerfil();
@@ -473,14 +473,18 @@ async function saveProfile() {
   }
 }
 
-function logoutUser() {
+async function logoutUser() {
   const confirmLogout = confirm('Deseja realmente sair da sua conta?');
 
   if (!confirmLogout) {
     return;
   }
 
-  sair();
+  try {
+    await sair();
+  } catch (erro) {
+    console.error('A sessão será encerrada neste dispositivo, mas não foi possível invalidá-la no servidor.', erro);
+  }
   window.location.href = 'autenticacao.html';
 }
 

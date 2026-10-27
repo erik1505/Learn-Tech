@@ -6,6 +6,7 @@ import com.learntech.backend.model.ActivityStatus;
 import com.learntech.backend.model.Atividade;
 import com.learntech.backend.model.Disciplina;
 import com.learntech.backend.model.Turma;
+import com.learntech.backend.model.Role;
 import com.learntech.backend.repository.AtividadeRepository;
 import com.learntech.backend.repository.DisciplinaRepository;
 import com.learntech.backend.repository.TurmaRepository;
@@ -37,25 +38,40 @@ public class AtividadeController {
     }
 
     @GetMapping
-    public List<Responses.AtividadeResponse> all() { return repository.findAll().stream().map(Responses::of).toList(); }
+    public List<Responses.AtividadeResponse> all() {
+        var profile = users.currentProfile();
+        List<Atividade> activities = profile.role() == Role.PROFESSOR
+                ? repository.findByDisciplinaTurmaProfessorId(profile.perfilId())
+                : repository.findByDisciplinaTurmaMatriculasAlunoRa(profile.perfilId());
+        return activities.stream().map(Responses::of).toList();
+    }
 
     @GetMapping("/{id}")
-    public Responses.AtividadeResponse get(@PathVariable Integer id) { return Responses.of(find(id)); }
+    public Responses.AtividadeResponse get(@PathVariable Integer id) {
+        Atividade atividade = find(id);
+        users.requireActivityAccess(atividade, false);
+        return Responses.of(atividade);
+    }
 
     /** Atividades de todas as disciplinas da turma. */
     @GetMapping("/turma/{id}")
     public List<Responses.AtividadeResponse> byClass(@PathVariable Integer id) {
+        users.requireTurmaAccess(id, false);
         return repository.findByDisciplinaTurmaId(id).stream().map(Responses::of).toList();
     }
 
     @GetMapping("/disciplina/{id}")
     public List<Responses.AtividadeResponse> bySubject(@PathVariable Integer id) {
+        users.requireDisciplinaAccess(disciplinas.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada")));
         return repository.findByDisciplinaId(id).stream().map(Responses::of).toList();
     }
 
     @PostMapping
     public Responses.AtividadeResponse create(@RequestParam Integer professorId, @RequestBody AtividadeRequest r) {
         users.requireProfessor(professorId);
+        Responses.required(r.turmaId(), "turmaId");
+        users.requireTurmaAccess(r.turmaId(), true);
         Atividade a = new Atividade();
         apply(a, r);
         Atividade saved = repository.save(a);
@@ -67,6 +83,8 @@ public class AtividadeController {
     public Responses.AtividadeResponse update(@PathVariable Integer id, @RequestParam Integer professorId, @RequestBody AtividadeRequest r) {
         users.requireProfessor(professorId);
         Atividade a = find(id);
+        users.requireActivityAccess(a, true);
+        users.requireTurmaAccess(r.turmaId(), true);
         apply(a, r);
         Atividade saved = repository.save(a);
         notifications.notifyActivity(saved.getDisciplina().getTurma().getId(), saved, false);
@@ -76,7 +94,9 @@ public class AtividadeController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id, @RequestParam Integer professorId) {
         users.requireProfessor(professorId);
-        repository.delete(find(id));
+        Atividade atividade = find(id);
+        users.requireActivityAccess(atividade, true);
+        repository.delete(atividade);
     }
 
     private Atividade find(Integer id) {
@@ -92,6 +112,8 @@ public class AtividadeController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Turma não encontrada"));
         Disciplina d = disciplinas.findFirstByTurmaIdAndNome(turma.getId(), turma.getSala())
                 .orElseGet(() -> {
+                    List<Disciplina> existentes = disciplinas.findByTurmaId(turma.getId());
+                    if (existentes.size() == 1) return existentes.get(0);
                     Disciplina nova = new Disciplina();
                     nova.setNome(turma.getSala());
                     nova.setStatus("ATIVA");

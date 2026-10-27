@@ -27,10 +27,17 @@ public class DisciplinaController {
     }
 
     @GetMapping
-    public List<Responses.DisciplinaResponse> all() { return repository.findAll().stream().map(Responses::of).toList(); }
+    public List<Responses.DisciplinaResponse> all() {
+        var profile = users.currentProfile();
+        List<Disciplina> disciplinas = profile.role() == com.learntech.backend.model.Role.PROFESSOR
+                ? repository.findByTurmaProfessorId(profile.perfilId())
+                : repository.findByStudentEnrollment(profile.perfilId());
+        return disciplinas.stream().map(Responses::of).toList();
+    }
 
     @GetMapping("/turma/{id}")
     public List<Responses.DisciplinaResponse> byClass(@PathVariable Integer id) {
+        users.requireTurmaAccess(id, false);
         return repository.findByTurmaId(id).stream().map(Responses::of).toList();
     }
 
@@ -40,6 +47,7 @@ public class DisciplinaController {
         Responses.required(r.nome(), "nome");
         Responses.required(r.turmaId(), "turmaId");
         Turma turma = turmas.findById(r.turmaId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Turma não encontrada"));
+        users.requireTurmaAccess(turma.getId(), true);
         Disciplina d = new Disciplina();
         d.setNome(r.nome());
         d.setStatus(r.status() == null || r.status().isBlank() ? "ATIVA" : r.status());

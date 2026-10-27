@@ -7,9 +7,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,6 +19,11 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    private final BearerTokenAuthenticationFilter bearerTokenFilter;
+
+    public SecurityConfig(BearerTokenAuthenticationFilter bearerTokenFilter) {
+        this.bearerTokenFilter = bearerTokenFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -30,16 +35,22 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/health", "/api/auth/**", "/api/auth/cadastro", "/api/auth/login").permitAll()
-                        .anyRequest().permitAll() // Permite todas as rotas enquanto testa as requisições
-                );
+                        .requestMatchers("/api/health", "/api/auth/cadastro", "/api/auth/login",
+                                "/api/auth/login/**", "/api/auth/redefinir-senha/**").permitAll()
+                        .requestMatchers("/api/auth/redefinir-senha").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(bearerTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public FilterRegistrationBean<BearerTokenAuthenticationFilter> bearerTokenFilterRegistration(
+            BearerTokenAuthenticationFilter filter) {
+        FilterRegistrationBean<BearerTokenAuthenticationFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
     }
 
     @Bean

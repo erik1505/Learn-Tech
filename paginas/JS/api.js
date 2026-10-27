@@ -39,9 +39,14 @@ const ROTULO_PRIORIDADE = { ALTA: "ALTA PRIORIDADE", MEDIA: "MÉDIA PRIORIDADE",
 async function request(caminho, opcoes) {
   opcoes = opcoes || {};
   let resposta;
+  const usuario = usuarioLogado();
+  const headers = { "Content-Type": "application/json" };
+  if (usuario && usuario.accessToken && !caminho.startsWith("/auth/")) {
+    headers.Authorization = "Bearer " + usuario.accessToken;
+  }
   try {
     resposta = await fetch(API + caminho, {
-      headers: { "Content-Type": "application/json" },
+      headers,
       method: opcoes.method || "GET",
       body: opcoes.body ? JSON.stringify(opcoes.body) : undefined,
     });
@@ -70,10 +75,28 @@ function modoDemonstracaoAtivo() {
   const usuario = usuarioLogado();
   return !!(usuario && usuario.modoDemonstracao);
 }
-function sair() { localStorage.removeItem("usuario"); }
+async function sair() {
+  const usuario = usuarioLogado();
+  localStorage.removeItem("usuario");
+  if (usuario && usuario.accessToken && !usuario.modoDemonstracao) {
+    const resposta = await fetch(API + "/auth/logout", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + usuario.accessToken }
+    });
+    if (!resposta.ok) {
+      throw new Error("Não foi possível encerrar a sessão no servidor.");
+    }
+  }
+}
 function ehProfessor() { const u = usuarioLogado(); return !!u && u.role === "PROFESSOR"; }
 
-function exigirLogin() { if (!usuarioLogado()) location.href = "autenticacao.html"; }
+function exigirLogin() {
+  const usuario = usuarioLogado();
+  if (!usuario || (!usuario.accessToken && !usuario.modoDemonstracao)) {
+    sair();
+    location.href = "autenticacao.html";
+  }
+}
 
 function aplicarPapel() {
   const u = usuarioLogado();

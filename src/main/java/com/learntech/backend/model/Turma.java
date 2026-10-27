@@ -3,7 +3,8 @@ package com.learntech.backend.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Turma")
+@Table(name = "Turma", uniqueConstraints = @UniqueConstraint(
+        name = "UK_Turma_Escola_Codigo", columnNames = {"EscolaId", "CodigoExterno"}))
 public class Turma {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +24,13 @@ public class Turma {
     @JoinColumn(name = "idProfessor")
     private Professor professor;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "EscolaId")
+    private Escola escola;
+
+    @Column(name = "CodigoExterno", length = 100)
+    private String codigoExterno;
+
     public Integer getId() { return id; }
     public Integer getQuantidade() { return quantidade; }
     public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
@@ -32,4 +40,8 @@ public class Turma {
     public void setLinkGrupo(String linkGrupo) { this.linkGrupo = linkGrupo; }
     public Professor getProfessor() { return professor; }
     public void setProfessor(Professor professor) { this.professor = professor; }
+    public Escola getEscola() { return escola; }
+    public void setEscola(Escola escola) { this.escola = escola; }
+    public String getCodigoExterno() { return codigoExterno; }
+    public void setCodigoExterno(String codigoExterno) { this.codigoExterno = codigoExterno; }
 }

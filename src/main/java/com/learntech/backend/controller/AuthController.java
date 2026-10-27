@@ -3,6 +3,7 @@ package com.learntech.backend.controller;
 import com.learntech.backend.dto.LoginRequest;
 import com.learntech.backend.dto.LoginCodeDeliveryRequest;
 import com.learntech.backend.dto.LoginChallengeResponse;
+import com.learntech.backend.dto.LoginSessionResponse;
 import com.learntech.backend.dto.EmailCodeRequest;
 import com.learntech.backend.dto.AuthChallengeResponse;
 import com.learntech.backend.dto.RedefinirSenhaRequest;
@@ -11,6 +12,7 @@ import com.learntech.backend.dto.SolicitarRedefinicaoRequest;
 import com.learntech.backend.service.UserProfile;
 import com.learntech.backend.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +49,15 @@ public class AuthController {
     }
 
     @PostMapping("/login/verificar-codigo")
-    public ResponseEntity<UserProfile> verificarCodigoLogin(@Valid @RequestBody EmailCodeRequest request) {
-        UserProfile usuario = userService.verificarCodigoLogin(request.challengeId(), request.codigo());
+    public ResponseEntity<LoginSessionResponse> verificarCodigoLogin(@Valid @RequestBody EmailCodeRequest request) {
+        LoginSessionResponse usuario = userService.verificarCodigoLogin(request.challengeId(), request.codigo());
         return ResponseEntity.ok(usuario);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
+        userService.logout(authorization.substring("Bearer ".length()).trim());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/redefinir-senha/codigo")

@@ -5,6 +5,7 @@ import com.learntech.backend.dto.Responses;
 import com.learntech.backend.model.Aluno;
 import com.learntech.backend.model.EntregaAtividade;
 import com.learntech.backend.repository.EntregaAtividadeRepository;
+import com.learntech.backend.repository.AlunoRepository;
 import com.learntech.backend.service.NotificationService;
 import com.learntech.backend.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -23,11 +24,14 @@ public class NotaController {
     private final EntregaAtividadeRepository entregas;
     private final UserService users;
     private final NotificationService notifications;
+    private final AlunoRepository alunos;
 
-    public NotaController(EntregaAtividadeRepository entregas, UserService users, NotificationService notifications) {
+    public NotaController(EntregaAtividadeRepository entregas, UserService users,
+                          NotificationService notifications, AlunoRepository alunos) {
         this.entregas = entregas;
         this.users = users;
         this.notifications = notifications;
+        this.alunos = alunos;
     }
 
     /** {id} = ID_usuario do aluno. */
@@ -47,9 +51,13 @@ public class NotaController {
         Responses.required(r.alunoId(), "alunoId");
         Responses.required(r.nota(), "nota");
 
-        Aluno aluno = users.requireAluno(r.alunoId());
+        Aluno aluno = alunos.findById(r.alunoId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aluno não encontrado"));
         EntregaAtividade e = entregas.findByAtividadeIdAndAlunoRa(r.atividadeId(), aluno.getRa())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "O aluno ainda não enviou esta atividade"));
+        users.requireActivityAccess(e.getAtividade(), true);
+        users.requireStudentEnrollmentForCurrentTeacher(
+                e.getAtividade().getDisciplina().getTurma().getId(), aluno.getRa());
 
         e.setNota(r.nota());
         EntregaAtividade saved = entregas.save(e);

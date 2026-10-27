@@ -2,21 +2,30 @@ package com.learntech.backend.service;
 
 import com.learntech.backend.dto.AuthChallengeResponse;
 import com.learntech.backend.dto.LoginChallengeResponse;
+import com.learntech.backend.dto.LoginSessionResponse;
 import com.learntech.backend.dto.ProfileUpdateRequest;
 import com.learntech.backend.dto.RegisterRequest;
 import com.learntech.backend.model.Aluno;
+import com.learntech.backend.model.Atividade;
+import com.learntech.backend.model.Disciplina;
 import com.learntech.backend.model.EmailVerificationPurpose;
 import com.learntech.backend.model.Professor;
 import com.learntech.backend.model.Role;
 import com.learntech.backend.model.Usuario;
 import com.learntech.backend.repository.AlunoRepository;
+import com.learntech.backend.repository.MatriculaRepository;
 import com.learntech.backend.repository.ProfessorRepository;
+import com.learntech.backend.repository.TurmaRepository;
 import com.learntech.backend.repository.UsuarioRepository;
+import com.learntech.backend.repository.VinculoEscolaRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -26,16 +35,26 @@ public class UserService {
     private final PasswordEncoder encoder;
     private final EmailVerificationService emailVerification;
     private final LocalSmsGatewayService smsGateway;
+    private final AuthSessionService authSessions;
+    private final MatriculaRepository matriculas;
+    private final TurmaRepository turmas;
+    private final VinculoEscolaRepository vinculosEscola;
 
     public UserService(UsuarioRepository usuarios, ProfessorRepository professores,
                        AlunoRepository alunos, PasswordEncoder encoder,
-                       EmailVerificationService emailVerification, LocalSmsGatewayService smsGateway) {
+                       EmailVerificationService emailVerification, LocalSmsGatewayService smsGateway,
+                       AuthSessionService authSessions, MatriculaRepository matriculas, TurmaRepository turmas,
+                       VinculoEscolaRepository vinculosEscola) {
         this.usuarios = usuarios;
         this.professores = professores;
         this.alunos = alunos;
         this.encoder = encoder;
         this.emailVerification = emailVerification;
         this.smsGateway = smsGateway;
+        this.authSessions = authSessions;
+        this.matriculas = matriculas;
+        this.turmas = turmas;
+        this.vinculosEscola = vinculosEscola;
     }
 
     private String normalizarTelefone(String telefone) {
@@ -127,12 +146,17 @@ public class UserService {
         return emailVerification.enviarCodigoLogin(challengeId, canal, telefone);
     }
 
-    public UserProfile verificarCodigoLogin(String challengeId, String codigo) {
+    public LoginSessionResponse verificarCodigoLogin(String challengeId, String codigo) {
         String login = emailVerification.verificarCodigo(challengeId, codigo, EmailVerificationPurpose.LOGIN)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Código inválido ou expirado."));
         Usuario usuario = usuarios.findByLoginIgnoreCase(login)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Código inválido ou expirado."));
-        return profileOf(usuario.getId());
+        UserProfile profile = profileOf(usuario.getId());
+        return LoginSessionResponse.of(authSessions.create(usuario.getId()), profile);
+    }
+
+    public void logout(String token) {
+        authSessions.revoke(token);
     }
 
     @Transactional
@@ -206,12 +230,89 @@ public class UserService {
     }
 
     public Professor requireProfessor(Integer professorId) {
-        return professores.findById(professorId)
+        Professor professor = professores.findById(professorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Somente professor pode realizar esta ação"));
+        AuthenticatedUser current = currentUser();
+        if (current.role() != Role.PROFESSOR || !current.perfilId().equals(professor.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ação não autorizada para este professor");
+        }
+        return professor;
     }
 
     public Aluno requireAluno(Integer alunoId) {
-        return alunos.findById(alunoId)
+        Aluno aluno = alunos.findById(alunoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Somente aluno pode realizar esta ação"));
+        AuthenticatedUser current = currentUser();
+        if (current.role() != Role.ALUNO || !current.perfilId().equals(aluno.getRa())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ação não autorizada para este aluno");
+        }
+        return aluno;
+    }
+
+    public void requireCurrentUser(Integer userId) {
+        if (!currentUser().usuarioId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ação não autorizada para este usuário");
+        }
+    }
+
+    public UserProfile currentProfile() {
+        return profileOf(currentUser().usuarioId());
+    }
+
+    public List<Integer> currentSchoolIds() {
+        return vinculosEscola.findByUsuarioId(currentUser().usuarioId()).stream()
+                .map(vinculo -> vinculo.getEscola().getId())
+                .distinct()
+                .toList();
+    }
+
+    public boolean belongsToSchool(Integer schoolId) {
+        return currentSchoolIds().contains(schoolId);
+    }
+
+    public void requireTurmaAccess(Integer turmaId, boolean professorOnly) {
+        AuthenticatedUser current = currentUser();
+        var turma = turmas.findById(turmaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Turma não encontrada"));
+        if (current.role() == Role.PROFESSOR) {
+            if (!turma.getProfessor().getId().equals(current.perfilId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Turma não pertence a este professor");
+            }
+            return;
+        }
+        if (professorOnly || current.role() != Role.ALUNO
+                || !matriculas.existsByAlunoRaAndTurmaIdAndStatusIgnoreCase(current.perfilId(), turmaId, "ATIVA")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso não autorizado a esta turma");
+        }
+    }
+
+    public void requireActivityAccess(Atividade atividade, boolean professorOnly) {
+        if (atividade.getDisciplina() == null || atividade.getDisciplina().getTurma() == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Atividade sem turma associada");
+        }
+        requireTurmaAccess(atividade.getDisciplina().getTurma().getId(), professorOnly);
+    }
+
+    public void requireStudentEnrollmentForCurrentTeacher(Integer turmaId, Integer alunoRa) {
+        requireTurmaAccess(turmaId, true);
+        if (!matriculas.existsByAlunoRaAndTurmaIdAndStatusIgnoreCase(alunoRa, turmaId, "ATIVA")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "O aluno não está matriculado nesta turma");
+        }
+    }
+
+    public void requireDisciplinaAccess(Disciplina disciplina) {
+        if (disciplina.getTurma() == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Disciplina sem turma associada");
+        }
+        requireTurmaAccess(disciplina.getTurma().getId(), false);
+    }
+
+    private AuthenticatedUser currentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication() == null
+                ? null : SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof AuthenticatedUser user) {
+            return user;
+        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Autenticação obrigatória");
     }
 }

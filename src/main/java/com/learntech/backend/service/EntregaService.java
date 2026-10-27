@@ -40,6 +40,7 @@ public class EntregaService {
         Aluno aluno = userService.requireAluno(alunoId);
         Atividade atividade = atividadeRepository.findById(atividadeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
+        userService.requireActivityAccess(atividade, false);
 
         EntregaAtividade entrega = obterOuCriarEntrega(atividade, aluno);
 
@@ -56,6 +57,7 @@ public class EntregaService {
         Aluno aluno = userService.requireAluno(alunoId);
         Atividade atividade = atividadeRepository.findById(atividadeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
+        userService.requireActivityAccess(atividade, false);
         EntregaAtividade entrega = obterOuCriarEntrega(atividade, aluno);
         if (foiEnviada(entrega)) {
             entrega.setStatusKanban("CONCLUIDA");
@@ -72,6 +74,7 @@ public class EntregaService {
         Aluno aluno = userService.requireAluno(alunoId);
         Atividade atividade = atividadeRepository.findById(atividadeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
+        userService.requireActivityAccess(atividade, false);
 
         EntregaAtividade entrega = obterOuCriarEntrega(atividade, aluno);
         if ("CONCLUIDA".equalsIgnoreCase(entrega.getStatusKanban())) {
@@ -88,6 +91,7 @@ public class EntregaService {
         Aluno aluno = userService.requireAluno(alunoId);
         Atividade atividade = atividadeRepository.findById(atividadeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
+        userService.requireActivityAccess(atividade, false);
         EntregaAtividade entrega = obterOuCriarEntrega(atividade, aluno);
         entrega.setPrioridade(prioridade.name());
         return Responses.of(entregaAtividadeRepository.save(entrega));
@@ -113,6 +117,9 @@ public class EntregaService {
 
     public List<EntregaDetalheDTO> buscarEntregasDetalhes(Integer atividadeId, Integer professorId) {
         userService.requireProfessor(professorId);
+        Atividade atividade = atividadeRepository.findById(atividadeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
+        userService.requireActivityAccess(atividade, true);
 
         List<EntregaAtividade> entregas = entregaAtividadeRepository.findByAtividadeId(atividadeId).stream()
                 .filter(this::foiEnviada)
@@ -136,6 +143,9 @@ public class EntregaService {
 
         EntregaAtividade entrega = entregaAtividadeRepository.findById(entregaId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entrega não encontrada"));
+        userService.requireActivityAccess(entrega.getAtividade(), true);
+        userService.requireStudentEnrollmentForCurrentTeacher(
+                entrega.getAtividade().getDisciplina().getTurma().getId(), entrega.getAluno().getRa());
 
         entrega.setNota(nota);
         entregaAtividadeRepository.save(entrega);
