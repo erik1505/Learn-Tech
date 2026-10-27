@@ -76,6 +76,10 @@ body {
   transform: scale(1.03);
 }
 
+.header-nav a.active {
+  color: #4f8df7;
+}
+
 .header-right {
   display: flex;
   align-items: center;

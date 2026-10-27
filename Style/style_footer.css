@@ -12,6 +12,26 @@ body {
   min-height: 100dvh;
 }
 
+a.brand:link,
+a.brand:visited,
+a.brand:hover,
+a.brand:active,
+a.brand-logo:link,
+a.brand-logo:visited,
+a.brand-logo:hover,
+a.brand-logo:active,
+a.footer-logo:link,
+a.footer-logo:visited,
+a.footer-logo:hover,
+a.footer-logo:active,
+a.resource-brand:link,
+a.resource-brand:visited,
+a.resource-brand:hover,
+a.resource-brand:active,
+aside.sidebar > div > a {
+  text-decoration: none;
+}
+
 body.has-sidebar {
   min-height: 100vh;
   min-height: 100dvh;
