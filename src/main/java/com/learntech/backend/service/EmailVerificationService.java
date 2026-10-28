@@ -82,20 +82,29 @@ public class EmailVerificationService {
     }
 
     @Transactional
-    public AuthChallengeResponse enviarCodigoLogin(String challengeId, String canal, String telefone) {
+    public AuthChallengeResponse enviarCodigoLogin(
+            String challengeId,
+            String canal,
+            String telefone,
+            String remoteAddress) {
         EmailVerificationCode desafio = desafioLoginAtivo(challengeId);
         LocalDateTime agora = LocalDateTime.now();
-        if (!"PENDING".equals(desafio.getCodeHash())
+        boolean testeLocal = "SMS".equals(canal)
+                && smsGateway.modoTesteLocal(remoteAddress);
+        if (!testeLocal && !"PENDING".equals(desafio.getCodeHash())
                 && desafio.getCreatedAt().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(agora)) {
             return new AuthChallengeResponse(
                     challengeId,
-                    "Código enviado recentemente. Verifique sua caixa de entrada."
+                    "SMS".equals(canal)
+                            ? "Código enviado recentemente por SMS. Verifique suas mensagens."
+                            : "Código enviado recentemente por e-mail. Verifique sua caixa de entrada."
             );
         }
         String codigo = "%06d".formatted(RANDOM.nextInt(1_000_000));
         String mensagem = "Seu código de acesso Learn Tech é " + codigo
                 + ". Ele expira em " + CODE_LIFETIME_MINUTES + " minutos.";
 
+        boolean codigoDeTeste = false;
         if ("EMAIL".equals(canal)) {
             SimpleMailMessage email = new SimpleMailMessage();
             email.setFrom(fromAddress);
@@ -110,7 +119,7 @@ public class EmailVerificationService {
                         "Não foi possível enviar o código. Verifique a configuração SMTP do servidor.", erro);
             }
         } else if ("SMS".equals(canal)) {
-            smsGateway.enviarCodigo(telefone, mensagem);
+            codigoDeTeste = smsGateway.enviarCodigo(telefone, mensagem, remoteAddress);
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Canal de envio inválido.");
         }
@@ -122,10 +131,12 @@ public class EmailVerificationService {
         codes.save(desafio);
 
         String destino = "SMS".equals(canal) ? "SMS" : "e-mail";
-        String message = "maildev".equalsIgnoreCase(mailHost.trim()) && "EMAIL".equals(canal)
-                ? "Código enviado ao e-mail de teste. Consulte http://localhost:1080."
-                : "Código enviado por " + destino + ".";
-        return new AuthChallengeResponse(challengeId, message);
+        String message = codigoDeTeste
+                ? "Modo de teste local: nenhum SMS foi enviado."
+                : "maildev".equalsIgnoreCase(mailHost.trim()) && "EMAIL".equals(canal)
+                        ? "Código enviado ao e-mail de teste. Consulte http://localhost:1080."
+                        : "Código enviado por " + destino + ".";
+        return new AuthChallengeResponse(challengeId, message, codigoDeTeste ? codigo : null);
     }
 
     private EmailVerificationCode desafioLoginAtivo(String challengeId) {
@@ -142,7 +153,7 @@ public class EmailVerificationService {
 
     @Transactional
     public AuthChallengeResponse enviarCodigo(String login, EmailVerificationPurpose purpose) {
-        return enviarCodigo(login, purpose, "EMAIL", null);
+        return enviarCodigo(login, purpose, "EMAIL", null, null);
     }
 
     @Transactional
@@ -150,12 +161,15 @@ public class EmailVerificationService {
             String login,
             EmailVerificationPurpose purpose,
             String canal,
-            String telefone) {
+            String telefone,
+            String remoteAddress) {
         String normalizedLogin = login.trim().toLowerCase(Locale.ROOT);
         LocalDateTime criadoEm = LocalDateTime.now();
         Optional<EmailVerificationCode> codigoRecente =
                 codes.findTopByLoginAndPurposeAndConsumedFalseOrderByCreatedAtDesc(normalizedLogin, purpose);
-        if (codigoRecente.isPresent()
+        boolean testeLocal = "SMS".equals(canal)
+                && smsGateway.modoTesteLocal(remoteAddress);
+        if (!testeLocal && codigoRecente.isPresent()
                 && codigoRecente.get().getCreatedAt().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(criadoEm)
                 && codigoRecente.get().getExpiresAt().isAfter(criadoEm)) {
             return new AuthChallengeResponse(
@@ -180,8 +194,9 @@ public class EmailVerificationService {
         String mensagemTexto = "Seu código de verificação é " + codigo
                 + ". Ele expira em " + CODE_LIFETIME_MINUTES
                 + " minutos e só pode ser usado uma vez. Se você não solicitou este código, ignore esta mensagem.";
+        boolean codigoDeTeste = false;
         if ("SMS".equals(canal)) {
-            smsGateway.enviarCodigo(telefone, mensagemTexto);
+            codigoDeTeste = smsGateway.enviarCodigo(telefone, mensagemTexto, remoteAddress);
         } else if ("EMAIL".equals(canal)) {
             SimpleMailMessage mensagem = new SimpleMailMessage();
             mensagem.setFrom(fromAddress);
@@ -204,7 +219,10 @@ public class EmailVerificationService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Canal de envio inválido.");
         }
 
-        return new AuthChallengeResponse(challengeId, mensagemEnvio(purpose, canal));
+        String mensagem = codigoDeTeste
+                ? "Modo de teste local: nenhum SMS foi enviado."
+                : mensagemEnvio(purpose, canal);
+        return new AuthChallengeResponse(challengeId, mensagem, codigoDeTeste ? codigo : null);
     }
 
     private String mensagemEnvio(EmailVerificationPurpose purpose, String canal) {

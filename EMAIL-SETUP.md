@@ -94,10 +94,20 @@ SMS_GATEWAY_PASSWORD=senha-exibida-no-app
 
 O backend deve conseguir acessar o IP do telefone pela rede local ou por uma
 VPN. Não exponha a porta do telefone diretamente à internet. Em Docker, o host
-do backend precisa ter rota até o Android. No login, a opção de SMS só aparece
-quando o gateway está configurado e a conta possui telefone válido com DDD. Na
-redefinição de senha, o usuário escolhe o canal; a entrega por SMS depende das
-mesmas configurações e de um telefone válido cadastrado.
+do backend precisa ter rota até o Android. No login, a opção de SMS aparece
+quando o gateway está configurado e a conta possui telefone válido com DDD.
+Na redefinição de senha, o usuário escolhe o canal; a entrega por SMS depende
+das mesmas configurações e de um telefone válido cadastrado.
+
+### Teste local sem enviar SMS
+
+Ao executar o backend diretamente na mesma máquina do navegador, não é
+necessário configurar o gateway para testar os fluxos de login e redefinição
+por SMS. Se as três variáveis `SMS_GATEWAY_*` estiverem vazias e a requisição
+vier de um endereço local (loopback), o sistema ativa uma simulação: nenhum
+SMS é enviado e o código de teste aparece na tela. Esse modo não é oferecido
+para requisições remotas. Com o gateway configurado, o envio real é usado e o
+código nunca é devolvido ao navegador.
 
 O aplicativo e a API local não cobram tarifa de provedor, mas cada mensagem usa
 o plano/SIM do telefone; só será gratuito se a operadora incluir SMS no plano.

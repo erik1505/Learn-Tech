@@ -54,11 +54,25 @@ async function request(caminho, opcoes) {
     throw new Error("Não foi possível conectar ao servidor. Verifique se o back-end está rodando.");
   }
   if (!resposta.ok) {
+    const textoErro = await resposta.text();
     let erro = {};
-    try { erro = await resposta.json(); } catch (e) {}
+    if (textoErro) {
+      try {
+        erro = JSON.parse(textoErro);
+      } catch (e) {
+        erro.message = textoErro;
+      }
+    }
     let msg = erro.message || "";
-    if (resposta.status >= 500 && !msg) msg = "Erro no servidor.";
-    else if (!msg || msg.indexOf("Validation failed") === 0) msg = "Dados inválidos. Confira os campos.";
+    if (!msg && resposta.status === 403) {
+      msg = "Acesso negado pelo servidor. Confira a configuração de segurança do backend.";
+    } else if (!msg && resposta.status === 401) {
+      msg = "Não foi possível autenticar. Confira os dados e tente novamente.";
+    } else if (!msg && resposta.status >= 500) {
+      msg = "Erro no servidor. Consulte o log do backend.";
+    } else if (!msg || msg.indexOf("Validation failed") === 0) {
+      msg = "Dados inválidos. Confira os campos.";
+    }
     throw new Error(msg);
   }
   const texto = await resposta.text();

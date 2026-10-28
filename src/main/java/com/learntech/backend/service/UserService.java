@@ -108,7 +108,7 @@ public class UserService {
         return profileOf(usuario.getId());
     }
 
-    public LoginChallengeResponse iniciarLogin(String email, String senha) {
+    public LoginChallengeResponse iniciarLogin(String email, String senha, String remoteAddress) {
         Usuario usuario = usuarios.findByLoginIgnoreCase(email.trim())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos"));
         if (!encoder.matches(senha, usuario.getSenha())) {
@@ -116,17 +116,20 @@ public class UserService {
         }
 
         UserProfile perfil = profileOf(usuario.getId());
-        boolean smsDisponivel = smsGateway.configurado() && telefoneBrasileiroValido(perfil.telefone());
+        boolean smsDisponivel = smsGateway.disponivel(remoteAddress) && telefoneBrasileiroValido(perfil.telefone());
+        boolean smsTesteLocal = smsGateway.modoTesteLocal(remoteAddress)
+                && telefoneBrasileiroValido(perfil.telefone());
         return new LoginChallengeResponse(
                 emailVerification.prepararDesafioLogin(usuario.getLogin()),
                 mascararEmail(usuario.getLogin()),
                 smsDisponivel ? mascararTelefone(perfil.telefone()) : null,
                 smsDisponivel,
+                smsTesteLocal,
                 "Senha confirmada. Escolha onde deseja receber seu código."
         );
     }
 
-    public AuthChallengeResponse enviarCodigoLogin(String challengeId, String canal) {
+    public AuthChallengeResponse enviarCodigoLogin(String challengeId, String canal, String remoteAddress) {
         String telefone = null;
         if ("SMS".equals(canal)) {
             String login = emailVerification.loginDoDesafioLogin(challengeId);
@@ -134,7 +137,7 @@ public class UserService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                             "Desafio inválido ou expirado."));
             telefone = profileOf(usuario.getId()).telefone();
-            if (!smsGateway.configurado()) {
+            if (!smsGateway.disponivel(remoteAddress)) {
                 throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                         "O gateway local de SMS não está configurado no servidor.");
             }
@@ -143,7 +146,7 @@ public class UserService {
                         "Não há um telefone válido com DDD cadastrado.");
             }
         }
-        return emailVerification.enviarCodigoLogin(challengeId, canal, telefone);
+        return emailVerification.enviarCodigoLogin(challengeId, canal, telefone, remoteAddress);
     }
 
     public LoginSessionResponse verificarCodigoLogin(String challengeId, String codigo) {
@@ -160,10 +163,10 @@ public class UserService {
     }
 
     @Transactional
-    public AuthChallengeResponse solicitarRedefinicaoSenha(String email, String canal) {
+    public AuthChallengeResponse solicitarRedefinicaoSenha(String email, String canal, String remoteAddress) {
         String normalizedEmail = email.trim().toLowerCase();
         String deliveryChannel = canal == null ? "EMAIL" : canal;
-        if ("SMS".equals(deliveryChannel) && !smsGateway.configurado()) {
+        if ("SMS".equals(deliveryChannel) && !smsGateway.disponivel(remoteAddress)) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "O gateway local de SMS não está configurado no servidor.");
         }
@@ -175,7 +178,8 @@ public class UserService {
                                 usuario.getLogin(),
                                 EmailVerificationPurpose.PASSWORD_RESET,
                                 deliveryChannel,
-                                null
+                                null,
+                                remoteAddress
                         ));
                     }
 
@@ -187,7 +191,8 @@ public class UserService {
                             usuario.getLogin(),
                             EmailVerificationPurpose.PASSWORD_RESET,
                             deliveryChannel,
-                            telefone
+                            telefone,
+                            remoteAddress
                     ));
                 })
                 .orElseGet(() -> new AuthChallengeResponse(

@@ -11,6 +11,7 @@ import com.learntech.backend.dto.RegisterRequest;
 import com.learntech.backend.dto.SolicitarRedefinicaoRequest;
 import com.learntech.backend.service.UserProfile;
 import com.learntech.backend.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -37,15 +38,20 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginChallengeResponse> login(@Valid @RequestBody LoginRequest request) {
-        LoginChallengeResponse challenge = userService.iniciarLogin(request.email(), request.senha());
+    public ResponseEntity<LoginChallengeResponse> login(
+            @Valid @RequestBody LoginRequest request,
+            HttpServletRequest httpRequest) {
+        LoginChallengeResponse challenge = userService.iniciarLogin(
+                request.email(), request.senha(), httpRequest.getRemoteAddr());
         return ResponseEntity.ok(challenge);
     }
 
     @PostMapping("/login/enviar-codigo")
     public ResponseEntity<AuthChallengeResponse> enviarCodigoLogin(
-            @Valid @RequestBody LoginCodeDeliveryRequest request) {
-        return ResponseEntity.ok(userService.enviarCodigoLogin(request.challengeId(), request.canal()));
+            @Valid @RequestBody LoginCodeDeliveryRequest request,
+            HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(userService.enviarCodigoLogin(
+                request.challengeId(), request.canal(), httpRequest.getRemoteAddr()));
     }
 
     @PostMapping("/login/verificar-codigo")
@@ -62,8 +68,10 @@ public class AuthController {
 
     @PostMapping("/redefinir-senha/codigo")
     public ResponseEntity<AuthChallengeResponse> solicitarRedefinicaoSenha(
-            @Valid @RequestBody SolicitarRedefinicaoRequest request) {
-        AuthChallengeResponse challenge = userService.solicitarRedefinicaoSenha(request.email(), request.canal());
+            @Valid @RequestBody SolicitarRedefinicaoRequest request,
+            HttpServletRequest httpRequest) {
+        AuthChallengeResponse challenge = userService.solicitarRedefinicaoSenha(
+                request.email(), request.canal(), httpRequest.getRemoteAddr());
         return ResponseEntity.ok(challenge);
     }
 

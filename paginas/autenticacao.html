@@ -84,6 +84,7 @@
 
         <!-- COLUNA DIREITA: os 3 formulários -->
         <div class="auth-form-container">
+          <p id="auth-feedback" class="auth-feedback hidden" role="alert" aria-live="assertive"></p>
           <!-- FORMULÁRIO DE LOGIN -->
           <form id="form-login" class="auth-form" onsubmit="event.preventDefault();">
             <div class="input-field-wrapper">
@@ -131,6 +132,9 @@
                 <span>SMS <small id="login-telefone-mascarado"></small></span>
               </label>
             </fieldset>
+              <p id="login-sms-test-hint" class="auth-code-message hidden">
+                Modo de teste local: nenhum SMS será enviado; o código aparecerá na próxima tela.
+              </p>
             <div class="auth-links">
               <span class="link-helper" onclick="setAuthMode('login')">Voltar ao login</span>
             </div>
@@ -141,7 +145,7 @@
 
           <!-- SEGUNDA ETAPA DO LOGIN -->
           <form id="form-login-codigo" class="auth-form hidden" onsubmit="event.preventDefault();">
-            <p class="auth-code-message">
+            <p id="login-codigo-intro" class="auth-code-message">
               Enviamos um código de seis dígitos para <strong id="login-codigo-destino"></strong>.
               O código expira em 10 minutos.
             </p>
@@ -349,7 +353,7 @@
         </div>
       </footer>
 
-    <script src="./JS/api.js?v=6"></script>
-    <script src="./JS/JS_autenticacao.js?v=8"></script>
+    <script src="./JS/api.js?v=7"></script>
+    <script src="./JS/JS_autenticacao.js?v=9"></script>
   </body>
 </html>

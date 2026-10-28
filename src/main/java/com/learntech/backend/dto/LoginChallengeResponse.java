@@ -5,5 +5,6 @@ public record LoginChallengeResponse(
         String emailMascarado,
         String telefoneMascarado,
         boolean smsDisponivel,
+        boolean smsTesteLocal,
         String message
 ) {}

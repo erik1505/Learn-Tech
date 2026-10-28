@@ -10,6 +10,8 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -45,11 +47,16 @@ public class LocalSmsGatewayService {
         }
     }
 
-    public void enviarCodigo(String telefone, String mensagem) {
-        if (!configurado()) {
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "Gateway local de SMS não configurado. Consulte EMAIL-SETUP.md.");
-        }
+    public boolean disponivel(String remoteAddress) {
+        return configurado() || modoTesteLocal(remoteAddress);
+    }
+
+    public boolean modoTesteLocal(String remoteAddress) {
+        return endpoint.isBlank() && username.isBlank() && password.isBlank()
+                && requisicaoLocal(remoteAddress);
+    }
+
+    public boolean enviarCodigo(String telefone, String mensagem, String remoteAddress) {
 
         String digits = telefone == null ? "" : telefone.replaceAll("\\D+", "");
         if (digits.startsWith("55") && (digits.length() == 12 || digits.length() == 13)) {
@@ -57,6 +64,14 @@ public class LocalSmsGatewayService {
         }
         if (!digits.matches("[1-9][0-9]{9,10}")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Telefone inválido para envio por SMS.");
+        }
+
+        if (!configurado()) {
+            if (modoTesteLocal(remoteAddress)) {
+                return true;
+            }
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Gateway local de SMS não configurado. Consulte EMAIL-SETUP.md.");
         }
 
         Map<String, Object> payload = Map.of(
@@ -72,10 +87,22 @@ public class LocalSmsGatewayService {
                     .body(payload)
                     .retrieve()
                     .toBodilessEntity();
+            return false;
         } catch (RestClientException erro) {
             logger.error("Falha ao enviar código pelo gateway SMS local.", erro);
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "Não foi possível enviar o SMS. Verifique a conexão com o celular gateway.", erro);
+        }
+    }
+
+    private boolean requisicaoLocal(String remoteAddress) {
+        if (remoteAddress == null || remoteAddress.isBlank()) {
+            return false;
+        }
+        try {
+            return InetAddress.getByName(remoteAddress).isLoopbackAddress();
+        } catch (UnknownHostException erro) {
+            return false;
         }
     }
 }

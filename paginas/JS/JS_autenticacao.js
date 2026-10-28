@@ -82,6 +82,24 @@ function esconderCarregamentoAuth() {
   carregamento.setAttribute('aria-hidden', 'true');
 }
 
+function mostrarFeedbackAuth(mensagem) {
+  const feedback = document.getElementById('auth-feedback');
+  feedback.textContent = mensagem;
+  feedback.classList.remove('hidden');
+}
+
+function limparFeedbackAuth() {
+  const feedback = document.getElementById('auth-feedback');
+  feedback.textContent = '';
+  feedback.classList.add('hidden');
+}
+
+function mensagemComCodigoDeTeste(resposta) {
+  return resposta.testCode
+    ? `${resposta.message} Código de teste local: ${resposta.testCode}`
+    : resposta.message;
+}
+
 function limparEtapaRedefinicao() {
   resetChallengeId = null;
   sessionStorage.removeItem('learnTech.passwordResetChallenge');
@@ -135,12 +153,14 @@ function mostrarOpcoesCanalLogin(desafio) {
   document.getElementById('login-email-mascarado').textContent = desafio.emailMascarado;
   document.getElementById('login-telefone-mascarado').textContent = desafio.telefoneMascarado || '';
   document.getElementById('login-sms-option').hidden = !desafio.smsDisponivel;
+  document.getElementById('login-sms-test-hint').classList.toggle('hidden', !desafio.smsTesteLocal);
   document.querySelector('input[name="login-canal"][value="EMAIL"]').checked = true;
   sessionStorage.setItem('learnTech.loginChannelChallenge', JSON.stringify({
     challengeId: desafio.challengeId,
     emailMascarado: desafio.emailMascarado,
     telefoneMascarado: desafio.telefoneMascarado || '',
     smsDisponivel: desafio.smsDisponivel,
+    smsTesteLocal: desafio.smsTesteLocal,
     expiraEm: Date.now() + 5 * 60 * 1000
   }));
   setAuthMode('login-canal');
@@ -163,7 +183,12 @@ function restaurarEtapaLogin() {
         && desafio.expiraEm > Date.now()) {
       loginChallengeId = desafio.challengeId;
       document.getElementById('login-codigo-destino').textContent = desafio.destino;
-      document.getElementById('login-codigo-status').textContent = desafio.mensagem || '';
+      document.getElementById('login-codigo-status').textContent = desafio.codigoTesteLocal
+        ? `${desafio.mensagem} Código de teste local: ${desafio.codigoTesteLocal}`
+        : desafio.mensagem || '';
+      document.getElementById('login-codigo-intro').textContent = desafio.codigoTesteLocal
+        ? 'Nenhum SMS foi enviado: este é um teste local.'
+        : `Enviamos um código de seis dígitos para ${desafio.destino}. O código expira em 10 minutos.`;
       setAuthMode('login-codigo');
       return;
     }
@@ -186,6 +211,7 @@ function restaurarEtapaLogin() {
       || typeof desafioCanal.emailMascarado !== 'string'
       || typeof desafioCanal.telefoneMascarado !== 'string'
       || typeof desafioCanal.smsDisponivel !== 'boolean'
+      || typeof desafioCanal.smsTesteLocal !== 'boolean'
       || !Number.isFinite(desafioCanal.expiraEm)
       || desafioCanal.expiraEm <= Date.now()) {
     sessionStorage.removeItem('learnTech.loginChannelChallenge');
@@ -196,12 +222,14 @@ function restaurarEtapaLogin() {
   document.getElementById('login-email-mascarado').textContent = desafioCanal.emailMascarado;
   document.getElementById('login-telefone-mascarado').textContent = desafioCanal.telefoneMascarado;
   document.getElementById('login-sms-option').hidden = !desafioCanal.smsDisponivel;
+  document.getElementById('login-sms-test-hint').classList.toggle('hidden', !desafioCanal.smsTesteLocal);
   document.querySelector('input[name="login-canal"][value="EMAIL"]').checked = true;
   setAuthMode('login-canal');
 }
 
 async function fazerLogin(evento) {
   evento.preventDefault();
+  limparFeedbackAuth();
 
   const botao = evento.target.querySelector('button[type="submit"]');
   if (botao) botao.disabled = true;
@@ -216,13 +244,14 @@ async function fazerLogin(evento) {
     mostrarOpcoesCanalLogin(desafio);
     if (botao) botao.disabled = false;
   } catch (erro) {
-    alert(erro.message);
+    mostrarFeedbackAuth(erro.message);
     if (botao) botao.disabled = false;
   }
 }
 
 async function enviarCodigoLogin(evento) {
   evento.preventDefault();
+  limparFeedbackAuth();
   const botao = evento.target.querySelector('button[type="submit"]');
   if (botao) botao.disabled = true;
 
@@ -241,15 +270,20 @@ async function enviarCodigoLogin(evento) {
       challengeId: resposta.challengeId,
       destino,
       mensagem: resposta.message,
+      codigoTesteLocal: resposta.testCode || null,
       expiraEm: Date.now() + 10 * 60 * 1000
     }));
     document.getElementById('login-codigo-destino').textContent = destino;
-    document.getElementById('login-codigo-status').textContent = resposta.message;
+    const codigoLocal = Boolean(resposta.testCode);
+    document.getElementById('login-codigo-intro').textContent = codigoLocal
+      ? 'Nenhum SMS foi enviado: este é um teste local.'
+      : `Enviamos um código de seis dígitos para ${destino}. O código expira em 10 minutos.`;
+    document.getElementById('login-codigo-status').textContent = mensagemComCodigoDeTeste(resposta);
     document.getElementById('login-codigo').value = '';
     setAuthMode('login-codigo');
     document.getElementById('login-codigo').focus();
   } catch (erro) {
-    alert(erro.message || 'Não foi possível enviar o código.');
+    mostrarFeedbackAuth(erro.message || 'Não foi possível enviar o código.');
   } finally {
     esconderCarregamentoAuth();
     if (botao) botao.disabled = false;
@@ -259,6 +293,7 @@ async function enviarCodigoLogin(evento) {
 
 async function verificarCodigoLogin(evento) {
   evento.preventDefault();
+  limparFeedbackAuth();
   const botao = evento.target.querySelector('button[type="submit"]');
   if (botao) botao.disabled = true;
 
@@ -270,13 +305,14 @@ async function verificarCodigoLogin(evento) {
     sessionStorage.removeItem('learnTech.loginCodeChallenge');
     entrarNoSistema(usuario);
   } catch (erro) {
-    alert(erro.message || 'Não foi possível validar o código.');
+    mostrarFeedbackAuth(erro.message || 'Não foi possível validar o código.');
     if (botao) botao.disabled = false;
   }
 }
 
 async function fazerCadastro(evento) {
   evento.preventDefault();
+  limparFeedbackAuth();
 
   const senhaEl = document.getElementById('cad-senha');
   const roleEl = document.getElementById('cad-role');
@@ -316,13 +352,14 @@ async function fazerCadastro(evento) {
     alert('Conta criada com sucesso! Faça login para continuar.');
     if (botao) botao.disabled = false;
   } catch (erro) {
-    alert(erro.message);
+    mostrarFeedbackAuth(erro.message);
     if (botao) botao.disabled = false;
   }
 }
 
 async function redefinirSenha(evento) {
   evento.preventDefault();
+  limparFeedbackAuth();
 
   const botao = evento.target.querySelector('button[type="submit"]');
   if (botao) botao.disabled = true;
@@ -351,6 +388,7 @@ async function redefinirSenha(evento) {
       sessionStorage.setItem('learnTech.passwordResetChallenge', JSON.stringify({
         challengeId: desafio.challengeId,
         mensagem: desafio.message,
+        codigoTesteLocal: desafio.testCode || null,
         expiraEm: Date.now() + 10 * 60 * 1000
       }));
       resetStep = 'code';
@@ -363,7 +401,7 @@ async function redefinirSenha(evento) {
       document.getElementById('reset-conf-senha').required = true;
       botao.textContent = 'REDEFINIR SENHA';
       const status = document.getElementById('reset-status');
-      status.textContent = desafio.message;
+      status.textContent = mensagemComCodigoDeTeste(desafio);
       status.classList.remove('hidden');
       return;
     }
@@ -384,7 +422,7 @@ async function redefinirSenha(evento) {
     alert('Senha redefinida com sucesso! Faça login com a sua nova senha.');
     setAuthMode('login');
   } catch (erro) {
-    alert(erro.message || 'Erro ao redefinir a senha.');
+    mostrarFeedbackAuth(erro.message || 'Erro ao redefinir a senha.');
   } finally {
     esconderCarregamentoAuth();
     if (botao) botao.disabled = false;
@@ -425,7 +463,9 @@ function restaurarEtapaRedefinicao() {
   document.getElementById('reset-submit').textContent = 'REDEFINIR SENHA';
   document.getElementById('reset-back-email').classList.add('hidden');
   const status = document.getElementById('reset-status');
-  status.textContent = desafio.mensagem || 'Informe o código enviado para o seu e-mail.';
+  status.textContent = desafio.codigoTesteLocal
+    ? `${desafio.mensagem} Código de teste local: ${desafio.codigoTesteLocal}`
+    : desafio.mensagem || 'Informe o código enviado para o seu e-mail.';
   status.classList.remove('hidden');
   setAuthMode('reset');
 }
