@@ -78,4 +78,13 @@ public class EntregaAtividade {
 
     public LocalDateTime getDataEnvio() { return dataEnvio; }
     public void setDataEnvio(LocalDateTime dataEnvio) { this.dataEnvio = dataEnvio; }
+
+    public boolean foiEnviada() {
+        if ("CONCLUIDA".equalsIgnoreCase(statusKanban)) {
+            return true;
+        }
+        return "A_FAZER".equalsIgnoreCase(statusKanban)
+                && ((textoComentario != null && !textoComentario.isBlank())
+                || (getArquivoEnviado() != null && !getArquivoEnviado().isBlank()));
+    }
 }

@@ -1,9 +1,13 @@
 # Configuração de envio de e-mail com Gmail SMTP
 
 O backend envia códigos de login e de redefinição de senha, além de avisos de
-novas atividades, alterações em atividades e notas corrigidas. Os avisos de
-atividades e notas são enviados aos e-mails dos alunos com matrícula ativa na
-turma. `MAIL_USERNAME` e `MAIL_FROM` identificam a conta que envia as
+novas atividades, alterações em atividades, notas corrigidas e lembretes de
+entrega. Os lembretes são enviados diariamente às 8h (horário de São Paulo)
+para atividades ainda não entregues, conforme a prioridade escolhida no
+calendário: baixa a partir de 1 dia antes, média a partir de 2 dias e alta a
+partir de 4 dias, seguindo os exemplos definidos para o calendário. O dia do
+prazo também recebe aviso, e os envios continuam diariamente após o vencimento
+até a entrega. `MAIL_USERNAME` e `MAIL_FROM` identificam a conta que envia as
 mensagens. Não é necessário ter um domínio próprio.
 
 ## Preparar a conta Gmail
@@ -111,3 +115,7 @@ código nunca é devolvido ao navegador.
 
 O aplicativo e a API local não cobram tarifa de provedor, mas cada mensagem usa
 o plano/SIM do telefone; só será gratuito se a operadora incluir SMS no plano.
+Esse gateway envia SMS, não mensagens de WhatsApp. O sistema ainda não tem um
+provedor de WhatsApp configurado; para avisos automáticos nesse canal, será
+necessário integrar um provedor oficial e configurar as credenciais e modelos
+de mensagem aprovados.

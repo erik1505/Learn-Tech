@@ -4,6 +4,7 @@ import com.learntech.backend.model.Aluno;
 import com.learntech.backend.model.Atividade;
 import com.learntech.backend.model.Matricula;
 import com.learntech.backend.model.Notificacao;
+import com.learntech.backend.model.Priority;
 import com.learntech.backend.model.Usuario;
 import com.learntech.backend.repository.MatriculaRepository;
 import com.learntech.backend.repository.NotificacaoRepository;
@@ -18,8 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @Service
@@ -84,6 +87,26 @@ public class NotificationService {
         create(aluno.getUsuario(), titulo, mensagem, "✅");
         enviarEmail(aluno.getEmail(), "Atividade corrigida - Learn Tech",
                 mensagem + "\n\nAcesse o Learn Tech para consultar suas notas.");
+    }
+
+    @Transactional
+    public void notifyDeadlineReminder(Aluno aluno, Atividade atividade, Priority prioridade, long diasRestantes) {
+        String prazo = atividade.getPrazo().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String dias;
+        if (diasRestantes < 0) {
+            long diasAtrasados = Math.abs(diasRestantes);
+            dias = "O prazo venceu há " + diasAtrasados
+                    + (diasAtrasados == 1 ? " dia." : " dias.");
+        } else if (diasRestantes == 0) {
+            dias = "O prazo termina hoje.";
+        } else {
+            dias = "Faltam " + diasRestantes + (diasRestantes == 1 ? " dia." : " dias.");
+        }
+        String mensagem = "A atividade \"" + atividade.getNome() + "\" está com prioridade "
+                + prioridade.name().toLowerCase(Locale.ROOT) + " e deve ser entregue até " + prazo + ". " + dias;
+        create(aluno.getUsuario(), "Lembrete de entrega", mensagem, "⏰");
+        enviarEmail(aluno.getEmail(), "Lembrete de entrega - Learn Tech",
+                mensagem + "\n\nVocê receberá este lembrete diariamente até enviar a atividade.");
     }
 
     private Notificacao create(Usuario user, String titulo, String mensagem, String icone) {

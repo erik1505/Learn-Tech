@@ -3,10 +3,12 @@ package com.learntech.backend;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.context.ConfigurableApplicationContext;
 import java.util.Arrays;
 
 @SpringBootApplication
+@EnableScheduling
 public class LearnTechApplication {
     public static void main(String[] args) {
         boolean importMode = Arrays.stream(args).anyMatch(argument -> argument.startsWith("--school.import.file="));

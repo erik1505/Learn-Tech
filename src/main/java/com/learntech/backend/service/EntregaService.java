@@ -59,7 +59,7 @@ public class EntregaService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
         userService.requireActivityAccess(atividade, false);
         EntregaAtividade entrega = obterOuCriarEntrega(atividade, aluno);
-        if (foiEnviada(entrega)) {
+        if (entrega.foiEnviada()) {
             entrega.setStatusKanban("CONCLUIDA");
             entregaAtividadeRepository.save(entrega);
         } else {
@@ -106,15 +106,6 @@ public class EntregaService {
         return entrega;
     }
 
-    private boolean foiEnviada(EntregaAtividade entrega) {
-        if ("CONCLUIDA".equalsIgnoreCase(entrega.getStatusKanban())) {
-            return true;
-        }
-        return "A_FAZER".equalsIgnoreCase(entrega.getStatusKanban())
-                && ((entrega.getTextoComentario() != null && !entrega.getTextoComentario().isBlank())
-                || (entrega.getArquivoEnviado() != null && !entrega.getArquivoEnviado().isBlank()));
-    }
-
     public List<EntregaDetalheDTO> buscarEntregasDetalhes(Integer atividadeId, Integer professorId) {
         userService.requireProfessor(professorId);
         Atividade atividade = atividadeRepository.findById(atividadeId)
@@ -122,7 +113,7 @@ public class EntregaService {
         userService.requireActivityAccess(atividade, true);
 
         List<EntregaAtividade> entregas = entregaAtividadeRepository.findByAtividadeId(atividadeId).stream()
-                .filter(this::foiEnviada)
+                .filter(EntregaAtividade::foiEnviada)
                 .toList();
 
         return entregas.stream().map(e -> new EntregaDetalheDTO(
