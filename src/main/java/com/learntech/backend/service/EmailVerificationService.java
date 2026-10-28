@@ -142,6 +142,15 @@ public class EmailVerificationService {
 
     @Transactional
     public AuthChallengeResponse enviarCodigo(String login, EmailVerificationPurpose purpose) {
+        return enviarCodigo(login, purpose, "EMAIL", null);
+    }
+
+    @Transactional
+    public AuthChallengeResponse enviarCodigo(
+            String login,
+            EmailVerificationPurpose purpose,
+            String canal,
+            String telefone) {
         String normalizedLogin = login.trim().toLowerCase(Locale.ROOT);
         LocalDateTime criadoEm = LocalDateTime.now();
         Optional<EmailVerificationCode> codigoRecente =
@@ -149,7 +158,10 @@ public class EmailVerificationService {
         if (codigoRecente.isPresent()
                 && codigoRecente.get().getCreatedAt().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(criadoEm)
                 && codigoRecente.get().getExpiresAt().isAfter(criadoEm)) {
-            return new AuthChallengeResponse(codigoRecente.get().getId(), "Código já enviado recentemente. Verifique sua caixa de entrada.");
+            return new AuthChallengeResponse(
+                    codigoRecente.get().getId(),
+                    mensagemEnvio(purpose, canal)
+            );
         }
 
         String challengeId = UUID.randomUUID().toString();
@@ -165,34 +177,46 @@ public class EmailVerificationService {
                 criadoEm.plusMinutes(CODE_LIFETIME_MINUTES)
         ));
 
-        SimpleMailMessage mensagem = new SimpleMailMessage();
-        mensagem.setFrom(fromAddress);
-        mensagem.setTo(normalizedLogin);
-        mensagem.setSubject(purpose == EmailVerificationPurpose.LOGIN
-                ? "Código de acesso - Learn Tech"
-                : "Código para redefinição de senha - Learn Tech");
-        mensagem.setText("Seu código de verificação é " + codigo
+        String mensagemTexto = "Seu código de verificação é " + codigo
                 + ". Ele expira em " + CODE_LIFETIME_MINUTES
-                + " minutos e só pode ser usado uma vez. Se você não solicitou este código, ignore esta mensagem.");
-
-        try {
-            mailSender.send(mensagem);
-            return new AuthChallengeResponse(
-                    challengeId,
-                    "maildev".equalsIgnoreCase(mailHost.trim())
-                            ? "Código enviado ao e-mail de teste. Consulte http://localhost:1080."
-                            : purpose == EmailVerificationPurpose.LOGIN
-                                    ? "Código enviado para o e-mail cadastrado."
-                                    : "Se o e-mail estiver cadastrado, você receberá um código para redefinir a senha."
-            );
-        } catch (MailException erro) {
-            logger.error("Falha ao enviar código de verificação pelo servidor SMTP {}.", mailHost, erro);
-            throw new ResponseStatusException(
-                    HttpStatus.SERVICE_UNAVAILABLE,
-                    "Não foi possível enviar o código. Verifique a configuração SMTP do servidor.",
-                    erro
-            );
+                + " minutos e só pode ser usado uma vez. Se você não solicitou este código, ignore esta mensagem.";
+        if ("SMS".equals(canal)) {
+            smsGateway.enviarCodigo(telefone, mensagemTexto);
+        } else if ("EMAIL".equals(canal)) {
+            SimpleMailMessage mensagem = new SimpleMailMessage();
+            mensagem.setFrom(fromAddress);
+            mensagem.setTo(normalizedLogin);
+            mensagem.setSubject(purpose == EmailVerificationPurpose.LOGIN
+                    ? "Código de acesso - Learn Tech"
+                    : "Código para redefinição de senha - Learn Tech");
+            mensagem.setText(mensagemTexto);
+            try {
+                mailSender.send(mensagem);
+            } catch (MailException erro) {
+                logger.error("Falha ao enviar código de verificação pelo servidor SMTP {}.", mailHost, erro);
+                throw new ResponseStatusException(
+                        HttpStatus.SERVICE_UNAVAILABLE,
+                        "Não foi possível enviar o código. Verifique a configuração SMTP do servidor.",
+                        erro
+                );
+            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Canal de envio inválido.");
         }
+
+        return new AuthChallengeResponse(challengeId, mensagemEnvio(purpose, canal));
+    }
+
+    private String mensagemEnvio(EmailVerificationPurpose purpose, String canal) {
+        if (purpose == EmailVerificationPurpose.PASSWORD_RESET) {
+            return "Se os dados estiverem cadastrados, você receberá um código pelo canal escolhido.";
+        }
+        if ("SMS".equals(canal)) {
+            return "Código enviado por SMS.";
+        }
+        return "maildev".equalsIgnoreCase(mailHost.trim())
+                ? "Código enviado ao e-mail de teste. Consulte http://localhost:1080."
+                : "Código enviado para o e-mail cadastrado.";
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

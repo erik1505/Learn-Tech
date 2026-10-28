@@ -160,16 +160,39 @@ public class UserService {
     }
 
     @Transactional
-    public AuthChallengeResponse solicitarRedefinicaoSenha(String email) {
+    public AuthChallengeResponse solicitarRedefinicaoSenha(String email, String canal) {
         String normalizedEmail = email.trim().toLowerCase();
+        String deliveryChannel = canal == null ? "EMAIL" : canal;
+        if ("SMS".equals(deliveryChannel) && !smsGateway.configurado()) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "O gateway local de SMS não está configurado no servidor.");
+        }
+
         return usuarios.findByLoginIgnoreCase(normalizedEmail)
-                .map(usuario -> emailVerification.enviarCodigo(
-                        usuario.getLogin(),
-                        EmailVerificationPurpose.PASSWORD_RESET
-                ))
+                .flatMap(usuario -> {
+                    if ("EMAIL".equals(deliveryChannel)) {
+                        return java.util.Optional.of(emailVerification.enviarCodigo(
+                                usuario.getLogin(),
+                                EmailVerificationPurpose.PASSWORD_RESET,
+                                deliveryChannel,
+                                null
+                        ));
+                    }
+
+                    String telefone = profileOf(usuario.getId()).telefone();
+                    if (!telefoneBrasileiroValido(telefone)) {
+                        return java.util.Optional.empty();
+                    }
+                    return java.util.Optional.of(emailVerification.enviarCodigo(
+                            usuario.getLogin(),
+                            EmailVerificationPurpose.PASSWORD_RESET,
+                            deliveryChannel,
+                            telefone
+                    ));
+                })
                 .orElseGet(() -> new AuthChallengeResponse(
                         java.util.UUID.randomUUID().toString(),
-                        "Se o e-mail estiver cadastrado, você receberá um código para redefinir a senha."
+                        "Se os dados estiverem cadastrados, você receberá um código pelo canal escolhido."
                 ));
     }
 

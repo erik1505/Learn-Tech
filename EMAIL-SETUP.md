@@ -94,8 +94,10 @@ SMS_GATEWAY_PASSWORD=senha-exibida-no-app
 
 O backend deve conseguir acessar o IP do telefone pela rede local ou por uma
 VPN. Não exponha a porta do telefone diretamente à internet. Em Docker, o host
-do backend precisa ter rota até o Android. A opção de SMS só aparece quando o
-gateway está configurado e a conta possui telefone válido com DDD.
+do backend precisa ter rota até o Android. No login, a opção de SMS só aparece
+quando o gateway está configurado e a conta possui telefone válido com DDD. Na
+redefinição de senha, o usuário escolhe o canal; a entrega por SMS depende das
+mesmas configurações e de um telefone válido cadastrado.
 
 O aplicativo e a API local não cobram tarifa de provedor, mas cada mensagem usa
 o plano/SIM do telefone; só será gratuito se a operadora incluir SMS no plano.

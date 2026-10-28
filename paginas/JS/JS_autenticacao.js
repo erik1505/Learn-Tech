@@ -57,6 +57,7 @@ function setAuthMode(mode) {
 
 let loginChallengeId = null;
 let resetChallengeId = null;
+let resetStep = 'email';
 
 function valorDe(id) {
   const el = document.getElementById(id);
@@ -86,6 +87,7 @@ function limparEtapaRedefinicao() {
   sessionStorage.removeItem('learnTech.passwordResetChallenge');
   const emailWrapper = document.getElementById('reset-email-wrapper');
   const email = document.getElementById('reset-email');
+  const channelWrapper = document.getElementById('reset-channel-wrapper');
   const codigoWrapper = document.getElementById('reset-codigo-wrapper');
   const senhaWrapper = document.getElementById('reset-nova-senha-wrapper');
   const confirmacaoWrapper = document.getElementById('reset-conf-senha-wrapper');
@@ -94,22 +96,38 @@ function limparEtapaRedefinicao() {
   const confirmacao = document.getElementById('reset-conf-senha');
   const botao = document.getElementById('reset-submit');
   const status = document.getElementById('reset-status');
+  const backEmail = document.getElementById('reset-back-email');
 
   if (!emailWrapper) return;
+  resetStep = 'email';
   codigo.value = '';
   senha.value = '';
   confirmacao.value = '';
   emailWrapper.classList.remove('hidden');
   email.required = true;
+  channelWrapper.classList.add('hidden');
   codigoWrapper.classList.add('hidden');
   senhaWrapper.classList.add('hidden');
   confirmacaoWrapper.classList.add('hidden');
   codigo.required = false;
   senha.required = false;
   confirmacao.required = false;
-  botao.textContent = 'ENVIAR CÓDIGO';
+  document.querySelector('input[name="reset-canal"][value="EMAIL"]').checked = true;
+  botao.textContent = 'CONTINUAR';
+  backEmail.classList.add('hidden');
   status.textContent = '';
   status.classList.add('hidden');
+}
+
+function voltarEmailRedefinicao() {
+  if (resetStep !== 'channel') return;
+
+  resetStep = 'email';
+  document.getElementById('reset-channel-wrapper').classList.add('hidden');
+  document.getElementById('reset-email-wrapper').classList.remove('hidden');
+  document.getElementById('reset-email').required = true;
+  document.getElementById('reset-back-email').classList.add('hidden');
+  document.getElementById('reset-submit').textContent = 'CONTINUAR';
 }
 
 function mostrarOpcoesCanalLogin(desafio) {
@@ -310,9 +328,22 @@ async function redefinirSenha(evento) {
   if (botao) botao.disabled = true;
 
   try {
+    if (resetStep === 'email') {
+      resetStep = 'channel';
+      document.getElementById('reset-email-wrapper').classList.add('hidden');
+      document.getElementById('reset-email').required = false;
+      document.getElementById('reset-channel-wrapper').classList.remove('hidden');
+      document.getElementById('reset-back-email').classList.remove('hidden');
+      botao.textContent = 'ENVIAR CÓDIGO';
+      return;
+    }
+
     if (!resetChallengeId) {
-      mostrarCarregamentoAuth('Enviando o código de redefinição por e-mail...');
-      const desafio = await solicitarCodigoRedefinicaoApi(valorDe('reset-email'));
+      const canal = document.querySelector('input[name="reset-canal"]:checked').value;
+      mostrarCarregamentoAuth(canal === 'EMAIL'
+        ? 'Enviando o código de redefinição por e-mail...'
+        : 'Enviando o código de redefinição por SMS...');
+      const desafio = await solicitarCodigoRedefinicaoApi(valorDe('reset-email'), canal);
       if (!desafio || !desafio.challengeId) {
         throw new Error('Não foi possível confirmar o envio do código. Tente novamente.');
       }
@@ -322,8 +353,8 @@ async function redefinirSenha(evento) {
         mensagem: desafio.message,
         expiraEm: Date.now() + 10 * 60 * 1000
       }));
-      document.getElementById('reset-email-wrapper').classList.add('hidden');
-      document.getElementById('reset-email').required = false;
+      resetStep = 'code';
+      document.getElementById('reset-channel-wrapper').classList.add('hidden');
       document.getElementById('reset-codigo-wrapper').classList.remove('hidden');
       document.getElementById('reset-nova-senha-wrapper').classList.remove('hidden');
       document.getElementById('reset-conf-senha-wrapper').classList.remove('hidden');
@@ -381,8 +412,10 @@ function restaurarEtapaRedefinicao() {
   }
 
   resetChallengeId = desafio.challengeId;
+  resetStep = 'code';
   document.getElementById('reset-email-wrapper').classList.add('hidden');
   document.getElementById('reset-email').required = false;
+  document.getElementById('reset-channel-wrapper').classList.add('hidden');
   document.getElementById('reset-codigo-wrapper').classList.remove('hidden');
   document.getElementById('reset-nova-senha-wrapper').classList.remove('hidden');
   document.getElementById('reset-conf-senha-wrapper').classList.remove('hidden');
@@ -390,6 +423,7 @@ function restaurarEtapaRedefinicao() {
   document.getElementById('reset-nova-senha').required = true;
   document.getElementById('reset-conf-senha').required = true;
   document.getElementById('reset-submit').textContent = 'REDEFINIR SENHA';
+  document.getElementById('reset-back-email').classList.add('hidden');
   const status = document.getElementById('reset-status');
   status.textContent = desafio.mensagem || 'Informe o código enviado para o seu e-mail.';
   status.classList.remove('hidden');

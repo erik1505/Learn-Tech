@@ -150,8 +150,8 @@ const enviarCodigoLoginApi = (challengeId, canal) =>
 const verificarCodigoLoginApi = (challengeId, codigo) =>
   request("/auth/login/verificar-codigo", { method: "POST", body: { challengeId, codigo } });
 
-const solicitarCodigoRedefinicaoApi = (email) =>
-  request("/auth/redefinir-senha/codigo", { method: "POST", body: { email } });
+const solicitarCodigoRedefinicaoApi = (email, canal) =>
+  request("/auth/redefinir-senha/codigo", { method: "POST", body: { email, canal } });
 
 const redefinirSenhaApi = (challengeId, codigo, novaSenha) =>
   request("/auth/redefinir-senha", { method: "PUT", body: { challengeId, codigo, novaSenha } });

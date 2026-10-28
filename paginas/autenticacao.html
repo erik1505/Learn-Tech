@@ -225,7 +225,7 @@
               <label class="field-label" for="cad-role">TIPO DE CONTA:</label>
               <select id="cad-role" class="field-input" required>
                 <option value="ALUNO">Aluno</option>
-                <option value="PROFESSOR">Professor independente</option>
+                <option value="PROFESSOR">Professor</option>
               </select>
             </div>
             <div class="input-field-wrapper">
@@ -264,6 +264,20 @@
               <label class="field-label" for="reset-email">E-MAIL ACADEMICO:</label>
               <input type="email" id="reset-email" class="field-input" required>
             </div>
+            <fieldset id="reset-channel-wrapper" class="login-channel-options hidden">
+              <legend>ONDE DESEJA RECEBER O CÓDIGO?</legend>
+              <p id="reset-channel-message" class="auth-code-message">
+                Escolha um dos meios cadastrados para receber o código de redefinição.
+              </p>
+              <label class="login-channel-option">
+                <input type="radio" name="reset-canal" value="EMAIL" checked>
+                <span>E-mail cadastrado</span>
+              </label>
+              <label class="login-channel-option">
+                <input type="radio" name="reset-canal" value="SMS">
+                <span>SMS no telefone cadastrado</span>
+              </label>
+            </fieldset>
             <div id="reset-codigo-wrapper" class="input-field-wrapper hidden">
               <div class="field-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round">
@@ -295,10 +309,11 @@
             </div>
             <p id="reset-status" class="auth-code-message hidden" role="status" aria-live="polite"></p>
             <div class="auth-links">
+              <span id="reset-back-email" class="link-helper hidden" onclick="voltarEmailRedefinicao()">Alterar e-mail</span>
               <span class="link-helper" onclick="setAuthMode('login')">Lembrou da senha? Voltar ao login</span>
             </div>
             <div class="btn-submit-container">
-              <button id="reset-submit" type="submit" class="btn-submit btn-submit-wide">ENVIAR CÓDIGO</button>
+              <button id="reset-submit" type="submit" class="btn-submit btn-submit-wide">CONTINUAR</button>
             </div>
           </form>
         </div>
@@ -334,7 +349,7 @@
         </div>
       </footer>
 
-    <script src="./JS/api.js?v=5"></script>
-    <script src="./JS/JS_autenticacao.js?v=7"></script>
+    <script src="./JS/api.js?v=6"></script>
+    <script src="./JS/JS_autenticacao.js?v=8"></script>
   </body>
 </html>

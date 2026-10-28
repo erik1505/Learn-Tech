@@ -63,7 +63,7 @@ public class AuthController {
     @PostMapping("/redefinir-senha/codigo")
     public ResponseEntity<AuthChallengeResponse> solicitarRedefinicaoSenha(
             @Valid @RequestBody SolicitarRedefinicaoRequest request) {
-        AuthChallengeResponse challenge = userService.solicitarRedefinicaoSenha(request.email());
+        AuthChallengeResponse challenge = userService.solicitarRedefinicaoSenha(request.email(), request.canal());
         return ResponseEntity.ok(challenge);
     }
 
