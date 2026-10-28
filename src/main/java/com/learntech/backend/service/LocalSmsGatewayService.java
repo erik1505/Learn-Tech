@@ -71,7 +71,7 @@ public class LocalSmsGatewayService {
                 return true;
             }
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "Gateway local de SMS não configurado. Consulte EMAIL-SETUP.md.");
+                    "Gateway local de SMS não configurado. Consulte anotacoes/EMAIL-SETUP.md.");
         }
 
         Map<String, Object> payload = Map.of(

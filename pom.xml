@@ -64,9 +64,6 @@
         <targetPath>static</targetPath>
         <includes>
           <include>index.html</include>
-          <include>documentacao.html</include>
-          <include>faq.html</include>
-          <include>suporte.html</include>
           <include>Style/**</include>
           <include>paginas/**</include>
           <include>src/image.png</include>

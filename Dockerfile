@@ -6,7 +6,7 @@ ENV MAVEN_OPTS="-Xms128m -Xmx512m"
 COPY pom.xml .
 RUN mvn -B dependency:go-offline
 COPY src ./src
-COPY index.html documentacao.html faq.html suporte.html ./
+COPY index.html ./
 COPY Style ./Style
 COPY paginas ./paginas
 RUN mvn -B -DskipTests package
