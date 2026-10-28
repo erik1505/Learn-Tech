@@ -35,6 +35,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/", "/*.html", "/Style/**", "/paginas/**", "/src/**").permitAll()
                         .requestMatchers("/api/health", "/api/auth/cadastro", "/api/auth/login",
                                 "/api/auth/login/**", "/api/auth/redefinir-senha/**").permitAll()
                         .requestMatchers("/api/auth/redefinir-senha").permitAll()

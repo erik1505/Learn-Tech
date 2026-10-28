@@ -1,0 +1,1002 @@
+/* ==========================================================
+   LEARN TECH - ATIVIDADES (trilha da turma, detalhe, post-its e edição)
+   ========================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: linear-gradient(#1b1033, #0a0d18);
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  overflow-x: auto;
+}
+
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==========================================================
+   HEADER / NAVBAR
+   ========================================================== */
+
+header, header.main-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 40px;
+  position: relative;
+  z-index: 50;
+}
+
+nav.nav-links, nav.header-nav {
+  display: flex;
+  gap: 46px;
+}
+
+nav.nav-links a, nav.header-nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 17.6px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+nav.nav-links a:hover, nav.header-nav a:hover,
+nav.nav-links a.active, nav.header-nav a.active {
+  color: #38bdf8;
+  transform: scale(1.05);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+/* BOTÃO MODO FOCO */
+.btn-modo-foco {
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  color: #ffffff;
+  padding: 5px 16px;
+  border-radius: 6px;
+  font-size: 12.1px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-modo-foco:hover,
+body.modo-foco-ativo .btn-modo-foco {
+  background-color: #2b6ce6;
+  border-color: #2b6ce6;
+  color: #ffffff;
+}
+
+.header-icon-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  position: relative;
+}
+
+.header-icon-btn svg {
+  width: 27px;
+  height: 27px;
+  stroke: currentColor;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.header-icon-btn:hover svg {
+  transform: scale(1.08);
+  opacity: 0.85;
+}
+
+/* ==========================================================
+   ISOLAMENTO DO MODO FOCO
+   ========================================================== */
+
+body.modo-foco-ativo aside.sidebar,
+body.modo-foco-ativo .sidebar-backdrop,
+body.modo-foco-ativo .mobile-menu-trigger,
+body.modo-foco-ativo nav.nav-links,
+body.modo-foco-ativo nav.header-nav,
+body.modo-foco-ativo #notification-button,
+body.modo-foco-ativo .footer {
+  display: none !important;
+}
+
+body.modo-foco-ativo .main-wrapper {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+
+body.modo-foco-ativo header {
+  justify-content: flex-end;
+  gap: 14px;
+  padding: 16px 48px 0;
+}
+
+/* ==========================================================
+   CONTAINER PRINCIPAL
+   ========================================================== */
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 60px 60px;
+  width: 100%;
+}
+
+.page-title, .section-title {
+  font-size: 28.6px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 26px;
+  text-align: center;
+}
+
+.accent-blue { color: #38bdf8; }
+.accent-green { color: #34d399; }
+
+/* ==========================================================
+   TELA 1: BANNER DE PROGRESSO E ATIVIDADES
+   ========================================================== */
+
+.turma-header-banner, .progress-capsule {
+  width: 100%;
+  max-width: 660px;
+  background-color: #272c43;
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  border-radius: 45px;
+  padding: 14px 34px 18px;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s;
+}
+
+.turma-header-banner:hover, .progress-capsule:hover {
+  transform: scale(1.02);
+}
+
+.turma-banner-title, .capsule-title {
+  font-size: 17.6px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.progresso-info, .capsule-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.bar-bg, .progress-track {
+  width: 100%;
+  height: 11px;
+  background-color: #151828;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  padding: 1px;
+}
+
+.bar-fill, .progress-fill {
+  height: 100%;
+  background: #25e26b;
+  border-radius: 20px;
+  box-shadow: 0 0 10px #25e26b;
+  transition: width 0.4s ease;
+}
+
+.actions-row-prof {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 24px;
+}
+
+.btn-round-action, .btn-round-blue {
+  background-color: #5c93d9;
+  color: #0b091a;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 20px;
+  font-size: 12.1px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn-round-action:hover, .btn-round-blue:hover {
+  background-color: #72a6eb;
+  transform: translateY(-2px);
+}
+
+.atividades-grid, .activities-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+  max-width: 1060px;
+}
+
+.activity-card {
+  border-radius: 14px;
+  padding: 14px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.activity-card:hover {
+  transform: scale(1.03);
+}
+
+.activity-card.card-nao-iniciado {
+  background-color: #10121d;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+}
+
+.activity-card.card-concluido {
+  background-color: #139f69;
+  border: none;
+}
+
+.activity-card.card-andamento {
+  background-color: #4a6fdc;
+  border: none;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.classroom-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: url('https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=150&auto=format&fit=crop&q=80') center/cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.card-texts h4 {
+  font-size: 13.2px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  word-break: break-word;
+}
+
+.card-texts p {
+  font-size: 11.6px;
+  text-transform: capitalize;
+  margin-top: 3px;
+  opacity: 0.9;
+}
+
+.btn-card-dots {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.btn-ver-atividade {
+  width: 100%;
+  height: 34px;
+  border-radius: 5px;
+  font-size: 12.7px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2b6ce6;
+  border: none;
+  color: #ffffff;
+  transition: background-color 0.2s, color 0.2s, transform 0.2s;
+}
+
+.card-andamento .btn-ver-atividade {
+  background-color: #2b55b8;
+}
+
+.btn-ver-atividade:hover {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  transform: scale(1.02);
+}
+
+/* ==========================================================
+   TELA 2: ATIVIDADE SELECIONADA
+   ========================================================== */
+
+.atividade-container {
+  display: flex;
+  gap: 40px;
+  width: 100%;
+  max-width: 1200px;
+  align-items: flex-start;
+}
+
+.atividade-detalhes {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.atividade-nome {
+  color: #34d399;
+  font-size: 19.8px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.section-label {
+  font-size: 13.2px;
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.atividade-desc-texto {
+  font-size: 12.1px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+/* CARDS DE CONTEÚDO E PRAZO */
+.card-referencia, .card-prazo, .boxed-panel {
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  padding: 18px 140px 18px 20px; /* Padding-right amplo para o botão de download e os três pontos */
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  width: 100%;
+  max-width: 580px;
+  position: relative;
+}
+
+.card-referencia {
+  justify-content: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.card-ref-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.card-ref-content span {
+  font-size: 12.1px;
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* BOTÃO DE ABRIR/BAIXAR O FICHEIRO ANEXADO */
+.btn-baixar-ref {
+  position: absolute;
+  right: 48px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #38bdf8;
+  color: #0b091a;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 900;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background-color 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+
+.btn-baixar-ref:hover {
+  background-color: #7dd3fc;
+  transform: translateY(-50%) scale(1.04);
+}
+
+.card-prazo {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 18px 45px 22px 20px;
+  margin-bottom: 12px;
+}
+
+.card-ref-icon svg {
+  width: 36px;
+  height: 36px;
+  stroke: #ffffff;
+  flex-shrink: 0;
+}
+
+.prazo-title {
+  font-size: 12.1px;
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.card-prazo p {
+  font-size: 11px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+/* POSICIONAMENTO FIXO DOS 3 PONTOS */
+.card-referencia .btn-card-dots,
+.card-prazo .btn-card-dots {
+  position: absolute !important;
+  top: 14px !important;
+  right: 16px !important;
+  left: auto !important;
+  bottom: auto !important;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  z-index: 5;
+}
+
+.card-referencia .btn-card-dots:hover,
+.card-prazo .btn-card-dots:hover {
+  opacity: 0.8;
+}
+
+/* STATUS PENDENTE / CONCLUÍDO */
+.status-badge-pendente, 
+.status-badge-concluido,
+.badge-pendente {
+  position: absolute !important;
+  right: 16px !important;
+  bottom: 14px !important;
+  top: auto !important;
+  left: auto !important;
+  background-color: #cbd5e1;
+  color: #0b091a;
+  font-size: 10.5px;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  z-index: 5;
+}
+
+.status-badge-concluido {
+  background-color: #25e26b;
+}
+
+/* CONTAINER DOS BOTÕES COM CENTRALIZAÇÃO E ESPAÇAMENTO AJUSTADOS */
+.detalhes-botoes-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 24px;
+  width: 100%;
+  max-width: 580px;
+}
+
+.btn-abrir-envio {
+  background-color: #5c93d9;
+  color: #0b091a;
+  border: none;
+  padding: 12px 36px;
+  border-radius: 20px;
+  font-size: 12.1px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  align-self: center;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn-abrir-envio:hover {
+  background-color: #72a6eb;
+  transform: translateY(-2px);
+}
+
+.btn-voltar-trilha {
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 12.1px;
+  font-weight: 700;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.btn-voltar-trilha:hover {
+  border-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================
+   PAINEL LATERAL DIREITO: ENVIO DE TAREFA
+   ========================================================== */
+
+.painel-envio-lateral, .right-sidebar-panel {
+  width: 380px;
+  border-left: 1.5px solid rgba(255, 255, 255, 0.25);
+  padding: 0 0 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex-shrink: 0;
+}
+
+.painel-envio-header h3, .sidebar-block-title {
+  font-size: 16.5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  text-align: center;
+  color: #ffffff;
+}
+
+.painel-envio-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.painel-envio-body label {
+  font-size: 12.1px;
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.painel-envio-body textarea {
+  width: 100%;
+  height: 180px;
+  background-color: #0b0e1a;
+  border: 1.5px solid rgba(255, 255, 255, 0.65);
+  border-radius: 12px;
+  padding: 14px;
+  color: #ffffff;
+  resize: vertical;
+  outline: none;
+  font-weight: 600;
+  font-size: 13.2px;
+}
+
+.painel-envio-body textarea:focus {
+  border-color: #38bdf8;
+}
+
+.file-upload-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-selecionar-arquivo {
+  border: 1.5px solid rgba(255, 255, 255, 0.65);
+  background: transparent;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 12.1px;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-selecionar-arquivo:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#nome-arquivo-selecionado, #edit-nome-arquivo-selecionado {
+  font-size: 12.1px;
+  color: #cbd5e1;
+  word-break: break-word;
+}
+
+.btn-enviar-tarefa {
+  background-color: #e2e8f0;
+  border: none;
+  color: #0f172a;
+  width: 100%;
+  height: 42px;
+  border-radius: 8px;
+  font-size: 13.2px;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  margin-top: 8px;
+}
+
+.btn-enviar-tarefa:hover {
+  background-color: #25e26b;
+  color: #0b091a;
+}
+
+/* ==========================================================
+   PAINEL LEARN BOOK & POST-ITS (MODO FOCO)
+   ========================================================== */
+
+.painel-learn-book-lateral {
+  width: 360px;
+  border-left: 1.5px solid rgba(255, 255, 255, 0.25);
+  padding: 10px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.learn-book-title {
+  font-size: 19.8px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.learn-book-textbox { width: 100%; }
+
+.learn-book-textbox textarea {
+  width: 100%;
+  height: 220px;
+  background-color: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.65);
+  border-radius: 12px;
+  padding: 16px;
+  color: #ffffff;
+  resize: none;
+  outline: none;
+  font-size: 12.1px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.postits-grid, .postits-container {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+  justify-content: center;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.postit-item, .postit-thumb {
+  background-color: #f7c948;
+  color: #0b091a;
+  width: 120px;
+  height: 115px;
+  border-radius: 2px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s;
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 82% 100%, 0 100%);
+}
+
+.postit-item:hover, .postit-thumb:hover {
+  transform: scale(1.04);
+}
+
+.postit-pin, .postit-striped-tape {
+  position: absolute;
+  top: -6px;
+  width: 32px;
+  height: 10px;
+  background: repeating-linear-gradient(-45deg, #ffffff, #ffffff 3px, #1e293b 3px, #1e293b 6px);
+  border-radius: 2px;
+}
+
+.postit-item span, .postit-thumb span {
+  font-size: 14.3px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  word-break: break-word;
+}
+
+.learn-book-pen-icon, .pen-icon-box {
+  margin-top: 18px;
+  align-self: flex-end;
+}
+
+.learn-book-pen-icon svg, .pen-icon-box svg {
+  width: 28px;
+  height: 28px;
+}
+
+.postit-card-expanded, .postit-big-card {
+  background-color: #f7c948;
+  color: #0b091a;
+  width: 100%;
+  max-width: 580px;
+  aspect-ratio: 1;
+  min-height: 0;
+  box-sizing: border-box;
+  border-radius: 16px;
+  padding: 30px;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+}
+
+#conteudo-postit-expandido {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.postit-big-card-text {
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  padding: 0;
+  border: 0;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: #30270c;
+  font-size: 17.6px;
+  font-weight: 500;
+  text-align: left;
+  text-transform: none;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ==========================================================
+   TELA 3: FORMULÁRIO DE EDIÇÃO
+   ========================================================== */
+
+.edit-form-container, .edit-activity-form {
+  width: 100%;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0 auto;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.form-group label {
+  font-size: 12.1px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.form-input, .edit-input-field,
+.form-textarea, .edit-textarea-field {
+  width: 100%;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #ffffff;
+  font-size: 13.2px;
+  font-weight: 700;
+  outline: none;
+}
+
+.form-textarea, .edit-textarea-field {
+  min-height: 120px;
+  resize: vertical;
+}
+
+select.form-input option, select.edit-input-field option {
+  background: #1b1033;
+  color: #ffffff;
+}
+
+.form-buttons-row {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 14px;
+}
+
+@media (max-width: 980px) {
+  .atividades-grid, .activities-grid {
+    grid-template-columns: 1fr;
+  }
+  .atividade-container {
+    flex-direction: column;
+  }
+  .painel-envio-lateral, .painel-learn-book-lateral {
+    width: 100%;
+    border-left: none;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.25);
+    padding-left: 0;
+    padding-top: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .main-wrapper {
+    min-width: 0;
+  }
+
+  header,
+  header.main-header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  nav.nav-links,
+  nav.header-nav {
+    display: none;
+  }
+
+  main {
+    min-width: 0;
+    padding: 18px 16px 40px;
+  }
+
+  .page-title,
+  .section-title {
+    font-size: 24.2px;
+  }
+
+  .turma-header-banner,
+  .progress-capsule {
+    border-radius: 24px;
+    padding: 14px 20px 16px;
+  }
+
+  .atividade-container {
+    min-width: 0;
+    gap: 24px;
+  }
+
+  .painel-envio-lateral,
+  .right-sidebar-panel,
+  .painel-learn-book-lateral {
+    min-width: 0;
+    width: 100%;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .form-buttons-row {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-referencia {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .card-referencia .btn-baixar-ref {
+    position: static;
+    transform: none;
+    margin-left: auto;
+  }
+
+  .card-referencia .btn-baixar-ref:hover {
+    transform: none;
+  }
+
+  .card-prazo {
+    padding: 18px 14px;
+  }
+
+  #card-prazo-pontuacao .status-badge-pendente,
+  #card-prazo-pontuacao .status-badge-concluido {
+    position: static !important;
+    align-self: flex-start;
+  }
+
+  .postit-card-expanded,
+  .postit-big-card {
+    padding: 18px;
+  }
+
+  .btn-round-action,
+  .btn-round-blue,
+  .btn-abrir-envio {
+    max-width: 100%;
+    padding-inline: 18px;
+  }
+}

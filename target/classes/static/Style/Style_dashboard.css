@@ -1,0 +1,411 @@
+/* ==========================================================
+   LEARN TECH - DASHBOARD
+   Usado em: dashboard.html
+   A sidebar e o .main-wrapper ficam em Style_sidebar.css.
+   ========================================================== */
+
+
+body {
+  background: linear-gradient(#1b1033, #0a0d18);
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+header.dashboard-header {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.header-nav {
+  display: flex;
+  gap: 52px;
+  margin-left: 24px;
+}
+
+.header-nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 900;
+  font-size: 19.8px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.header-nav a:hover {
+  color: #2b74e2;
+  transform: scale(1.05);
+}
+
+.header-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.icon-action-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-action-btn svg {
+  width: 28px;
+  height: 28px;
+  stroke: #ffffff;
+}
+
+.icon-action-btn svg:hover {
+  transform: scale(1.05);
+}
+
+main.dashboard-content {
+  padding: 28px 48px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.dashboard-title {
+  text-align: center;
+  font-size: 33px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.stats-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  max-width: 1180px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.stat-card {
+  background: #252e46;
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  background: #2b3652;
+}
+
+.stat-card-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: url('https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=150&auto=format&fit=crop&q=80') center/cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.stat-card-info h4 {
+  font-size: 16.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.stat-card-info p {
+  font-size: 12.7px;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.stat-card-info .stat-card-title-small {
+  font-size: 19.8px;
+}
+
+.calendar-wrapper {
+  max-width: 1180px;
+  margin: 0 auto;
+  width: 100%;
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  border-radius: 16px;
+  padding: 24px 32px 36px;
+  background: rgba(18, 22, 40, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.calendar-header-title {
+  text-align: center;
+  font-size: 26.4px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+
+.timeline-track-container {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.timeline-track-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background-color: #2b74e2;
+  z-index: 1;
+}
+
+.timeline-activity-card {
+  position: relative;
+  z-index: 2;
+  background-color: #172036;
+  border: 2px solid #2884d8;
+  border-radius: 14px;
+  padding: 16px 18px;
+  flex: 1;
+  max-width: 330px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.timeline-activity-card .activity-name {
+  font-size: 14.3px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.timeline-activity-card .activity-due-date {
+  font-size: 12.1px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #cbd5e1;
+}
+
+.activity-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.1px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.status-select-badge {
+  background: #202b48;
+  border: 1px solid #3b4a72;
+  color: #cbd5e1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11.6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.priority-pill {
+  background: #10192d;
+  border: 1px solid #23355a;
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.priority-pill .priority-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.priority-pill .priority-arrow {
+  margin-left: auto;
+}
+
+.priority-pill.red {
+  color: #ef4444;
+}
+
+.priority-pill.red .priority-dot {
+  background-color: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+}
+
+.priority-pill.yellow {
+  color: #eab308;
+}
+
+.priority-pill.yellow .priority-dot {
+  background-color: #eab308;
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.8);
+}
+
+.priority-pill.green {
+  color: #22c55e;
+}
+
+.priority-pill.green .priority-dot {
+  background-color: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
+}
+
+
+/* ==========================================================
+   MEDIA QUERIES - RESPONSIVIDADE (MOBILE & TABLET)
+   ========================================================== */
+
+@media (max-width: 1024px) {
+  .stats-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .timeline-track-container {
+    flex-direction: column;
+  }
+
+  .timeline-track-container::before {
+    display: none;
+  }
+
+  .timeline-activity-card {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Ajustes do header principal */
+  header.dashboard-header {
+    padding: 0 20px;
+    justify-content: space-between;
+  }
+
+  .header-nav {
+    display: none;
+  }
+
+  main.dashboard-content {
+    padding: 20px 16px;
+  }
+
+  .dashboard-title {
+    font-size: 26.4px;
+  }
+
+  .calendar-wrapper {
+    padding: 16px;
+  }
+}
+
+
+/* ==========================================================
+   INTEGRAÇÃO COM O BACK-END
+   ========================================================== */
+
+/* Cards dentro de links não herdam azul/sublinhado do navegador */
+main.dashboard-content a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.stats-cards-grid > a {
+  display: block;
+}
+
+/* Muitas atividades: a trilha rola na horizontal */
+.timeline-track-container {
+  overflow-x: auto;
+  padding: 10px 6px 18px;
+}
+
+.timeline-activity-card {
+  min-width: 260px;
+}
+
+/* Mensagem de trilha vazia */
+.timeline-track-container > p {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 14.3px;
+}
+
+@media (max-width: 1024px) {
+  .timeline-track-container {
+    overflow-x: visible;
+  }
+
+  .timeline-activity-card {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .stats-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  header.dashboard-header {
+    height: 68px;
+    padding-inline: 14px;
+  }
+
+  .header-user-actions {
+    gap: 12px;
+  }
+
+  .icon-action-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .dashboard-title {
+    font-size: 23.1px;
+  }
+
+  .calendar-header-title {
+    font-size: 20.9px;
+    margin-bottom: 22px;
+  }
+
+  .stat-card {
+    padding: 14px;
+    gap: 12px;
+  }
+}

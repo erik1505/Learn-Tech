@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Tech - Agenda Inteligente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../Style/Style_base.css">
+    <link rel="stylesheet" href="../Style/Style.css">
+    <link rel="stylesheet" href="../Style/Style_calendario.css">
+    <link rel="stylesheet" href="../Style/Style_sidebar.css?v=5">
+    <link rel="stylesheet" href="../Style/style_footer.css">
+    <link rel="stylesheet" href="../Style/perfil-notificacoes.css">
+    <script src="./JS/api.js"></script>
+    <script>
+      if (new URLSearchParams(window.location.search).get('demo') !== '1') exigirLogin();
+    </script>
+  </head>
+  <body class="has-sidebar">
+    <!-- Fundo escuro usado quando o menu abre em telas pequenas -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <!-- SIDEBAR (menu lateral expansível/retrátil) -->
+    <aside id="main-sidebar" class="sidebar">
+      <button class="sidebar-toggle-btn" id="sidebar-toggle" title="Expandir/Recolher Menu">&lt;</button>
+      <div>
+        <a href="../index.html">
+          <div class="sidebar-logo">
+            <img src="../src/image.png" alt="Learn Tech">
+            <span>LEARN TECH</span>
+          </div>
+        </a>
+        <ul class="sidebar-menu">
+          <li>
+            <a href="./dashboard.html" class="menu-item">
+              <div class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7" />
+                  <rect x="14" y="3" width="7" height="7" />
+                  <rect x="14" y="14" width="7" height="7" />
+                  <rect x="3" y="14" width="7" height="7" />
+                </svg>
+              </div>
+              <span class="menu-label">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="./turmas.html" class="menu-item">
+              <div class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                  <path d="M8 6h8" />
+                  <path d="M8 10h8" />
+                </svg>
+              </div>
+              <span class="menu-label">Minha turma</span>
+            </a>
+          </li>
+          <li>
+            <a href="./atividades.html" class="menu-item">
+              <div class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                </svg>
+              </div>
+              <span class="menu-label">Atividades</span>
+            </a>
+          </li>
+          <li>
+            <a href="./notas.html" class="menu-item" title="Notas" aria-label="Notas">
+              <div class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 3h9l4 4v14H6z" />
+                  <path d="M14 3v5h5" />
+                  <path d="M9 13h7M9 17h7" />
+                </svg>
+              </div>
+              <span class="menu-label">Notas</span>
+            </a>
+          </li>
+          <li>
+            <a href="./calendario.html" class="menu-item active">
+              <div class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                  <circle cx="8" cy="14" r="1" />
+                  <circle cx="12" cy="14" r="1" />
+                  <circle cx="16" cy="14" r="1" />
+                  <circle cx="8" cy="18" r="1" />
+                  <circle cx="12" cy="18" r="1" />
+                  <circle cx="16" cy="18" r="1" />
+                </svg>
+              </div>
+              <span class="menu-label">Calendário</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="btn-sair">
+          <div class="menu-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </div>
+          <span>Sair</span>
+        </button>
+      </div>
+    </aside>
+    <div class="main-wrapper">
+      <!-- HEADER -->
+      <header>
+        <button id="mobile-menu-trigger" class="mobile-menu-trigger" title="Abrir Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <!-- Navegação -->
+        <nav>
+          <a href="./dashboard.html">HOME</a>
+          <a href="./atividades.html">MATERIAL</a>
+          <a href="./turmas.html">TURMAS</a>
+          <a href="./notas.html">NOTAS</a>
+        </nav>
+
+        <!-- Ícones da direita -->
+        <div class="header-right">
+          <!-- Notificações -->
+          <button
+            id="notification-button"
+            class="header-icon-btn"
+            type="button"
+            title="Notificações"
+            aria-label="Notificações"
+            aria-expanded="false"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <span id="notification-badge" class="notification-badge hidden"></span>
+          </button>
+
+          <!-- Perfil -->
+          <button
+            id="profile-button"
+            class="header-icon-btn"
+            type="button"
+            title="Perfil"
+            aria-label="Perfil"
+            aria-expanded="false"
+            onclick="toggleProfile()"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <circle cx="12" cy="10" r="3" />
+              <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- PAINEL DE PERFIL -->
+      <aside id="profile-panel" class="profile-notification-panel profile-panel" aria-hidden="true">
+        <div class="profile-panel-header">
+          <div>
+            <span class="panel-eyebrow">MINHA CONTA</span>
+            <h2>Perfil</h2>
+          </div>
+          <button type="button" class="panel-close-btn" onclick="closeProfile()" title="Fechar">×</button>
+        </div>
+
+        <!-- RESUMO DO PERFIL -->
+        <div class="profile-summary">
+          <div class="profile-avatar">EV</div>
+          <div class="profile-summary-text">
+            <strong id="profile-name">Erik Vinicius</strong>
+            <span id="profile-email">email@learntech.com</span>
+          </div>
+        </div>
+
+        <!-- INFORMAÇÕES -->
+        <div class="profile-info-list">
+          <div class="profile-info-row">
+            <span>NOME</span>
+            <strong id="profile-name-info">Erik Vinicius</strong>
+          </div>
+          <div class="profile-info-row">
+            <span>E-MAIL</span>
+            <strong id="profile-email-info">email@learntech.com</strong>
+          </div>
+          <div class="profile-info-row">
+            <span>TIPO DE CONTA</span>
+            <strong>DOCENTE</strong>
+          </div>
+        </div>
+
+        <!-- AÇÕES -->
+        <div class="profile-actions">
+          <button type="button" class="profile-action-primary" onclick="openEditProfile()">EDITAR PERFIL</button>
+          <button type="button" class="profile-action-secondary" onclick="logoutUser()">SAIR DA CONTA</button>
+        </div>
+      </aside>
+
+      <!-- MODAL EDITAR PERFIL -->
+      <div id="profile-edit-modal" class="profile-edit-overlay" aria-hidden="true">
+        <div class="profile-edit-modal" role="dialog" aria-modal="true" aria-labelledby="profile-edit-title">
+          <div class="profile-edit-header">
+            <div>
+              <span class="panel-eyebrow">MINHA CONTA</span>
+              <h2 id="profile-edit-title">Editar perfil</h2>
+            </div>
+            <button type="button" class="panel-close-btn" onclick="closeEditProfile()" title="Fechar">×</button>
+          </div>
+          <div class="profile-edit-form">
+            <label for="profile-name-input">NOME</label>
+            <input id="profile-name-input" type="text" value="Erik Vinicius">
+            <label for="profile-email-input">E-MAIL</label>
+            <input id="profile-email-input" type="email" value="email@learntech.com">
+            <div class="profile-edit-buttons">
+              <button type="button" class="profile-action-secondary" onclick="closeEditProfile()">CANCELAR</button>
+              <button type="button" class="profile-action-primary" onclick="saveProfile()">SALVAR</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTEÚDO PRINCIPAL (linha do tempo) -->
+      <main>
+        <h1 class="agenda-title">AGENDA <span class="accent-blue">INTELIGENTE</span></h1>
+        <p id="agenda-demo-notice" class="agenda-demo-notice" hidden>Modo de demonstração: atividades fictícias, sem conexão com o back-end. Suas prioridades ficam salvas neste navegador.</p>
+        <div class="timeline-viewport">
+          <!-- LINHA HORIZONTAL AZUL/CIANO -->
+          <div class="horizontal-track-line"></div>
+
+          <!-- CARDS CONECTADOS PELA LINHA -->
+          <div class="cards-row" id="agenda-cards"></div>
+        </div>
+      </main>
+
+     <footer class="footer">
+        <div class="footer-brand">
+          <a href="../index.html" class="footer-logo">
+            <img src="../src/image.png" alt="Learn Tech">
+            <div>
+              <h2>LEARN TECH</h2>
+              <p id="footer-subtitulo">EDUCAÇÃO SIMPLES E EFICIENTE</p>
+            </div>
+          </a>
+        </div>
+        <div class="footer-column">
+          <h3>LINKS ÚTEIS</h3>
+          <a href="./sobre_nos.html">SOBRE NÓS</a>
+          <a href="./autenticacao.html">LOGIN</a>
+          <a href="./autenticacao.html">CADASTRO</a>
+        </div>
+        <div class="footer-column">
+          <h3>RECURSOS</h3>
+          <a href="../faq.html">FAQ</a>
+          <a href="../suporte.html">SUPORTE</a>
+          <a href="../documentacao.html">DOCUMENTAÇÃO</a>
+        </div>
+        <div class="footer-column footer-contact">
+          <h3>CONTATOS</h3>
+          <a href="mailto:emailficticiodemreat@gmail.com">emailficticiodemreat@gmail.com</a>
+          <a href="tel:+551140028922">(11) 4002-8922</a>
+        </div>
+      </footer>
+      
+    </div>
+    <script src="./JS/JS_sidebar.js?v=3"></script>
+    <script src="./JS/perfil-notificacoes.js"></script>
+    <script src="./JS/JS_calendario.js"></script>
+  </body>
+</html>

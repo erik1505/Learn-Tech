@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Tech - Atividades</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../Style/Style_base.css">
+    <link rel="stylesheet" href="../Style/Style.css">
+    <link rel="stylesheet" href="../Style/Style_atividades.css">
+    <link rel="stylesheet" href="../Style/Style_sidebar.css?v=5">
+    <link rel="stylesheet" href="../Style/style_footer.css">
+    <link rel="stylesheet" href="../Style/perfil-notificacoes.css">
+    <script src="./JS/api.js?v=4"></script>
+    <script>if (typeof exigirLogin === 'function') exigirLogin();</script>
+    <style>
+      /* Garantia de visibilidade e alternância de telas SPA */
+      .hidden {
+        display: none !important;
+      }
+
+      main.main-viewport {
+        width: 100%;
+      }
+
+      /* Dropdown de 3 Pontos (Estilo Turmas) */
+      .card-dots-wrapper {
+        position: relative;
+        display: inline-block;
+      }
+
+      .dropdown-menu-card {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: #3b82f6;
+        border: none;
+        border-radius: 12px;
+        padding: 0;
+        min-width: 140px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        z-index: 100;
+        overflow: hidden;
+      }
+
+      .dropdown-menu-card button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 10px 16px;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        font-size: 13.2px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+
+      .dropdown-menu-card button:last-child {
+        border-bottom: none;
+      }
+
+      .dropdown-menu-card button:hover {
+        background-color: #2563eb;
+      }
+
+      .dropdown-menu-card button.btn-delete-option {
+        color: #ffffff;
+      }
+
+      .dropdown-menu-card button.btn-delete-option:hover {
+        background-color: #1d4ed8;
+      }
+
+      /* Estilos para o Painel de Correção */
+      .correcao-container {
+        margin-top: 30px;
+        border-top: 2px solid #2a3048;
+        padding-top: 20px;
+      }
+
+      .correcao-grid {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+      }
+
+      .correcao-col-alunos {
+        flex: 1;
+        min-width: 280px;
+        background-color: #1a1e2e;
+        padding: 15px;
+        border-radius: 12px;
+      }
+
+      .correcao-col-detalhes {
+        flex: 2;
+        min-width: 320px;
+        background-color: #1a1e2e;
+        padding: 20px;
+        border-radius: 12px;
+      }
+
+      .aluno-item-btn {
+        padding: 12px 14px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+      }
+    </style>
+  </head>
+  <body class="has-sidebar">
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="main-sidebar" class="sidebar">
+      <button class="sidebar-toggle-btn" id="sidebar-toggle" title="Expandir/Recolher Menu">&lt;</button>
+      <div>
+        <a href="../index.html">
+          <div class="sidebar-logo">
+            <img src="../src/image.png" alt="Learn Tech">
+            <span>LEARN TECH</span>
+          </div>
+        </a>
+        <ul class="sidebar-menu">
+          <li>
+            <a href="./dashboard.html" class="menu-item">
+              <div class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7" />
+                  <rect x="14" y="3" width="7" height="7" />
+                  <rect x="14" y="14" width="7" height="7" />
+                  <rect x="3" y="14" width="7" height="7" />
+                </svg>
+              </div>
+              <span class="menu-label">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="./turmas.html" class="menu-item">
+              <div class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                  <path d="M8 6h8M8 10h8" />
+                </svg>
+              </div>
+              <span class="menu-label">Minha turma</span>
+            </a>
+          </li>
+          <li>
+            <a href="./atividades.html" class="menu-item active">
+              <div class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                </svg>
+              </div>
+              <span class="menu-label">Atividades</span>
+            </a>
+          </li>
+          <li>
+            <a href="./notas.html" class="menu-item" title="Notas" aria-label="Notas">
+              <div class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 3h9l4 4v14H6z" />
+                  <path d="M14 3v5h5" />
+                  <path d="M9 13h7M9 17h7" />
+                </svg>
+              </div>
+              <span class="menu-label">Notas</span>
+            </a>
+          </li>
+          <li>
+            <a href="./calendario.html" class="menu-item">
+              <div class="menu-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18" />
+                </svg>
+              </div>
+              <span class="menu-label">Calendário</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="btn-sair">
+          <div class="menu-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </div>
+          <span>Sair</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      <!-- HEADER -->
+      <header class="main-header">
+        <button id="mobile-menu-trigger" class="mobile-menu-trigger" title="Abrir Menu">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="nav-links header-nav">
+          <a href="./dashboard.html">HOME</a>
+          <a href="./atividades.html" class="active">MATERIAL</a>
+          <a href="./turmas.html">TURMAS</a>
+          <a href="./notas.html">NOTAS</a>
+        </nav>
+        <div class="header-right">
+          <button type="button" class="btn-modo-foco" id="btn-modo-foco" onclick="toggleModoFoco()" style="display: none;">
+            Modo foco
+          </button>
+          <button id="notification-button" class="header-icon-btn notif-btn" type="button" title="Notificações">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+          </button>
+          <button id="profile-button" class="header-icon-btn" type="button" title="Perfil" onclick="if (typeof toggleProfile === 'function') toggleProfile();">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <circle cx="12" cy="10" r="3" />
+              <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- TELA 1: LISTAGEM E TRILHA DE ATIVIDADES -->
+      <main id="screen-trilha-turma" class="main-viewport">
+        <div class="turma-header-banner progress-capsule">
+          <h1 class="turma-banner-title capsule-title"><span id="turma-titulo">CARREGANDO TURMA...</span></h1>
+          <div class="progresso-wrapper">
+            <div class="progresso-info capsule-meta-row">
+              <span id="progresso-label">PROGRESSO DA MATÉRIA</span>
+              <span id="progresso-valor">0% COMPLETO (0 DE 0)</span>
+            </div>
+            <div class="bar-bg progress-track">
+              <div id="progresso-fill" class="bar-fill progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions-row-prof" style="display: flex; justify-content: center; margin: 20px 0;">
+          <button type="button" class="btn-round-action btn-round-blue" id="btn-nova-atividade">+ NOVA ATIVIDADE</button>
+        </div>
+
+        <div id="atividades-grid" class="atividades-grid activities-grid"></div>
+      </main>
+
+      <!-- TELA 2: ATIVIDADE SELECIONADA E CORREÇÃO DO PROFESSOR -->
+      <main id="screen-detalhe-atividade" class="main-viewport hidden">
+        <div class="atividade-container">
+          <div class="atividade-detalhes" id="atividade-detalhes-coluna">
+            <div id="conteudo-atividade-padrao">
+              <h1 class="page-title section-title">ATIVIDADE <span class="accent-blue">SELECIONADA</span></h1>
+              
+              <h2 id="atividade-titulo" class="atividade-nome">NOME DA ATIVIDADE</h2>
+              <strong class="section-label">DESCRIÇÃO DA ATIVIDADE</strong>
+              <p id="atividade-descricao" class="atividade-desc-texto">
+                Sem descrição disponível.
+              </p>
+
+              <div class="card-referencia boxed-panel" id="card-referencia-arquivo">
+                <div class="card-ref-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </div>
+                <div class="card-ref-content">
+                  <span id="card-ref-nome-arquivo">ARQUIVO ENVIADO PARA REFERÊNCIA</span>
+                </div>
+                <a id="btn-baixar-referencia" class="btn-baixar-ref hidden" target="_blank" download title="Baixar / Abrir Arquivo">
+                  &#x2193; ABRIR / BAIXAR
+                </a>
+              </div>
+
+              <div id="card-prazo-pontuacao" class="card-prazo boxed-panel">
+                <strong class="prazo-title">PRAZO E PONTUAÇÃO</strong>
+                <p id="atividade-prazo">PRAZO: --/--/----</p>
+                <p id="atividade-ponto">PONTO: 10</p>
+                <span id="atividade-status-tag" class="status-badge-pendente">PENDENTE</span>
+              </div>
+
+              <div class="detalhes-botoes-row">
+                <button type="button" id="btn-abrir-envio" class="btn-abrir-envio" onclick="togglePainelEnvio()">
+                  ABRIR ENVIO DE TAREFA
+                </button>
+                
+                <button type="button" class="btn-voltar-trilha" onclick="navigateTo('trilha-turma')">
+                  &larr; VOLTAR PARA ATIVIDADES
+                </button>
+              </div>
+
+              <!-- PAINEL DE CORREÇÃO DO PROFESSOR (OCULTO NO MODO FOCO) -->
+              <div id="painel-correcao-professor" class="correcao-container hidden">
+                <h2 class="section-title">CORREÇÃO DE <span class="accent-blue">ENTREGAS</span></h2>
+                <p style="color: #94a3b8;">Selecione um aluno para analisar o texto e documento enviados e atribuir a nota.</p>
+
+                <div class="correcao-grid">
+                  <!-- Lista de Alunos -->
+                  <div class="correcao-col-alunos">
+                    <h3 style="color: #fff; font-size: 16.5px; margin-bottom: 12px;">ALUNOS QUE ENVIARAM</h3>
+                    <div id="lista-alunos-entregas"></div>
+                  </div>
+
+                  <!-- Visualizador do Envio do Aluno -->
+                  <div id="visualizador-envio-aluno" class="correcao-col-detalhes hidden">
+                    <h3 id="nome-aluno-selecionado" style="color: #3b82f6; font-size: 19.8px;">-</h3>
+                    <p id="email-aluno-selecionado" style="color: #94a3b8; font-size: 14.3px; margin-bottom: 15px;">-</p>
+
+                    <strong style="color: #fff; display: block; margin-bottom: 5px;">TEXTO / COMENTÁRIO DO ALUNO:</strong>
+                    <p id="texto-aluno-selecionado" style="background: #0f121d; color: #e2e8f0; padding: 12px; border-radius: 8px; min-height: 60px; white-space: pre-wrap;">-</p>
+
+                    <strong style="color: #fff; display: block; margin-top: 15px; margin-bottom: 5px;">DOCUMENTO ENVIADO:</strong>
+                    <div style="margin-bottom: 20px;">
+                      <span id="nome-arquivo-aluno" style="color: #94a3b8;">Nenhum arquivo em anexo.</span>
+                      <a id="btn-baixar-arquivo-aluno" target="_blank" class="btn-round-action btn-round-blue hidden" style="display: inline-block; margin-left: 10px; text-decoration: none; padding: 6px 12px; font-size: 13.2px;">ABRIR ARQUIVO</a>
+                    </div>
+
+                    <!-- Lançamento de Nota -->
+                    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                      <label for="input-nota-aluno" style="color: #fff; font-weight: bold; display: block; margin-bottom: 8px;">ATRIBUIR NOTA (0 a 10):</label>
+                      <div style="display: flex; gap: 10px;">
+                        <input type="number" id="input-nota-aluno" min="0" max="10" step="0.5" placeholder="Ex: 8.5" style="width: 110px; padding: 8px; border-radius: 6px; border: 1px solid #3b82f6; background: #0f121d; color: #fff;">
+                        <button type="button" onclick="salvarNotaAluno()" class="btn-round-action btn-round-blue">SALVAR NOTA</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- POST-IT EXPANDIDO NO MODO FOCO -->
+            <div id="conteudo-postit-expandido" class="hidden">
+              <h1 class="page-title section-title">POST-IT <span class="accent-blue">SELECIONADO</span></h1>
+              <div class="postit-card-expanded postit-big-card">
+                <textarea id="postit-expanded-textarea" class="postit-big-card-text" oninput="atualizarTextoPostIt(this.value)" placeholder="Escreva suas anotações..."></textarea>
+              </div>
+              <button type="button" class="btn-voltar-trilha" onclick="fecharPostItExpandido()" style="margin-top: 20px;">
+                &larr; VOLTAR PARA DETALHES DA ATIVIDADE
+              </button>
+            </div>
+          </div>
+
+          <!-- PAINEL ENVIO DE TAREFA DO ALUNO -->
+          <aside id="painel-envio" class="painel-envio-lateral right-sidebar-panel hidden">
+            <div class="painel-envio-header">
+              <h3 id="envio-atividade-titulo" class="sidebar-block-title">NOME DA ATIVIDADE</h3>
+            </div>
+            <div class="painel-envio-body">
+              <label for="texto-usuario-envio">TEXTO QUE O USUÁRIO QUISER COLOCAR</label>
+              <textarea id="texto-usuario-envio" placeholder="Digite seus comentários ou observações aqui..."></textarea>
+
+              <div class="file-upload-box">
+                <button type="button" class="btn-selecionar-arquivo" onclick="document.getElementById('arquivo-tarefa-input').click()">
+                  SELECIONAR ARQUIVO
+                </button>
+                <input type="file" id="arquivo-tarefa-input" style="display: none;" onchange="atualizarNomeArquivo(this)">
+                <span id="nome-arquivo-selecionado">Nenhum arquivo selecionado</span>
+              </div>
+
+              <button type="button" class="btn-enviar-tarefa" onclick="enviarTarefa()">
+                ENVIAR TAREFA
+              </button>
+            </div>
+          </aside>
+
+          <!-- PAINEL LEARN BOOK (MODO FOCO) -->
+          <aside id="painel-learn-book" class="painel-learn-book-lateral right-sidebar-panel hidden">
+            <h2 class="learn-book-title">Learn Book</h2>
+            <div class="learn-book-textbox">
+              <textarea id="learn-book-notes" placeholder="TEXTO QUE O USUÁRIO QUISER COLOCAR" oninput="salvarNotasLearnBook(this.value)"></textarea>
+            </div>
+            
+            <div id="postits-container" class="postits-grid postits-container"></div>
+
+            <div class="learn-book-pen-icon pen-icon-box" onclick="criarNovoPostIt()" title="Criar novo Post-it">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor: pointer;">
+                <path d="M12 19l7-7 3 3-7 7-3 0 0-3z"></path>
+                <path d="M18 13l-1.5-1.5"></path>
+              </svg>
+            </div>
+          </aside>
+        </div>
+      </main>
+
+      <!-- TELA 3: CRIAÇÃO/EDIÇÃO DE ATIVIDADE -->
+      <main id="screen-edicao-atividade" class="main-viewport hidden">
+        <h1 class="page-title section-title"><span id="titulo-form-edicao">NOVA</span> <span class="accent-blue">ATIVIDADE</span></h1>
+        <form class="edit-form-container edit-activity-form" onsubmit="event.preventDefault(); salvarAtividade();">
+          <div class="form-group">
+            <label for="edit-nome" class="form-label-white">NOME DA ATIVIDADE</label>
+            <input type="text" id="edit-nome" class="form-input edit-input-field" placeholder="Digite o nome..." required>
+          </div>
+          <div class="form-group">
+            <label for="edit-desc" class="form-label-white">DESCRIÇÃO DA ATIVIDADE</label>
+            <textarea id="edit-desc" class="form-textarea edit-textarea-field" placeholder="Digite a descrição..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label-white">DOCUMENTO DE REFERÊNCIA (PDF, DOCX, ETC. - MÁX. 25MB)</label>
+            <div class="file-upload-box edit-file-box">
+              <button type="button" class="btn-selecionar-arquivo" onclick="document.getElementById('edit-arquivo-input').click()">
+                ANEXAR ARQUIVO
+              </button>
+              <input type="file" id="edit-arquivo-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip" style="display: none;" onchange="validarEAtualizarArquivoReferencia(this)">
+              <span id="edit-nome-arquivo-selecionado">Nenhum arquivo selecionado</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-prazo" class="form-label-white">PRAZO</label>
+            <input type="datetime-local" id="edit-prazo" class="form-input edit-input-field" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label-white">TURMA</label>
+            <p id="edit-turma-nome" class="form-input edit-input-field"></p>
+          </div>
+          <div class="form-group">
+            <label for="edit-status" class="form-label-white">STATUS DE LIBERAÇÃO</label>
+            <select id="edit-status" class="form-input edit-input-field">
+              <option value="A_FAZER">DESBLOQUEADO (DISPONÍVEL)</option>
+              <option value="BLOQUEADO">BLOQUEADO (POR DATA)</option>
+            </select>
+          </div>
+          <div class="form-buttons-row">
+            <button type="submit" class="btn-round-action btn-round-blue">SALVAR ATIVIDADE</button>
+            <button type="button" class="btn-round-action btn-round-blue" onclick="navigateTo('trilha-turma')">CANCELAR</button>
+          </div>
+        </form>
+      </main>
+
+      <!-- FOOTER -->
+      <footer class="footer">
+        <div class="footer-brand">
+          <a href="../index.html" class="footer-logo">
+            <img src="../src/image.png" alt="Learn Tech">
+            <div>
+              <h2>LEARN TECH</h2>
+              <p id="footer-subtitulo">EDUCAÇÃO SIMPLES E EFICIENTE</p>
+            </div>
+          </a>
+        </div>
+        <div class="footer-column">
+          <h3>LINKS ÚTEIS</h3>
+          <a href="./sobre_nos.html">SOBRE NÓS</a>
+          <a href="./autenticacao.html">LOGIN</a>
+          <a href="./autenticacao.html">CADASTRO</a>
+        </div>
+        <div class="footer-column">
+          <h3>RECURSOS</h3>
+          <a href="../faq.html">FAQ</a>
+          <a href="../suporte.html">SUPORTE</a>
+          <a href="../documentacao.html">DOCUMENTAÇÃO</a>
+        </div>
+        <div class="footer-column footer-contact">
+          <h3>CONTATOS</h3>
+          <a href="mailto:emailficticiodemreat@gmail.com">emailficticiodemreat@gmail.com</a>
+          <a href="tel:+551140028922">(11) 4002-8922</a>
+        </div>
+      </footer>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="./JS/JS_sidebar.js?v=3"></script>
+    <script src="./JS/perfil-notificacoes.js"></script>
+    <script src="./JS/JS_atividades.js?v=9"></script>
+  </body>
+</html>
