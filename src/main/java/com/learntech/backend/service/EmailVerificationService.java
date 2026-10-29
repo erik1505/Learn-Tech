@@ -4,13 +4,11 @@ import com.learntech.backend.dto.AuthChallengeResponse;
 import com.learntech.backend.model.EmailVerificationCode;
 import com.learntech.backend.model.EmailVerificationPurpose;
 import com.learntech.backend.repository.EmailVerificationCodeRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,27 +26,25 @@ import java.util.UUID;
 
 @Service
 public class EmailVerificationService {
-    private static final Logger logger = LoggerFactory.getLogger(EmailVerificationService.class);
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final int CODE_LIFETIME_MINUTES = 10;
-    private static final int RESEND_COOLDOWN_SECONDS = 60;
     private static final int MAX_ATTEMPTS = 5;
 
     private final EmailVerificationCodeRepository codes;
-    private final JavaMailSender mailSender;
+    private final EmailCodeRateLimiter rateLimiter;
+    private final ApplicationEventPublisher events;
     private final LocalSmsGatewayService smsGateway;
-    private final String fromAddress;
     private final String mailHost;
 
     public EmailVerificationService(EmailVerificationCodeRepository codes,
-                                    JavaMailSender mailSender,
+                                    EmailCodeRateLimiter rateLimiter,
+                                    ApplicationEventPublisher events,
                                     LocalSmsGatewayService smsGateway,
-                                    @Value("${app.mail.from}") String fromAddress,
                                     @Value("${spring.mail.host:localhost}") String mailHost) {
         this.codes = codes;
-        this.mailSender = mailSender;
+        this.rateLimiter = rateLimiter;
+        this.events = events;
         this.smsGateway = smsGateway;
-        this.fromAddress = fromAddress;
         this.mailHost = mailHost;
     }
 
@@ -82,7 +78,7 @@ public class EmailVerificationService {
     }
 
     @Transactional
-    public AuthChallengeResponse enviarCodigoLogin(
+    public AuthChallengeResponse enviarCodigoLoginReservado(
             String challengeId,
             String canal,
             String telefone,
@@ -91,37 +87,19 @@ public class EmailVerificationService {
         LocalDateTime agora = LocalDateTime.now();
         boolean testeLocal = "SMS".equals(canal)
                 && smsGateway.modoTesteLocal(remoteAddress);
-        if (!testeLocal && !"PENDING".equals(desafio.getCodeHash())
-                && desafio.getCreatedAt().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(agora)) {
-            return new AuthChallengeResponse(
-                    challengeId,
-                    "SMS".equals(canal)
-                            ? "Código enviado recentemente por SMS. Verifique suas mensagens."
-                            : "Código enviado recentemente por e-mail. Verifique sua caixa de entrada."
-            );
-        }
         String codigo = "%06d".formatted(RANDOM.nextInt(1_000_000));
         String mensagem = "Seu código de acesso Learn Tech é " + codigo
                 + ". Ele expira em " + CODE_LIFETIME_MINUTES + " minutos.";
 
         boolean codigoDeTeste = false;
         if ("EMAIL".equals(canal)) {
-            SimpleMailMessage email = new SimpleMailMessage();
-            email.setFrom(fromAddress);
-            email.setTo(desafio.getLogin());
-            email.setSubject("Código de acesso - Learn Tech");
-            email.setText(mensagem + " Se você não solicitou este código, ignore esta mensagem.");
-            try {
-                mailSender.send(email);
-            } catch (MailException erro) {
-                logger.error("Falha ao enviar código de login pelo SMTP {}.", mailHost, erro);
-                throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                        "Não foi possível enviar o código. Verifique a configuração SMTP do servidor.", erro);
-            }
+            events.publishEvent(new VerificationEmailRequest(
+                    desafio.getLogin(),
+                    "Código de acesso - Learn Tech",
+                    mensagem + " Se você não solicitou este código, ignore esta mensagem."
+            ));
         } else if ("SMS".equals(canal)) {
             codigoDeTeste = smsGateway.enviarCodigo(telefone, mensagem, remoteAddress);
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Canal de envio inválido.");
         }
 
         desafio.setCodeHash(hash(challengeId, codigo));
@@ -130,12 +108,11 @@ public class EmailVerificationService {
         desafio.setAttempts(0);
         codes.save(desafio);
 
-        String destino = "SMS".equals(canal) ? "SMS" : "e-mail";
         String message = codigoDeTeste
                 ? "Modo de teste local: nenhum SMS foi enviado."
-                : "maildev".equalsIgnoreCase(mailHost.trim()) && "EMAIL".equals(canal)
-                        ? "Código enviado ao e-mail de teste. Consulte http://localhost:1080."
-                        : "Código enviado por " + destino + ".";
+                : "EMAIL".equals(canal)
+                        ? mensagemEnvio(EmailVerificationPurpose.LOGIN, canal)
+                        : "Código enviado por SMS.";
         return new AuthChallengeResponse(challengeId, message, codigoDeTeste ? codigo : null);
     }
 
@@ -151,32 +128,27 @@ public class EmailVerificationService {
                         "Desafio inválido ou expirado."));
     }
 
-    @Transactional
-    public AuthChallengeResponse enviarCodigo(String login, EmailVerificationPurpose purpose) {
-        return enviarCodigo(login, purpose, "EMAIL", null, null);
+    public void reservarSolicitacao(String login, String remoteAddress) {
+        String normalizedLogin = login.trim().toLowerCase(Locale.ROOT);
+        validarEmail(normalizedLogin);
+        rateLimiter.reserve(normalizedLogin, remoteAddress);
     }
 
     @Transactional
-    public AuthChallengeResponse enviarCodigo(
+    public AuthChallengeResponse enviarCodigoReservado(
             String login,
             EmailVerificationPurpose purpose,
             String canal,
             String telefone,
             String remoteAddress) {
         String normalizedLogin = login.trim().toLowerCase(Locale.ROOT);
+        validarCanal(canal);
+        if ("EMAIL".equals(canal)) {
+            validarEmail(normalizedLogin);
+        }
         LocalDateTime criadoEm = LocalDateTime.now();
-        Optional<EmailVerificationCode> codigoRecente =
-                codes.findTopByLoginAndPurposeAndConsumedFalseOrderByCreatedAtDesc(normalizedLogin, purpose);
         boolean testeLocal = "SMS".equals(canal)
                 && smsGateway.modoTesteLocal(remoteAddress);
-        if (!testeLocal && codigoRecente.isPresent()
-                && codigoRecente.get().getCreatedAt().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(criadoEm)
-                && codigoRecente.get().getExpiresAt().isAfter(criadoEm)) {
-            return new AuthChallengeResponse(
-                    codigoRecente.get().getId(),
-                    mensagemEnvio(purpose, canal)
-            );
-        }
 
         String challengeId = UUID.randomUUID().toString();
         String codigo = "%06d".formatted(RANDOM.nextInt(1_000_000));
@@ -198,25 +170,13 @@ public class EmailVerificationService {
         if ("SMS".equals(canal)) {
             codigoDeTeste = smsGateway.enviarCodigo(telefone, mensagemTexto, remoteAddress);
         } else if ("EMAIL".equals(canal)) {
-            SimpleMailMessage mensagem = new SimpleMailMessage();
-            mensagem.setFrom(fromAddress);
-            mensagem.setTo(normalizedLogin);
-            mensagem.setSubject(purpose == EmailVerificationPurpose.LOGIN
-                    ? "Código de acesso - Learn Tech"
-                    : "Código para redefinição de senha - Learn Tech");
-            mensagem.setText(mensagemTexto);
-            try {
-                mailSender.send(mensagem);
-            } catch (MailException erro) {
-                logger.error("Falha ao enviar código de verificação pelo servidor SMTP {}.", mailHost, erro);
-                throw new ResponseStatusException(
-                        HttpStatus.SERVICE_UNAVAILABLE,
-                        "Não foi possível enviar o código. Verifique a configuração SMTP do servidor.",
-                        erro
-                );
-            }
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Canal de envio inválido.");
+            events.publishEvent(new VerificationEmailRequest(
+                    normalizedLogin,
+                    purpose == EmailVerificationPurpose.LOGIN
+                            ? "Código de acesso - Learn Tech"
+                            : "Código para redefinição de senha - Learn Tech",
+                    mensagemTexto
+            ));
         }
 
         String mensagem = codigoDeTeste
@@ -233,8 +193,26 @@ public class EmailVerificationService {
             return "Código enviado por SMS.";
         }
         return "maildev".equalsIgnoreCase(mailHost.trim())
-                ? "Código enviado ao e-mail de teste. Consulte http://localhost:1080."
-                : "Código enviado para o e-mail cadastrado.";
+                ? "Solicitação recebida. Consulte o e-mail de teste em http://localhost:1080."
+                : "Solicitação recebida. Confira o e-mail em instantes.";
+    }
+
+    private void validarCanal(String canal) {
+        if (!"EMAIL".equals(canal) && !"SMS".equals(canal)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Canal de envio inválido.");
+        }
+    }
+
+    private void validarEmail(String email) {
+        try {
+            InternetAddress address = new InternetAddress(email, true);
+            address.validate();
+            if (!email.equals(address.getAddress()) || address.getPersonal() != null) {
+                throw new AddressException("O endereço deve conter apenas um e-mail.");
+            }
+        } catch (AddressException erro) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "E-mail de destino inválido.", erro);
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

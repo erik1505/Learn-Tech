@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class UserService {
@@ -130,9 +131,9 @@ public class UserService {
     }
 
     public AuthChallengeResponse enviarCodigoLogin(String challengeId, String canal, String remoteAddress) {
+        String login = emailVerification.loginDoDesafioLogin(challengeId);
         String telefone = null;
         if ("SMS".equals(canal)) {
-            String login = emailVerification.loginDoDesafioLogin(challengeId);
             Usuario usuario = usuarios.findByLoginIgnoreCase(login)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                             "Desafio inválido ou expirado."));
@@ -146,7 +147,8 @@ public class UserService {
                         "Não há um telefone válido com DDD cadastrado.");
             }
         }
-        return emailVerification.enviarCodigoLogin(challengeId, canal, telefone, remoteAddress);
+        emailVerification.reservarSolicitacao(login, remoteAddress);
+        return emailVerification.enviarCodigoLoginReservado(challengeId, canal, telefone, remoteAddress);
     }
 
     public LoginSessionResponse verificarCodigoLogin(String challengeId, String codigo) {
@@ -162,19 +164,22 @@ public class UserService {
         authSessions.revoke(token);
     }
 
-    @Transactional
     public AuthChallengeResponse solicitarRedefinicaoSenha(String email, String canal, String remoteAddress) {
-        String normalizedEmail = email.trim().toLowerCase();
+        String normalizedEmail = email.trim().toLowerCase(Locale.ROOT);
         String deliveryChannel = canal == null ? "EMAIL" : canal;
+        if (!"EMAIL".equals(deliveryChannel) && !"SMS".equals(deliveryChannel)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Canal de envio inválido.");
+        }
         if ("SMS".equals(deliveryChannel) && !smsGateway.disponivel(remoteAddress)) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "O gateway local de SMS não está configurado no servidor.");
         }
+        emailVerification.reservarSolicitacao(normalizedEmail, remoteAddress);
 
         return usuarios.findByLoginIgnoreCase(normalizedEmail)
                 .flatMap(usuario -> {
                     if ("EMAIL".equals(deliveryChannel)) {
-                        return java.util.Optional.of(emailVerification.enviarCodigo(
+                        return java.util.Optional.of(emailVerification.enviarCodigoReservado(
                                 usuario.getLogin(),
                                 EmailVerificationPurpose.PASSWORD_RESET,
                                 deliveryChannel,
@@ -187,7 +192,7 @@ public class UserService {
                     if (!telefoneBrasileiroValido(telefone)) {
                         return java.util.Optional.empty();
                     }
-                    return java.util.Optional.of(emailVerification.enviarCodigo(
+                    return java.util.Optional.of(emailVerification.enviarCodigoReservado(
                             usuario.getLogin(),
                             EmailVerificationPurpose.PASSWORD_RESET,
                             deliveryChannel,

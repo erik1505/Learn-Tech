@@ -9,6 +9,10 @@ partir de 4 dias, seguindo os exemplos definidos para o calendário. O dia do
 prazo também recebe aviso, e os envios continuam diariamente após o vencimento
 até a entrega. `MAIL_USERNAME` e `MAIL_FROM` identificam a conta que envia as
 mensagens. Não é necessário ter um domínio próprio.
+As solicitações de código têm intervalo mínimo de 60 segundos por e-mail e
+endereço IP. Os e-mails de código são enviados em segundo plano, sem tentativas
+automáticas de reenvio; falhas SMTP são registradas no log do backend. A fila
+tem capacidade limitada para evitar acumular envios excessivos.
 
 ## Preparar a conta Gmail
 
