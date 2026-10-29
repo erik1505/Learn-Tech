@@ -96,7 +96,6 @@ async function registrarSaidaAtividade(atividadeId) {
 
   try {
     await sairAtividadeAluno(atividadeId);
-    entregasAluno.set(atividadeId, { atividadeId, statusKanban: 'A_FAZER' });
   } catch (erro) {
     console.warn('Não foi possível registrar a saída da atividade.', erro);
   }
@@ -722,7 +721,13 @@ async function carregarCorrecoesProfessor(atividadeId) {
     renderizarListaAlunosCorrecao();
   } catch (e) {
     entregasAtividadeAtual = [];
-    renderizarListaAlunosCorrecao();
+    const lista = porId('lista-alunos-entregas');
+    const visualizador = porId('visualizador-envio-aluno');
+    if (lista) {
+      lista.innerHTML = `<p style="color: #fca5a5; font-size: 14.3px;">Não foi possível carregar as entregas: ${esc(e.message || 'erro no servidor')}</p>`;
+    }
+    if (visualizador) visualizador.classList.add('hidden');
+    console.error('Não foi possível carregar as entregas para correção.', e);
   }
 }
 

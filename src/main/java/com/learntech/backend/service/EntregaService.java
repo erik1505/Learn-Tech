@@ -71,18 +71,10 @@ public class EntregaService {
 
     @Transactional
     public void sairAtividade(Integer atividadeId, Integer alunoId) {
-        Aluno aluno = userService.requireAluno(alunoId);
+        userService.requireAluno(alunoId);
         Atividade atividade = atividadeRepository.findById(atividadeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada"));
         userService.requireActivityAccess(atividade, false);
-
-        EntregaAtividade entrega = obterOuCriarEntrega(atividade, aluno);
-        if ("CONCLUIDA".equalsIgnoreCase(entrega.getStatusKanban())) {
-            return;
-        }
-
-        entrega.setStatusKanban("A_FAZER");
-        entregaAtividadeRepository.save(entrega);
     }
 
     @Transactional
@@ -106,6 +98,7 @@ public class EntregaService {
         return entrega;
     }
 
+    @Transactional(readOnly = true)
     public List<EntregaDetalheDTO> buscarEntregasDetalhes(Integer atividadeId, Integer professorId) {
         userService.requireProfessor(professorId);
         Atividade atividade = atividadeRepository.findById(atividadeId)
