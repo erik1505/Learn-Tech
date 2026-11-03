@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="../Style/perfil-notificacoes.css">
     <script src="./JS/api.js"></script>
     <script>
-      if (new URLSearchParams(window.location.search).get('demo') !== '1') exigirLogin();
+      exigirLogin();
     </script>
   </head>
   <body class="has-sidebar">
@@ -238,7 +238,6 @@
       <!-- CONTEÚDO PRINCIPAL (linha do tempo) -->
       <main>
         <h1 class="agenda-title">AGENDA <span class="accent-blue">INTELIGENTE</span></h1>
-        <p id="agenda-demo-notice" class="agenda-demo-notice" hidden>Modo de demonstração: atividades fictícias, sem conexão com o back-end. Suas prioridades ficam salvas neste navegador.</p>
         <div class="timeline-viewport">
           <!-- LINHA HORIZONTAL AZUL/CIANO -->
           <div class="horizontal-track-line"></div>

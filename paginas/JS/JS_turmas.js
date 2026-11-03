@@ -146,7 +146,7 @@ async function salvarTurma() {
 
   try {
     if (turmaEditandoId) {
-      if (!modoDemonstracaoAtivo() && typeof atualizarTurma === 'function') {
+      if (typeof atualizarTurma === 'function') {
         await atualizarTurma(turmaEditandoId, quantidade, sala, linkGrupo);
       }
       const idx = turmasCache.findIndex(t => t.id === turmaEditandoId);
@@ -154,14 +154,11 @@ async function salvarTurma() {
       alert("Turma atualizada com sucesso!");
     } else {
       const nova = { id: Date.now(), sala, quantidade, professorNome: "DOCENTE", linkGrupo };
-      if (!modoDemonstracaoAtivo() && typeof criarTurma === 'function') {
+      if (typeof criarTurma === 'function') {
         await criarTurma(quantidade, sala, linkGrupo);
       }
       turmasCache.push(nova);
       alert("Turma criada com sucesso!");
-    }
-    if (modoDemonstracaoAtivo()) {
-      localStorage.setItem("learntech_turmas_demo", JSON.stringify(turmasCache));
     }
     carregarMinhasTurmas();
     showScreen("turmas");
@@ -174,11 +171,8 @@ async function excluirTurmaTela(id) {
   if (!confirm("Tem certeza que deseja excluir esta turma?")) return;
 
   try {
-    if (!modoDemonstracaoAtivo() && typeof excluirTurma === 'function') await excluirTurma(id);
+    if (typeof excluirTurma === 'function') await excluirTurma(id);
     turmasCache = turmasCache.filter(t => t.id !== id);
-    if (modoDemonstracaoAtivo()) {
-      localStorage.setItem("learntech_turmas_demo", JSON.stringify(turmasCache));
-    }
     alert("Turma excluída com sucesso!");
     carregarMinhasTurmas();
   } catch (err) {

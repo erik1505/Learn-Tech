@@ -183,6 +183,7 @@ function restaurarEtapaLogin() {
         && desafio.expiraEm > Date.now()) {
       loginChallengeId = desafio.challengeId;
       document.getElementById('login-codigo-destino').textContent = desafio.destino;
+      document.getElementById('login-alterar-email').classList.toggle('hidden', desafio.canal !== 'SMS');
       document.getElementById('login-codigo-status').textContent = desafio.codigoTesteLocal
         ? `${desafio.mensagem} Código de teste local: ${desafio.codigoTesteLocal}`
         : desafio.mensagem || '';
@@ -249,14 +250,11 @@ async function fazerLogin(evento) {
   }
 }
 
-async function enviarCodigoLogin(evento) {
-  evento.preventDefault();
+async function solicitarCodigoLogin(canal, botao) {
   limparFeedbackAuth();
-  const botao = evento.target.querySelector('button[type="submit"]');
   if (botao) botao.disabled = true;
 
   try {
-    const canal = document.querySelector('input[name="login-canal"]:checked').value;
     mostrarCarregamentoAuth(canal === 'EMAIL' ? 'Enviando o código por e-mail...' : 'Enviando o código por SMS...');
     const resposta = await enviarCodigoLoginApi(loginChallengeId, canal);
     if (!resposta || !resposta.challengeId) {
@@ -269,11 +267,13 @@ async function enviarCodigoLogin(evento) {
     sessionStorage.setItem('learnTech.loginCodeChallenge', JSON.stringify({
       challengeId: resposta.challengeId,
       destino,
+      canal,
       mensagem: resposta.message,
       codigoTesteLocal: resposta.testCode || null,
       expiraEm: Date.now() + 10 * 60 * 1000
     }));
     document.getElementById('login-codigo-destino').textContent = destino;
+    document.getElementById('login-alterar-email').classList.toggle('hidden', canal !== 'SMS');
     const codigoLocal = Boolean(resposta.testCode);
     document.getElementById('login-codigo-intro').textContent = codigoLocal
       ? 'Nenhum SMS foi enviado: este é um teste local.'
@@ -288,6 +288,17 @@ async function enviarCodigoLogin(evento) {
     esconderCarregamentoAuth();
     if (botao) botao.disabled = false;
   }
+}
+
+async function enviarCodigoLogin(evento) {
+  evento.preventDefault();
+  const botao = evento.target.querySelector('button[type="submit"]');
+  const canal = document.querySelector('input[name="login-canal"]:checked').value;
+  await solicitarCodigoLogin(canal, botao);
+}
+
+async function alterarParaEmailLogin() {
+  await solicitarCodigoLogin('EMAIL', document.getElementById('login-alterar-email'));
 }
 
 

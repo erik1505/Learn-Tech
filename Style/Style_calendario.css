@@ -92,18 +92,6 @@ main {
   margin-bottom: 24px;
 }
 
-.agenda-demo-notice {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 0 14px;
-  padding: 12px 16px;
-  border-left: 3px solid #38bdf8;
-  background: rgba(56, 189, 248, 0.1);
-  color: #d8f3ff;
-  font-size: 14.3px;
-  line-height: 1.5;
-}
-
 /* GRADE / PAINEL DA TRILHA DE ATIVIDADES */
 .timeline-viewport {
   width: 100%;
@@ -186,22 +174,6 @@ main {
   transform: scale(1.04);
   border-color: #7dd3fc;
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.65), 0 0 18px rgba(56, 189, 248, 0.2);
-}
-
-.demo-test-card {
-  border-color: #38bdf8;
-}
-
-.demo-test-badge {
-  align-self: flex-start;
-  padding: 4px 8px;
-  border: 1px solid rgba(56, 189, 248, 0.55);
-  border-radius: 999px;
-  background: rgba(56, 189, 248, 0.12);
-  color: #7dd3fc;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.6px;
 }
 
 .activity-card .card-title {

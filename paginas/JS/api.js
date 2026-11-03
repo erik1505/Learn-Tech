@@ -85,14 +85,10 @@ function salvarUsuario(u) { localStorage.setItem("usuario", JSON.stringify(u)); 
 function usuarioLogado() {
   try { return JSON.parse(localStorage.getItem("usuario") || "null"); } catch (e) { return null; }
 }
-function modoDemonstracaoAtivo() {
-  const usuario = usuarioLogado();
-  return !!(usuario && usuario.modoDemonstracao);
-}
 async function sair() {
   const usuario = usuarioLogado();
   localStorage.removeItem("usuario");
-  if (usuario && usuario.accessToken && !usuario.modoDemonstracao) {
+  if (usuario && usuario.accessToken) {
     const resposta = await fetch(API + "/auth/logout", {
       method: "POST",
       headers: { Authorization: "Bearer " + usuario.accessToken }
@@ -106,7 +102,7 @@ function ehProfessor() { const u = usuarioLogado(); return !!u && u.role === "PR
 
 function exigirLogin() {
   const usuario = usuarioLogado();
-  if (!usuario || (!usuario.accessToken && !usuario.modoDemonstracao)) {
+  if (!usuario || !usuario.accessToken) {
     sair();
     location.href = "autenticacao.html";
   }
@@ -430,66 +426,8 @@ function estaDesbloqueada(atividade) {
 async function minhasTurmas() {
   const u = usuarioLogado();
   if (!u) return [];
-  if (u.modoDemonstracao) {
-    try {
-      return JSON.parse(localStorage.getItem("learntech_turmas_demo") || "[]");
-    } catch (e) {
-      return [];
-    }
-  }
   const perfilId = u.perfilId || u.professorId || u.alunoId || u.id;
   return u.role === "PROFESSOR" ? turmasDoProfessor(perfilId) : turmasDoAluno(perfilId);
-}
-
-function entrarModoDemonstracao() {
-  const turmaId = 900001;
-  const chaveTurmas = "learntech_turmas_demo";
-  const chaveAtividades = "learntech_atividades_db";
-  let turmas = [];
-  let atividades = [];
-
-  try { turmas = JSON.parse(localStorage.getItem(chaveTurmas) || "[]"); } catch (e) {}
-  try { atividades = JSON.parse(localStorage.getItem(chaveAtividades) || "[]"); } catch (e) {}
-
-  if (!turmas.some(turma => turma.id === turmaId)) {
-    turmas.push({
-      id: turmaId,
-      sala: "Turma de demonstração",
-      quantidade: 24,
-      professorNome: "Professor de teste",
-      linkGrupo: "#"
-    });
-  }
-
-  if (!atividades.some(atividade => atividade.id === turmaId)) {
-    atividades.push({
-      id: turmaId,
-      turmaId,
-      titulo: "Atividade de demonstração",
-      descricao: "Atividade padrão para testar a navegação, edição e recursos da turma.",
-      prazo: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      status: "A_FAZER",
-      disciplinaNome: "Matemática",
-      nota: 8.5,
-      persistida: false
-    });
-  } else {
-    const atividadeDemo = atividades.find(atividade => atividade.id === turmaId);
-    atividadeDemo.disciplinaNome = atividadeDemo.disciplinaNome || "Matemática";
-    if (atividadeDemo.nota == null) atividadeDemo.nota = 8.5;
-  }
-
-  localStorage.setItem(chaveTurmas, JSON.stringify(turmas));
-  localStorage.setItem(chaveAtividades, JSON.stringify(atividades));
-  salvarUsuario({
-    id: turmaId,
-    perfilId: turmaId,
-    nome: "Professor de demonstração",
-    email: "professor.demo@learntech.local",
-    role: "PROFESSOR",
-    modoDemonstracao: true
-  });
-  window.location.href = "turmas.html";
 }
 
 async function minhasAtividades() {

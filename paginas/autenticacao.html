@@ -113,9 +113,6 @@
             <div class="btn-submit-container">
               <button type="submit" class="btn-submit">LOGAR</button>
             </div>
-            <div class="btn-submit-container demo-access-container">
-              <button type="button" class="btn-demo-access" onclick="entrarModoDemonstracao()">ACESSAR MODO DEMONSTRAÇÃO</button>
-            </div>
           </form>
 
           <!-- ESCOLHA DO CANAL DE DUPLA VALIDAÇÃO -->
@@ -136,6 +133,7 @@
                 Modo de teste local: nenhum SMS será enviado; o código aparecerá na próxima tela.
               </p>
             <div class="auth-links">
+              <span id="login-alterar-email" class="link-helper hidden" onclick="alterarParaEmailLogin()">Alterar para e-mail</span>
               <span class="link-helper" onclick="setAuthMode('login')">Voltar ao login</span>
             </div>
             <div class="btn-submit-container">
