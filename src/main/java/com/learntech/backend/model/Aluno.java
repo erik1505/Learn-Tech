@@ -7,8 +7,11 @@ import jakarta.persistence.*;
 public class Aluno {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "RA")
-    private Integer ra;
+    @Column(name = "Id_aluno")
+    private Integer id;
+
+    @Column(name = "RA", nullable = false, unique = true, length = 100)
+    private String ra;
 
     @Column(name = "Nome", nullable = false, length = 100)
     private String nome;
@@ -23,7 +26,9 @@ public class Aluno {
     @JoinColumn(name = "`idUsuário`")
     private Usuario usuario;
 
-    public Integer getRa() { return ra; }
+    public Integer getId() { return id; }
+    public String getRa() { return ra; }
+    public void setRa(String ra) { this.ra = ra; }
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public String getEmail() { return email; }

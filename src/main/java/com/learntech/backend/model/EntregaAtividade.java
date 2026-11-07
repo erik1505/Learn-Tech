@@ -17,7 +17,7 @@ public class EntregaAtividade {
     private Atividade atividade;
 
     @ManyToOne
-    @JoinColumn(name = "RA")
+    @JoinColumn(name = "Id_aluno", referencedColumnName = "Id_aluno")
     private Aluno aluno;
 
     @Column(name = "texto_comentario", columnDefinition = "TEXT")

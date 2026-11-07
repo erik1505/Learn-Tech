@@ -203,6 +203,7 @@ public class SchoolCsvImportService {
         }
         Aluno aluno = new Aluno();
         aluno.setUsuario(user);
+        aluno.setRa(person.externalCode());
         aluno.setNome(person.name());
         aluno.setEmail(person.email());
         aluno.setTelefone(person.phone());
@@ -225,6 +226,10 @@ public class SchoolCsvImportService {
             professor.setTelefone(person.phone());
             professores.save(professor);
         } else if (profile instanceof Aluno aluno) {
+            alunos.findByRa(person.externalCode())
+                    .filter(existing -> !existing.getId().equals(aluno.getId()))
+                    .ifPresent(existing -> { throw conflict("O RA " + person.externalCode() + " já pertence a outro aluno."); });
+            aluno.setRa(person.externalCode());
             aluno.setNome(person.name());
             aluno.setEmail(person.email());
             aluno.setTelefone(person.phone());

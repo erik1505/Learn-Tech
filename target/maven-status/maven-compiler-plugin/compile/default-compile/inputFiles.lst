@@ -1,9 +1,12 @@
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/LearnTechApplication.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/config/AlunoIdSchemaMigration.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/config/BearerTokenAuthenticationFilter.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/config/CorsConfig.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/config/PasswordEncoderConfig.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/config/ReminderSchemaInitializer.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/config/SchoolCsvImportRunner.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/config/SecurityConfig.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/config/VerificationEmailAsyncConfiguration.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/controller/AtividadeController.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/controller/AuthController.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/controller/DisciplinaController.java
@@ -39,10 +42,12 @@
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/Atividade.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/AuthSession.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/Disciplina.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/EmailCodeRateLimit.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/EmailVerificationCode.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/EmailVerificationPurpose.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/EntregaAtividade.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/Escola.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/LembreteEntrega.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/Matricula.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/Notificacao.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/model/PostIt.java
@@ -56,9 +61,11 @@
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/AtividadeRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/AuthSessionRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/DisciplinaRepository.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/EmailCodeRateLimitRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/EmailVerificationCodeRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/EntregaAtividadeRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/EscolaRepository.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/LembreteEntregaRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/MatriculaRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/NotificacaoRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/PostItRepository.java
@@ -68,6 +75,9 @@
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/repository/VinculoEscolaRepository.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/AuthSessionService.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/AuthenticatedUser.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/DeadlineReminderProcessor.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/DeadlineReminderScheduler.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/EmailCodeRateLimiter.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/EmailVerificationService.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/EntregaService.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/LocalSmsGatewayService.java
@@ -76,3 +86,6 @@
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/TurmaService.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/UserProfile.java
 /workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/UserService.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/VerificationEmailDispatcher.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/VerificationEmailRequest.java
+/workspaces/Learn-Tech/src/main/java/com/learntech/backend/service/VerificationEmailSender.java

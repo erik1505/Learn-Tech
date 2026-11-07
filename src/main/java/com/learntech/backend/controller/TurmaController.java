@@ -40,14 +40,13 @@ public class TurmaController {
         return ResponseEntity.ok(turmaService.listarPorAluno(alunoId));
     }
 
-    @GetMapping("/disponiveis")
-    public ResponseEntity<List<Responses.TurmaResponse>> turmasDisponiveisParaAluno(@RequestParam Integer alunoId) {
-        return ResponseEntity.ok(turmaService.listarDisponiveisParaAluno(alunoId));
+    @GetMapping("/{turmaId}/integrantes")
+    public ResponseEntity<List<Responses.TurmaIntegranteResponse>> integrantes(@PathVariable Integer turmaId) {
+        return ResponseEntity.ok(turmaService.listarIntegrantes(turmaId));
     }
 
-    @PostMapping("/{turmaId}/matriculas")
-    public ResponseEntity<Responses.TurmaResponse> matricularAluno(
-            @PathVariable Integer turmaId, @RequestParam Integer alunoId) {
-        return ResponseEntity.ok(turmaService.matricularAluno(turmaId, alunoId));
+    @PostMapping("/convites/{codigoConvite}/entrar")
+    public ResponseEntity<Responses.TurmaResponse> entrarPorConvite(@PathVariable String codigoConvite) {
+        return ResponseEntity.ok(turmaService.matricularPorConvite(codigoConvite));
     }
 }

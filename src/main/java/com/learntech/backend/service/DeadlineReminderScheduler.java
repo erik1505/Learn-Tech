@@ -39,7 +39,7 @@ public class DeadlineReminderScheduler {
 
         for (Atividade atividade : atividades.findByPrazoLessThan(fim)) {
             Integer turmaId = atividade.getDisciplina().getTurma().getId();
-            for (Integer alunoRa : matriculas.findDistinctAlunoRasByTurmaIdAndStatusIgnoreCase(
+            for (String alunoRa : matriculas.findDistinctAlunoRasByTurmaIdAndStatusIgnoreCase(
                     turmaId, "ATIVA")) {
                 try {
                     processor.enviarSeNecessario(atividade.getId(), alunoRa, hoje);

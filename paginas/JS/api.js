@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /* ---------- autenticacao e perfil ---------- */
 
-const cadastrar = (nome, email, senha, role, telefone) =>
+const cadastrar = (nome, email, senha, role, telefone, ra) =>
   request("/auth/cadastro", { 
     method: "POST", 
     body: { 
@@ -147,7 +147,8 @@ const cadastrar = (nome, email, senha, role, telefone) =>
       email, 
       senha, 
       role, 
-      telefone: String(telefone || "").replace(/\D/g, '') 
+      telefone: String(telefone || "").replace(/\D/g, ''),
+      ra: ra || null
     } 
   });
 
@@ -174,20 +175,9 @@ const atualizarPerfil = (id, nome, email) =>
 const listarTurmas = () => request("/turmas");
 const turmasDoProfessor = (id) => request("/turmas/professor/" + id);
 const turmasDoAluno = (id) => request("/turmas/aluno/" + id);
-const turmasDisponiveisParaAluno = (alunoId) => {
-  if (!alunoId) {
-    const u = usuarioLogado();
-    alunoId = u ? (u.perfilId || u.alunoId || u.id) : null;
-  }
-  return request("/turmas/disponiveis?alunoId=" + alunoId);
-};
-const matricularAlunoNaTurma = (turmaId, alunoId) => {
-  if (!alunoId) {
-    const u = usuarioLogado();
-    alunoId = u ? (u.perfilId || u.alunoId || u.id) : null;
-  }
-  return request("/turmas/" + turmaId + "/matriculas?alunoId=" + alunoId, { method: "POST" });
-};
+const entrarEmTurmaPorConvite = (codigoConvite) =>
+  request("/turmas/convites/" + encodeURIComponent(codigoConvite) + "/entrar", { method: "POST" });
+const integrantesDaTurma = (turmaId) => request("/turmas/" + turmaId + "/integrantes");
 
 const criarTurma = (quantidade, sala, linkGrupo, professorId) => {
   if (!professorId) {

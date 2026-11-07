@@ -14,7 +14,7 @@ public class Matricula {
     private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "RA")
+    @JoinColumn(name = "Id_aluno", referencedColumnName = "Id_aluno")
     private Aluno aluno;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

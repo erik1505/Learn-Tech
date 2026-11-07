@@ -6,7 +6,17 @@ let turmasCache = [];
 let turmaEditandoId = null;
 
 document.addEventListener("DOMContentLoaded", function () {
-  carregarMinhasTurmas();
+  const convitePendente = new URLSearchParams(window.location.search).get("convite");
+  if (convitePendente && !usuarioLogado()) {
+    sessionStorage.setItem("learnTech.convite", convitePendente);
+    window.location.href = "autenticacao.html";
+    return;
+  }
+  if (convitePendente) {
+    entrarPorConvite(convitePendente);
+  } else {
+    carregarMinhasTurmas();
+  }
 
   // Fecha menus suspenso contextuais ao clicar fora deles
   document.addEventListener("click", function () {
@@ -26,26 +36,11 @@ function showScreen(screen) {
 
 async function carregarMinhasTurmas() {
   const container = document.getElementById("turmas-lista");
-  const disponiveisContainer = document.getElementById("turmas-disponiveis");
-  const tituloDisponiveis = document.getElementById("titulo-turmas-disponiveis");
-  const usuario = usuarioLogado();
   try {
-    if (usuario && usuario.role === "ALUNO") {
-      const resultado = await Promise.all([minhasTurmas(), turmasDisponiveisParaAluno()]);
-      turmasCache = resultado[0];
-      disponiveisContainer.innerHTML = resultado[1].length
-        ? resultado[1].map(t => cardTurmaHTML(t, true)).join("")
-        : "<p>Nenhuma turma disponível para entrar.</p>";
-      tituloDisponiveis.classList.remove("hidden");
-    } else {
-      turmasCache = await minhasTurmas();
-      disponiveisContainer.innerHTML = "";
-      tituloDisponiveis.classList.add("hidden");
-    }
+    turmasCache = await minhasTurmas();
   } catch (err) {
     console.error("Não foi possível carregar as turmas do servidor.", err);
     turmasCache = [];
-    disponiveisContainer.innerHTML = "";
     container.innerHTML = `<p>Erro ao carregar as turmas: ${esc(err.message || "falha de conexão")}</p>`;
     return;
   }
@@ -59,7 +54,7 @@ async function carregarMinhasTurmas() {
 }
 
 /* RENDERIZAÇÃO DOS CARDS COM CLASSES E ESTRUTURA CSS */
-function cardTurmaHTML(t, disponivel = false) {
+function cardTurmaHTML(t) {
   const professor = typeof ehProfessor === 'function' ? ehProfessor() : true;
   const safeSala = typeof esc === 'function' ? esc(t.sala) : t.sala;
   const safeProf = typeof esc === 'function' ? esc(t.professorNome || "DOCENTE") : (t.professorNome || "DOCENTE");
@@ -80,26 +75,79 @@ function cardTurmaHTML(t, disponivel = false) {
           <div id="menu-turma-${t.id}" class="context-menu-dropdown">
             ${professor ? `<button type="button" class="context-item" onclick="editarTurmaTela(${t.id})">EDITAR</button>` : ""}
             ${professor ? `<button type="button" class="context-item" onclick="excluirTurmaTela(${t.id})">EXCLUIR</button>` : ""}
+            ${professor ? `<button type="button" class="context-item" onclick="copiarLinkConvite('${esc(t.codigoConvite || "")}')">COPIAR CONVITE</button>` : ""}
+            ${professor ? `<button type="button" class="context-item" onclick="verIntegrantesTurma(${t.id})">VER INTEGRANTES</button>` : ""}
             <button type="button" class="context-item" onclick="window.open('${safeLink}', '_blank')">ENTRAR NO GRUPO</button>
           </div>
         </div>
       </div>
-      ${disponivel
-        ? `<button type="button" class="btn-ver-atividade" onclick="matricularNaTurma(${t.id}, this)">ENTRAR NA TURMA</button>`
-        : `<a href="atividades.html?turma=${t.id}" class="btn-ver-atividade">Ver atividade</a>`}
+      <a href="atividades.html?turma=${t.id}" class="btn-ver-atividade">Ver atividade</a>
     </div>
   `;
 }
 
-async function matricularNaTurma(turmaId, botao) {
-  botao.disabled = true;
+async function verIntegrantesTurma(turmaId) {
+  const modal = document.getElementById("integrantes-modal");
+  const conteudo = document.getElementById("integrantes-conteudo");
+  const turma = turmasCache.find(item => item.id === turmaId);
+  document.getElementById("integrantes-titulo").textContent =
+    "Integrantes — " + (turma ? turma.sala : "Turma");
+  conteudo.innerHTML = "<p>Carregando integrantes...</p>";
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+
   try {
-    await matricularAlunoNaTurma(turmaId);
-    alert("Matrícula realizada! A turma e suas atividades já estão disponíveis.");
-    await carregarMinhasTurmas();
+    const integrantes = await integrantesDaTurma(turmaId);
+    if (!integrantes.length) {
+      conteudo.innerHTML = "<p>Nenhum aluno matriculado nesta turma.</p>";
+      return;
+    }
+
+    conteudo.innerHTML = `
+      <div class="integrantes-tabela-wrapper">
+        <table class="integrantes-tabela">
+          <thead><tr><th>Nome</th><th>RA</th><th>E-mail</th><th>Média das notas</th></tr></thead>
+          <tbody>${integrantes.map(aluno => `
+            <tr>
+              <td>${esc(aluno.nome)}</td>
+              <td>${esc(aluno.ra)}</td>
+              <td>${esc(aluno.email)}</td>
+              <td>${aluno.mediaNota == null ? "—" : esc(new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 }).format(aluno.mediaNota))}</td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>`;
   } catch (err) {
-    alert("Não foi possível entrar na turma: " + err.message);
-    botao.disabled = false;
+    conteudo.innerHTML = `<p>Erro ao carregar integrantes: ${esc(err.message || "falha de conexão")}</p>`;
+  }
+}
+
+function fecharIntegrantesTurma() {
+  const modal = document.getElementById("integrantes-modal");
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
+}
+
+async function entrarPorConvite(codigo) {
+  try {
+    await entrarEmTurmaPorConvite(codigo);
+    sessionStorage.removeItem("learnTech.convite");
+    history.replaceState(null, "", window.location.pathname);
+    alert("Você entrou na turma com sucesso.");
+    await carregarMinhasTurmas();
+  } catch (erro) {
+    alert("Não foi possível entrar na turma: " + erro.message);
+  }
+}
+
+async function copiarLinkConvite(codigo) {
+  if (!codigo) return;
+  const link = new URL("turmas.html?convite=" + encodeURIComponent(codigo), window.location.href).href;
+  try {
+    await navigator.clipboard.writeText(link);
+    alert("Link de convite copiado.");
+  } catch {
+    window.prompt("Copie o link de convite:", link);
   }
 }
 
@@ -153,14 +201,14 @@ async function salvarTurma() {
       if (idx !== -1) turmasCache[idx] = { ...turmasCache[idx], sala, quantidade, linkGrupo };
       alert("Turma atualizada com sucesso!");
     } else {
-      const nova = { id: Date.now(), sala, quantidade, professorNome: "DOCENTE", linkGrupo };
+      let nova;
       if (typeof criarTurma === 'function') {
-        await criarTurma(quantidade, sala, linkGrupo);
+        nova = await criarTurma(quantidade, sala, linkGrupo);
       }
-      turmasCache.push(nova);
+      if (nova) turmasCache.push(nova);
       alert("Turma criada com sucesso!");
     }
-    carregarMinhasTurmas();
+    await carregarMinhasTurmas();
     showScreen("turmas");
   } catch (err) {
     alert("Erro ao salvar turma: " + err.message);
@@ -174,7 +222,7 @@ async function excluirTurmaTela(id) {
     if (typeof excluirTurma === 'function') await excluirTurma(id);
     turmasCache = turmasCache.filter(t => t.id !== id);
     alert("Turma excluída com sucesso!");
-    carregarMinhasTurmas();
+    await carregarMinhasTurmas();
   } catch (err) {
     alert("Não foi possível excluir a turma: " + err.message);
   }

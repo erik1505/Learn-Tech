@@ -111,7 +111,7 @@ public class EntregaService {
 
         return entregas.stream().map(e -> new EntregaDetalheDTO(
                 e.getId(),
-                e.getAluno().getRa(),
+                e.getAluno().getId(),
                 e.getAluno().getNome(),
                 e.getAluno().getEmail(),
                 e.getTextoComentario(),

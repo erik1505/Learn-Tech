@@ -9,11 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../Style/Style_base.css">
     <link rel="stylesheet" href="../Style/Style.css">
-    <link rel="stylesheet" href="../Style/Style_turma.css">
+    <link rel="stylesheet" href="../Style/Style_turma.css?v=2">
     <link rel="stylesheet" href="../Style/Style_sidebar.css?v=5">
     <link rel="stylesheet" href="../Style/style_footer.css">
     <link rel="stylesheet" href="../Style/perfil-notificacoes.css">
-    <script src="./JS/api.js?v=4"></script>
+    <script src="./JS/api.js?v=5"></script>
     <script>exigirLogin();</script>
   </head>
   <body class="has-sidebar">
@@ -141,8 +141,6 @@
           <button type="button" class="btn-round-action" onclick="novaTurma()">NOVA TURMA</button>
         </div>
         <div class="turmas-row" id="turmas-lista"></div>
-        <h2 id="titulo-turmas-disponiveis" class="page-title hidden">TURMAS <span class="accent-blue">DISPONÍVEIS</span></h2>
-        <div class="turmas-row" id="turmas-disponiveis"></div>
       </main>
 
       <!-- TELA 2: EDIÇÃO/CRIAÇÃO DE TURMAS -->
@@ -167,6 +165,18 @@
           </div>
         </form>
       </main>
+
+      <section id="integrantes-modal" class="integrantes-modal hidden" role="dialog"
+               aria-modal="true" aria-labelledby="integrantes-titulo" aria-hidden="true">
+        <div class="integrantes-modal-card">
+          <div class="integrantes-modal-header">
+            <h2 id="integrantes-titulo">Integrantes da turma</h2>
+            <button type="button" class="integrantes-fechar" onclick="fecharIntegrantesTurma()"
+                    aria-label="Fechar lista de integrantes">&times;</button>
+          </div>
+          <div id="integrantes-conteudo"><p>Carregando integrantes...</p></div>
+        </div>
+      </section>
 
       <footer class="footer">
         <div class="footer-brand">
@@ -200,6 +210,6 @@
 
     <script src="./JS/JS_sidebar.js?v=3"></script>
     <script src="./JS/perfil-notificacoes.js"></script>
-    <script src="./JS/JS_turmas.js?v=2"></script>
+    <script src="./JS/JS_turmas.js?v=3"></script>
   </body>
 </html>

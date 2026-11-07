@@ -7,5 +7,5 @@ import java.time.LocalDate;
 
 public interface LembreteEntregaRepository extends JpaRepository<LembreteEntrega, Integer> {
     boolean existsByAtividadeIdAndAlunoRaAndDataLembrete(
-            Integer atividadeId, Integer alunoRa, LocalDate dataLembrete);
+            Integer atividadeId, String alunoRa, LocalDate dataLembrete);
 }

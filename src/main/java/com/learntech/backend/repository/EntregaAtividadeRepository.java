@@ -12,7 +12,10 @@ public interface EntregaAtividadeRepository extends JpaRepository<EntregaAtivida
     @EntityGraph(attributePaths = {"aluno", "atividade"})
     List<EntregaAtividade> findByAtividadeId(Integer atividadeId);
 
-    Optional<EntregaAtividade> findByAtividadeIdAndAlunoRa(Integer atividadeId, Integer ra);
+    @EntityGraph(attributePaths = {"aluno", "atividade", "atividade.disciplina", "atividade.disciplina.turma"})
+    List<EntregaAtividade> findByAtividadeDisciplinaTurmaId(Integer turmaId);
 
-    List<EntregaAtividade> findByAlunoRa(Integer ra);
+    Optional<EntregaAtividade> findByAtividadeIdAndAlunoRa(Integer atividadeId, String ra);
+
+    List<EntregaAtividade> findByAlunoRa(String ra);
 }

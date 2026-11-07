@@ -24,5 +24,8 @@ public record RegisterRequest(
 
         @NotBlank(message = "O telefone é obrigatório")
         @Pattern(regexp = "[1-9][0-9]{9,10}", message = "Informe um telefone com DDD e 10 ou 11 dígitos")
-        String telefone
+        String telefone,
+
+        @jakarta.validation.constraints.Size(max = 100, message = "O RA deve ter no máximo 100 caracteres")
+        String ra
 ) {}

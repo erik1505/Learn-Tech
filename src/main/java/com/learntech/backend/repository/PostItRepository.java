@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface PostItRepository extends JpaRepository<PostIt, Integer> {
-    List<PostIt> findByAlunoRaAndAtividadeId(Integer ra, Integer atividadeId);
+    List<PostIt> findByAlunoRaAndAtividadeId(String ra, Integer atividadeId);
 }

@@ -83,6 +83,13 @@ public class UserService {
     @Transactional
     public UserProfile register(RegisterRequest request) {
         String email = request.email().trim().toLowerCase();
+        String ra = request.ra() == null ? null : request.ra().trim();
+        if (request.role() == Role.ALUNO && (ra == null || ra.isBlank())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O RA é obrigatório para alunos");
+        }
+        if (ra != null && !ra.isBlank() && alunos.findByRa(ra).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "RA já cadastrado");
+        }
         if (usuarios.existsByLoginIgnoreCase(email)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado");
         }
@@ -103,6 +110,7 @@ public class UserService {
             a.setNome(request.nome());
             a.setEmail(email);
             a.setTelefone(request.telefone());
+            a.setRa(ra);
             a.setUsuario(usuario);
             alunos.save(a);
         }
@@ -229,11 +237,11 @@ public class UserService {
         var prof = professores.findByUsuarioId(usuarioId);
         if (prof.isPresent()) {
             Professor p = prof.get();
-            return new UserProfile(usuarioId, p.getId(), p.getNome(), p.getEmail(), p.getTelefone(), Role.PROFESSOR);
+            return new UserProfile(usuarioId, p.getId(), p.getNome(), p.getEmail(), p.getTelefone(), null, Role.PROFESSOR);
         }
         Aluno a = alunos.findByUsuarioId(usuarioId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Perfil não encontrado"));
-        return new UserProfile(usuarioId, a.getRa(), a.getNome(), a.getEmail(), a.getTelefone(), Role.ALUNO);
+        return new UserProfile(usuarioId, a.getId(), a.getNome(), a.getEmail(), a.getTelefone(), a.getRa(), Role.ALUNO);
     }
 
     @Transactional
@@ -276,7 +284,7 @@ public class UserService {
         Aluno aluno = alunos.findById(alunoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Somente aluno pode realizar esta ação"));
         AuthenticatedUser current = currentUser();
-        if (current.role() != Role.ALUNO || !current.perfilId().equals(aluno.getRa())) {
+        if (current.role() != Role.ALUNO || !current.perfilId().equals(aluno.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ação não autorizada para este aluno");
         }
         return aluno;
@@ -313,8 +321,9 @@ public class UserService {
             }
             return;
         }
-        if (professorOnly || current.role() != Role.ALUNO
-                || !matriculas.existsByAlunoRaAndTurmaIdAndStatusIgnoreCase(current.perfilId(), turmaId, "ATIVA")) {
+        Aluno aluno = current.role() == Role.ALUNO ? alunos.findById(current.perfilId()).orElse(null) : null;
+        if (professorOnly || aluno == null
+            || !matriculas.existsByAlunoRaAndTurmaIdAndStatusIgnoreCase(aluno.getRa(), turmaId, "ATIVA")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso não autorizado a esta turma");
         }
     }
@@ -326,7 +335,7 @@ public class UserService {
         requireTurmaAccess(atividade.getDisciplina().getTurma().getId(), professorOnly);
     }
 
-    public void requireStudentEnrollmentForCurrentTeacher(Integer turmaId, Integer alunoRa) {
+    public void requireStudentEnrollmentForCurrentTeacher(Integer turmaId, String alunoRa) {
         requireTurmaAccess(turmaId, true);
         if (!matriculas.existsByAlunoRaAndTurmaIdAndStatusIgnoreCase(alunoRa, turmaId, "ATIVA")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "O aluno não está matriculado nesta turma");

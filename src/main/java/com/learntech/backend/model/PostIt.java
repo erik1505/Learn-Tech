@@ -21,7 +21,7 @@ public class PostIt {
     private Atividade atividade;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "RA")
+    @JoinColumn(name = "Id_aluno", referencedColumnName = "Id_aluno")
     private Aluno aluno;
 
     public Integer getId() { return id; }

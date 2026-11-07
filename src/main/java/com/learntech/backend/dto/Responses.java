@@ -18,21 +18,29 @@ public final class Responses {
     }
 
     public record TurmaResponse(Integer id, Integer quantidade, String sala, String linkGrupo,
-                                Integer professorId, Integer professorUsuarioId, String professorNome) {}
+                                Integer professorId, Integer professorUsuarioId, String professorNome,
+                                String codigoConvite) {}
+    public record TurmaIntegranteResponse(String nome, String ra, String email, Double mediaNota) {}
     public record DisciplinaResponse(Integer id, String nome, String status, Integer turmaId) {}
     public record AtividadeResponse(Integer id, String titulo, String descricao, LocalDateTime prazo,
                                     ActivityStatus status, Integer disciplinaId, String disciplinaNome, Integer turmaId) {}
-    public record EntregaResponse(Integer id, Integer atividadeId, Integer alunoId, Integer ra, String arquivoUrl,
+    public record EntregaResponse(Integer id, Integer atividadeId, Integer alunoId, String ra, String arquivoUrl,
                                   LocalDateTime enviadaEm, Integer nota, Priority prioridade, ActivityStatus statusKanban, String alunoNome) {}
     public record NotificacaoResponse(Integer id, String titulo, String mensagem, String icone,
                                       boolean lida, LocalDateTime criadaEm) {}
     public record PostItResponse(Integer id, String titulo, String conteudo, Integer atividadeId) {}
-    public record UserResponse(Integer id, Integer perfilId, String nome, String email, String telefone, Role role) {}
+    public record UserResponse(Integer id, Integer perfilId, String nome, String email, String telefone,
+                               String ra, Role role) {}
 
     public static TurmaResponse of(Turma t) {
+        return of(t, false);
+    }
+
+    public static TurmaResponse of(Turma t, boolean incluirConvite) {
         Professor p = t.getProfessor();
         return new TurmaResponse(t.getId(), t.getQuantidade(), t.getSala(), t.getLinkGrupo(), p.getId(),
-                p.getUsuario() == null ? null : p.getUsuario().getId(), p.getNome());
+                p.getUsuario() == null ? null : p.getUsuario().getId(), p.getNome(),
+                incluirConvite ? t.getCodigoConvite() : null);
     }
 
     public static DisciplinaResponse of(Disciplina d) {
@@ -94,6 +102,6 @@ public final class Responses {
     }
 
     public static UserResponse of(UserProfile u) {
-        return new UserResponse(u.usuarioId(), u.perfilId(), u.nome(), u.email(), u.telefone(), u.role());
+        return new UserResponse(u.usuarioId(), u.perfilId(), u.nome(), u.email(), u.telefone(), u.ra(), u.role());
     }
 }

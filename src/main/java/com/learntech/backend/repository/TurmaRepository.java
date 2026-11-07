@@ -12,9 +12,10 @@ public interface TurmaRepository extends JpaRepository<Turma, Integer> {
 
     List<Turma> findByProfessorId(Integer professorId);
     Optional<Turma> findByEscolaIdAndCodigoExterno(Integer escolaId, String codigoExterno);
+    Optional<Turma> findByCodigoConvite(String codigoConvite);
     List<Turma> findByEscolaIdIn(List<Integer> escolaIds);
     List<Turma> findByEscolaIsNull();
 
-    @Query("SELECT m.turma FROM Matricula m WHERE m.aluno.ra = :alunoId")
+    @Query("SELECT m.turma FROM Matricula m WHERE m.aluno.id = :alunoId")
     List<Turma> findByAlunoId(@Param("alunoId") Integer alunoId);
 }

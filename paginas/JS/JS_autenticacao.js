@@ -66,6 +66,11 @@ function valorDe(id) {
 
 function entrarNoSistema(usuario) {
   salvarUsuario(usuario);
+  const convite = sessionStorage.getItem('learnTech.convite');
+  if (convite && usuario.role === 'ALUNO') {
+    window.location.href = 'turmas.html?convite=' + encodeURIComponent(convite);
+    return;
+  }
   window.location.href = 'dashboard.html';
 }
 
@@ -330,6 +335,7 @@ async function fazerCadastro(evento) {
   const senha = senhaEl ? senhaEl.value : "";
   const role = roleEl ? roleEl.value : "ALUNO";
   const telefone = valorDe('cad-tel').replace(/\D/g, '');
+  const ra = valorDe('cad-ra');
 
   if (!/^[1-9][0-9]{9,10}$/.test(telefone)) {
     alert('Telefone inválido. Informe o DDD e um número com 10 ou 11 dígitos.');
@@ -338,6 +344,10 @@ async function fazerCadastro(evento) {
 
   if (senha.length < 6) {
     alert('A senha precisa ter pelo menos 6 caracteres.');
+    return;
+  }
+  if (role === 'ALUNO' && !ra) {
+    alert('Informe o RA do aluno.');
     return;
   }
 
@@ -351,7 +361,8 @@ async function fazerCadastro(evento) {
       email,
       senha,
       role,
-      telefone
+      telefone,
+      ra
     );
     const senhaCadastro = document.getElementById('cad-senha');
     if (senhaCadastro) senhaCadastro.value = '';
@@ -487,11 +498,24 @@ document.addEventListener('DOMContentLoaded', function () {
   const formLoginCodigo = document.getElementById('form-login-codigo');
   const formCadastro = document.getElementById('form-cadastro');
   const formReset = document.getElementById('form-reset');
+  const cadastroRole = document.getElementById('cad-role');
+  const raWrapper = document.getElementById('cad-ra-wrapper');
+  const raInput = document.getElementById('cad-ra');
+
+  const atualizarCampoRa = () => {
+    const aluno = cadastroRole.value === 'ALUNO';
+    raWrapper.classList.toggle('hidden', !aluno);
+    raInput.required = aluno;
+  };
 
   if (formLogin) formLogin.addEventListener('submit', fazerLogin);
   if (loginChannelForm) loginChannelForm.addEventListener('submit', enviarCodigoLogin);
   if (formLoginCodigo) formLoginCodigo.addEventListener('submit', verificarCodigoLogin);
   if (formCadastro) formCadastro.addEventListener('submit', fazerCadastro);
+  if (cadastroRole && raWrapper && raInput) {
+    cadastroRole.addEventListener('change', atualizarCampoRa);
+    atualizarCampoRa();
+  }
   if (formReset) formReset.addEventListener('submit', redefinirSenha);
   restaurarEtapaLogin();
   restaurarEtapaRedefinicao();

@@ -1,3 +1,4 @@
+com/learntech/backend/service/DeadlineReminderProcessor$1.class
 com/learntech/backend/dto/SolicitarRedefinicaoRequest.class
 com/learntech/backend/dto/EmailCodeRequest.class
 com/learntech/backend/model/EmailVerificationCode.class

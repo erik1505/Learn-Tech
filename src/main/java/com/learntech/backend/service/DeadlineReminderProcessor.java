@@ -40,9 +40,9 @@ public class DeadlineReminderProcessor {
     }
 
     @Transactional
-    public boolean enviarSeNecessario(Integer atividadeId, Integer alunoRa, LocalDate hoje) {
+    public boolean enviarSeNecessario(Integer atividadeId, String alunoRa, LocalDate hoje) {
         Atividade atividade = atividades.findById(atividadeId).orElse(null);
-        Aluno aluno = alunos.findById(alunoRa).orElse(null);
+        Aluno aluno = alunos.findByRa(alunoRa).orElse(null);
         if (atividade == null || aluno == null || aluno.getUsuario() == null) {
             return false;
         }

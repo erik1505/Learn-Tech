@@ -23,11 +23,13 @@ CREATE TABLE Turma (
     Sala VARCHAR(50) NOT NULL,
     Link_grupo VARCHAR(255) NOT NULL,
     idProfessor INT NOT NULL,
+    Codigo_convite VARCHAR(64) UNIQUE,
     FOREIGN KEY (idProfessor) REFERENCES Professor(ID_PROFESSOR)
 );
 
 CREATE TABLE Aluno (
-    RA INT PRIMARY KEY AUTO_INCREMENT,
+    Id_aluno INT PRIMARY KEY AUTO_INCREMENT,
+    RA VARCHAR(100) NOT NULL UNIQUE,
     Nome VARCHAR(100) NOT NULL,
     Email VARCHAR(100) NOT NULL,
     Telefone VARCHAR(20) NOT NULL,
@@ -56,9 +58,9 @@ CREATE TABLE Atividades (
 CREATE TABLE Matricula (
     Id_matricula INT PRIMARY KEY AUTO_INCREMENT,
     Status VARCHAR(50) NOT NULL,
-    RA INT,
+    Id_aluno INT,
     Id_turma INT NOT NULL,
-    FOREIGN KEY (RA) REFERENCES Aluno(RA),
+    FOREIGN KEY (Id_aluno) REFERENCES Aluno(Id_aluno),
     FOREIGN KEY (Id_turma) REFERENCES Turma(Id_turma)
 );
 
@@ -71,9 +73,9 @@ CREATE TABLE Entrega_atividade (
     arquivo_url LONGTEXT,
     Arquivo_enviado LONGTEXT,
     Data_envio DATETIME NOT NULL,
-    RA INT NOT NULL,
+    Id_aluno INT NOT NULL,
     Id_atividade INT NOT NULL,
-    FOREIGN KEY (RA) REFERENCES Aluno(RA),
+    FOREIGN KEY (Id_aluno) REFERENCES Aluno(Id_aluno),
     FOREIGN KEY (Id_atividade) REFERENCES Atividades(Id_atividades)
 );
 
@@ -82,9 +84,9 @@ CREATE TABLE `Post-it` (
     Titulo_post_it VARCHAR(100) NOT NULL,
     Conteudo TEXT NOT NULL,
     Id_atividade INT NOT NULL,
-    RA INT NOT NULL,
+    Id_aluno INT NOT NULL,
     FOREIGN KEY (Id_atividade) REFERENCES Atividades(Id_atividades),
-    FOREIGN KEY (RA) REFERENCES Aluno(RA)
+    FOREIGN KEY (Id_aluno) REFERENCES Aluno(Id_aluno)
 );
 
 CREATE TABLE Notificacao (

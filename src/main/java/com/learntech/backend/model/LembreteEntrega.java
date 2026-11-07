@@ -17,14 +17,14 @@ public class LembreteEntrega {
     private Integer atividadeId;
 
     @Column(name = "RA", nullable = false)
-    private Integer alunoRa;
+    private String alunoRa;
 
     @Column(name = "Data_lembrete", nullable = false)
     private LocalDate dataLembrete;
 
     public LembreteEntrega() {}
 
-    public LembreteEntrega(Integer atividadeId, Integer alunoRa, LocalDate dataLembrete) {
+    public LembreteEntrega(Integer atividadeId, String alunoRa, LocalDate dataLembrete) {
         this.atividadeId = atividadeId;
         this.alunoRa = alunoRa;
         this.dataLembrete = dataLembrete;
