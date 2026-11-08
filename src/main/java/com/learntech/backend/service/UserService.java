@@ -27,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -85,7 +86,7 @@ public class UserService {
         String email = request.email().trim().toLowerCase();
         String ra = request.ra() == null ? null : request.ra().trim();
         if (request.role() == Role.ALUNO && (ra == null || ra.isBlank())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O RA é obrigatório para alunos");
+            ra = gerarRa();
         }
         if (ra != null && !ra.isBlank() && alunos.findByRa(ra).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "RA já cadastrado");
@@ -115,6 +116,15 @@ public class UserService {
             alunos.save(a);
         }
         return profileOf(usuario.getId());
+    }
+
+    private String gerarRa() {
+        String ra;
+        do {
+            ra = "LT-" + UUID.randomUUID().toString().replace("-", "")
+                    .substring(0, 12).toUpperCase(Locale.ROOT);
+        } while (alunos.findByRa(ra).isPresent());
+        return ra;
     }
 
     public LoginChallengeResponse iniciarLogin(String email, String senha, String remoteAddress) {

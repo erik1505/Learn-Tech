@@ -467,6 +467,20 @@ function preencherPerfil() {
   definir('profile-email', usuario.email);
   definir('profile-email-info', usuario.email);
 
+  const infoList = document.querySelector('#profile-panel .profile-info-list');
+  let raRow = getElement('profile-ra-row');
+  if (!raRow && infoList) {
+    raRow = document.createElement('div');
+    raRow.id = 'profile-ra-row';
+    raRow.className = 'profile-info-row';
+    raRow.innerHTML = '<span>RA</span><strong id="profile-ra-info"></strong>';
+    infoList.insertBefore(raRow, infoList.lastElementChild);
+  }
+  if (raRow) {
+    raRow.classList.toggle('hidden', usuario.role !== 'ALUNO');
+    definir('profile-ra-info', usuario.ra || '—');
+  }
+
   const avatar = document.querySelector('.profile-avatar');
 
   if (avatar) {

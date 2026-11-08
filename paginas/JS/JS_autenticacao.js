@@ -346,17 +346,12 @@ async function fazerCadastro(evento) {
     alert('A senha precisa ter pelo menos 6 caracteres.');
     return;
   }
-  if (role === 'ALUNO' && !ra) {
-    alert('Informe o RA do aluno.');
-    return;
-  }
-
   const botao = evento.target.querySelector('button[type="submit"]');
   if (botao) botao.disabled = true;
 
   try {
     const email = valorDe('cad-email');
-    await cadastrar(
+    const usuarioCriado = await cadastrar(
       valorDe('cad-nome'),
       email,
       senha,
@@ -371,7 +366,10 @@ async function fazerCadastro(evento) {
     if (emailLogin) emailLogin.value = email;
     if (senhaLogin) senhaLogin.value = '';
     setAuthMode('login');
-    alert('Conta criada com sucesso! Faça login para continuar.');
+    const mensagemRa = role === 'ALUNO'
+      ? ` Seu RA é ${usuarioCriado.ra}. Anote-o para futuras consultas.`
+      : '';
+    alert(`Conta criada com sucesso!${mensagemRa} Faça login para continuar.`);
     if (botao) botao.disabled = false;
   } catch (erro) {
     mostrarFeedbackAuth(erro.message);
@@ -505,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const atualizarCampoRa = () => {
     const aluno = cadastroRole.value === 'ALUNO';
     raWrapper.classList.toggle('hidden', !aluno);
-    raInput.required = aluno;
+    raInput.required = false;
   };
 
   if (formLogin) formLogin.addEventListener('submit', fazerLogin);

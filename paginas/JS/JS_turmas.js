@@ -140,6 +140,41 @@ async function entrarPorConvite(codigo) {
   }
 }
 
+async function entrarComLinkConvite() {
+  const campo = document.getElementById("link-convite-turma");
+  const linkConvite = campo.value.trim();
+  if (!linkConvite) {
+    alert("Cole o link de convite da turma.");
+    return;
+  }
+
+  let codigo;
+  try {
+    codigo = new URL(linkConvite, window.location.href).searchParams.get("convite");
+  } catch {
+    alert("Informe um link de convite válido.");
+    return;
+  }
+
+  if (!codigo) {
+    alert("O link informado não contém um convite válido.");
+    return;
+  }
+
+  const usuario = usuarioLogado();
+  if (!usuario || !usuario.accessToken) {
+    sessionStorage.setItem("learnTech.convite", codigo);
+    window.location.href = "autenticacao.html";
+    return;
+  }
+  if (usuario.role !== "ALUNO") {
+    alert("Somente alunos podem entrar em uma turma por convite.");
+    return;
+  }
+
+  await entrarPorConvite(codigo);
+}
+
 async function copiarLinkConvite(codigo) {
   if (!codigo) return;
   const link = new URL("turmas.html?convite=" + encodeURIComponent(codigo), window.location.href).href;

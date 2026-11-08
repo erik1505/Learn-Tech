@@ -137,6 +137,13 @@
       <!-- TELA 1: LISTAGEM DE TURMAS -->
       <main id="screen-turmas">
         <h1 class="page-title">TUR<span class="accent-blue">MAS</span></h1>
+        <div class="convite-aluno-panel" data-somente="ALUNO">
+          <label for="link-convite-turma">LINK DE CONVITE DA TURMA</label>
+          <div class="convite-aluno-actions">
+            <input type="url" id="link-convite-turma" placeholder="Cole aqui o link de convite recebido">
+            <button type="button" class="btn-round-action" onclick="entrarComLinkConvite()">ENTRAR NA TURMA</button>
+          </div>
+        </div>
         <div class="actions-row-prof" data-somente="PROFESSOR">
           <button type="button" class="btn-round-action" onclick="novaTurma()">NOVA TURMA</button>
         </div>

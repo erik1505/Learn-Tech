@@ -113,6 +113,7 @@ public class EntregaService {
                 e.getId(),
                 e.getAluno().getId(),
                 e.getAluno().getNome(),
+                e.getAluno().getRa(),
                 e.getAluno().getEmail(),
                 e.getTextoComentario(),
                 e.getArquivoEnviado(),

@@ -717,7 +717,7 @@ function renderizarListaAlunosCorrecao() {
 
   lista.innerHTML = entregasAtividadeAtual.map(e => `
     <div onclick="selecionarEntregaAluno(${e.entregaId})" class="aluno-item-btn" style="background: ${entregaSelecionadaId === e.entregaId ? '#2563eb' : '#0f121d'};">
-      <span><strong>${esc(e.alunoNome)}</strong></span>
+      <span><strong>${esc(e.alunoNome)}</strong><br><small>RA: ${esc(e.alunoRa)}</small></span>
       <span style="font-size: 12.1px; font-weight: bold; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 12px;">
         ${e.nota !== null && e.nota !== undefined ? 'Nota: ' + e.nota : 'Pendente'}
       </span>
@@ -737,6 +737,7 @@ function selecionarEntregaAluno(entregaId) {
 
   porId('nome-aluno-selecionado').textContent = entrega.alunoNome;
   porId('email-aluno-selecionado').textContent = entrega.alunoEmail;
+  porId('ra-aluno-selecionado').textContent = `RA: ${entrega.alunoRa}`;
   porId('texto-aluno-selecionado').textContent = entrega.textoComentario || "Nenhum texto informado pelo aluno.";
 
   const btnBaixar = porId('btn-baixar-arquivo-aluno');

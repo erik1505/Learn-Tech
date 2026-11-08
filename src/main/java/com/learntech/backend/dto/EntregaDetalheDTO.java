@@ -6,6 +6,7 @@ public record EntregaDetalheDTO(
         Integer entregaId,
         Integer alunoId,
         String alunoNome,
+        String alunoRa,
         String alunoEmail,
         String textoComentario,
         String arquivoUrl,
