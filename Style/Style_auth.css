@@ -210,6 +210,24 @@ main {
   font-weight: 600;
 }
 
+.manual-ra-option {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 9px;
+  color: #ffffff;
+  font-size: 14.3px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.manual-ra-option input {
+  width: 16px;
+  height: 16px;
+  accent-color: #38bdf8;
+  cursor: pointer;
+}
+
 /* LINKS DE APOIO / REDIRECIONAMENTO */
 .auth-links {
   display: flex;

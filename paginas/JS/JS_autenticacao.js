@@ -332,10 +332,11 @@ async function fazerCadastro(evento) {
 
   const senhaEl = document.getElementById('cad-senha');
   const roleEl = document.getElementById('cad-role');
+  const raManualEl = document.getElementById('cad-ra-manual');
   const senha = senhaEl ? senhaEl.value : "";
   const role = roleEl ? roleEl.value : "ALUNO";
   const telefone = valorDe('cad-tel').replace(/\D/g, '');
-  const ra = valorDe('cad-ra');
+  const ra = raManualEl && raManualEl.checked ? valorDe('cad-ra') : '';
 
   if (!/^[1-9][0-9]{9,10}$/.test(telefone)) {
     alert('Telefone inválido. Informe o DDD e um número com 10 ou 11 dígitos.');
@@ -344,6 +345,10 @@ async function fazerCadastro(evento) {
 
   if (senha.length < 6) {
     alert('A senha precisa ter pelo menos 6 caracteres.');
+    return;
+  }
+  if (role === 'ALUNO' && raManualEl && raManualEl.checked && !/^[0-9]{1,20}$/.test(ra)) {
+    alert('O RA deve conter somente números e ter até 20 dígitos.');
     return;
   }
   const botao = evento.target.querySelector('button[type="submit"]');
@@ -497,13 +502,22 @@ document.addEventListener('DOMContentLoaded', function () {
   const formCadastro = document.getElementById('form-cadastro');
   const formReset = document.getElementById('form-reset');
   const cadastroRole = document.getElementById('cad-role');
+  const raManualOption = document.getElementById('cad-ra-manual-option');
+  const raManualCheckbox = document.getElementById('cad-ra-manual');
   const raWrapper = document.getElementById('cad-ra-wrapper');
   const raInput = document.getElementById('cad-ra');
 
   const atualizarCampoRa = () => {
     const aluno = cadastroRole.value === 'ALUNO';
-    raWrapper.classList.toggle('hidden', !aluno);
-    raInput.required = false;
+    raManualOption.classList.toggle('hidden', !aluno);
+    if (!aluno) {
+      raManualCheckbox.checked = false;
+    }
+    raWrapper.classList.toggle('hidden', !aluno || !raManualCheckbox.checked);
+    raInput.required = aluno && raManualCheckbox.checked;
+    if (!raManualCheckbox.checked) {
+      raInput.value = '';
+    }
   };
 
   if (formLogin) formLogin.addEventListener('submit', fazerLogin);
@@ -512,6 +526,10 @@ document.addEventListener('DOMContentLoaded', function () {
   if (formCadastro) formCadastro.addEventListener('submit', fazerCadastro);
   if (cadastroRole && raWrapper && raInput) {
     cadastroRole.addEventListener('change', atualizarCampoRa);
+    raManualCheckbox.addEventListener('change', atualizarCampoRa);
+    raInput.addEventListener('input', () => {
+      raInput.value = raInput.value.replace(/[^0-9]/g, '').slice(0, 20);
+    });
     atualizarCampoRa();
   }
   if (formReset) formReset.addEventListener('submit', redefinirSenha);

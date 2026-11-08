@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 public record RegisterRequest(
         @NotBlank(message = "O nome é obrigatório")
@@ -26,6 +25,6 @@ public record RegisterRequest(
         @Pattern(regexp = "[1-9][0-9]{9,10}", message = "Informe um telefone com DDD e 10 ou 11 dígitos")
         String telefone,
 
-        @jakarta.validation.constraints.Size(max = 100, message = "O RA deve ter no máximo 100 caracteres")
+        @Pattern(regexp = "[0-9]{1,20}", message = "O RA deve conter somente números e ter até 20 dígitos")
         String ra
 ) {}

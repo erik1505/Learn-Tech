@@ -27,10 +27,13 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
+import java.security.SecureRandom;
 
 @Service
 public class UserService {
+    private static final SecureRandom RA_RANDOM = new SecureRandom();
+    private static final long LIMITE_RA = 1_000_000_000_000_000_000L;
+
     private final UsuarioRepository usuarios;
     private final ProfessorRepository professores;
     private final AlunoRepository alunos;
@@ -85,6 +88,10 @@ public class UserService {
     public UserProfile register(RegisterRequest request) {
         String email = request.email().trim().toLowerCase();
         String ra = request.ra() == null ? null : request.ra().trim();
+        if (ra != null && !ra.isBlank() && !ra.matches("[0-9]{1,20}")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "O RA deve conter somente números e ter até 20 dígitos");
+        }
         if (request.role() == Role.ALUNO && (ra == null || ra.isBlank())) {
             ra = gerarRa();
         }
@@ -121,8 +128,7 @@ public class UserService {
     private String gerarRa() {
         String ra;
         do {
-            ra = "LT-" + UUID.randomUUID().toString().replace("-", "")
-                    .substring(0, 12).toUpperCase(Locale.ROOT);
+            ra = String.format(Locale.ROOT, "%020d", RA_RANDOM.nextLong(LIMITE_RA));
         } while (alunos.findByRa(ra).isPresent());
         return ra;
     }
