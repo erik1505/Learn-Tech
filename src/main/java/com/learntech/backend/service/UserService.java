@@ -32,7 +32,8 @@ import java.security.SecureRandom;
 @Service
 public class UserService {
     private static final SecureRandom RA_RANDOM = new SecureRandom();
-    private static final long LIMITE_RA = 1_000_000_000_000_000_000L;
+    private static final long MENOR_RA_GERADO = 10_000_000L;
+    private static final long LIMITE_RA_GERADO = 100_000_000L;
 
     private final UsuarioRepository usuarios;
     private final ProfessorRepository professores;
@@ -128,7 +129,7 @@ public class UserService {
     private String gerarRa() {
         String ra;
         do {
-            ra = String.format(Locale.ROOT, "%020d", RA_RANDOM.nextLong(LIMITE_RA));
+            ra = Long.toString(RA_RANDOM.nextLong(MENOR_RA_GERADO, LIMITE_RA_GERADO));
         } while (alunos.findByRa(ra).isPresent());
         return ra;
     }
