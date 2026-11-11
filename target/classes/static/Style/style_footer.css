@@ -1,0 +1,182 @@
+/* ==========================================================
+   LEARN TECH - RODAPÉ
+   Usado em todas as páginas (o HTML do footer é o mesmo).
+   ========================================================== */
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+a.brand:link,
+a.brand:visited,
+a.brand:hover,
+a.brand:active,
+a.brand-logo:link,
+a.brand-logo:visited,
+a.brand-logo:hover,
+a.brand-logo:active,
+a.footer-logo:link,
+a.footer-logo:visited,
+a.footer-logo:hover,
+a.footer-logo:active,
+a.resource-brand:link,
+a.resource-brand:visited,
+a.resource-brand:hover,
+a.resource-brand:active,
+aside.sidebar > div > a {
+  text-decoration: none;
+}
+
+body.has-sidebar {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.page-wrapper,
+.main-wrapper {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.footer {
+  width: 100%;
+  min-height: 125px;
+  background: #263746;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 25px 64px;
+  color: #ffffff;
+  gap: 55px;
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  min-width: 270px;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.footer-logo img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.footer-logo img:hover{
+  transform: scale(1.05);
+}
+
+.footer-logo h2 {
+  margin: 0;
+  font-size: 17.6px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.3px;
+}
+
+.footer-logo h2:hover {
+  transform: scale(1.05);
+}
+
+/* Subtítulo com degradê: o fundo é recortado no formato das letras */
+#footer-subtitulo {
+  background-image: linear-gradient(90deg, #ffffff, #2b74e2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+#footer-subtitulo:hover{
+  transform: scale(1.05);
+}
+
+.footer-logo p {
+  margin-top: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 105px;
+}
+
+.footer-column h3 {
+  margin: 0 0 4px;
+  font-size: 16.5px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+}
+
+.footer-column a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 12.1px;
+  font-weight: 800;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-column a:hover {
+  color: #38bdf8;
+  transform: translateX(2px);
+}
+
+.footer-contact {
+  min-width: 190px;
+}
+
+.footer-contact a {
+  white-space: nowrap;
+}
+
+@media (max-width: 980px) {
+  .footer {
+    flex-wrap: wrap;
+    padding: 25px 30px;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer {
+    justify-content: flex-start;
+    padding: 25px 20px;
+    gap: 30px;
+  }
+
+  .footer-brand {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .footer-column {
+    min-width: 120px;
+  }
+
+  .footer-contact {
+    min-width: 100%;
+  }
+
+  .footer-contact a {
+    white-space: normal;
+  }
+}
